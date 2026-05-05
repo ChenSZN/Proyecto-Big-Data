@@ -19,65 +19,29 @@ st.set_page_config(
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
-    
-    /* 1. FONDO BLANCO */
     .stApp { background-color: #FFFFFF !important; }
-
-    /* 2. REGLA MAESTRA DE COLOR OSCURO */
-    [data-testid="stAppViewContainer"] section.main * {
-        color: #1E3D59 !important;
-        font-family: 'Poppins', sans-serif !important;
-    }
-
-    /* 3. BLINDAJE ESPECÍFICO PARA TEXTO DINÁMICO (st.write, st.markdown) */
-    /* Esto soluciona que el Semáforo de Riesgo sea blanco */
-    [data-testid="stMarkdownContainer"] * {
-        color: #1E3D59 !important;
-    }
-
-    /* 4. BLINDAJE DE TÍTULOS */
-    h1, h2, h3, .section-title {
-        color: #1E3D59 !important;
-        font-weight: 800 !important;
-    }
-
-    .section-title {
-        border-left: 10px solid #FF6E40 !important;
-        padding-left: 20px !important;
-        margin-bottom: 30px !important;
-        display: block;
-        font-size: 2.2rem;
-    }
-
-    /* 5. BLINDAJE DE ALERTAS (TEXTO NEGRO) */
-    .stAlert, .stAlert * {
-        color: #000000 !important;
-    }
-
-    /* 6. RESCATE DE SIDEBAR Y BOTONES (TEXTO BLANCO) */
-    [data-testid="stSidebar"] *, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p { 
-        color: #FFFFFF !important; 
-    }
+    [data-testid="stAppViewContainer"] section.main * { color: #1E3D59 !important; font-family: 'Poppins', sans-serif !important; }
+    [data-testid="stMarkdownContainer"] * { color: #1E3D59 !important; }
+    h1, h2, h3, .section-title { color: #1E3D59 !important; font-weight: 800 !important; }
+    .section-title { border-left: 10px solid #FF6E40 !important; padding-left: 20px !important; margin-bottom: 30px !important; display: block; font-size: 2.2rem; }
+    .stAlert, .stAlert * { color: #000000 !important; }
+    [data-testid="stWidgetLabel"] *, label p { color: #1E3D59 !important; font-weight: 700 !important; }
+    [data-testid="stSidebar"] *, [data-testid="stSidebar"] span { color: #FFFFFF !important; }
     .stButton > button, .stButton > button * { color: #FFFFFF !important; }
-
-    /* 7. SELECTBOX (FONDO BLANCO) */
-    [data-baseweb="select"] div, ul[role="listbox"] * {
-        background-color: #FFFFFF !important;
-        color: #1E3D59 !important;
-    }
+    [data-baseweb="select"] div, ul[role="listbox"] * { background-color: #FFFFFF !important; color: #1E3D59 !important; }
     </style>
     """, unsafe_allow_html=True)
 
-# Lógica de Priorización
-def calcular_prioridad(row):
-    if row['promedio_anterior'] < 70 and row['porcentaje_asistencia'] < 70:
-        return "⚠️ CRÍTICO"
-    elif row['promedio_anterior'] < 75 or row['porcentaje_asistencia'] < 75 or row['materias_reprobadas_previas'] > 2:
-        return "🔴 ALTO"
-    elif row['promedio_anterior'] < 85:
-        return "🟡 MEDIO"
+# Lógica de Priorización Compartida (Simulador + Dataset)
+def obtener_diagnostico(promedio, asistencia, reprobadas):
+    if promedio < 70 and asistencia < 70:
+        return "⚠️ CRÍTICO", "Requiere intervención inmediata. El alumno está fuera de los parámetros mínimos aprobatorios y de permanencia."
+    elif promedio < 75 or asistencia < 75 or reprobadas > 2:
+        return "🔴 ALTO", "Riesgo elevado de deserción. Se recomienda canalización a tutorías académicas."
+    elif promedio < 85:
+        return "🟡 MEDIO", "Estatus preventivo. El alumno mantiene niveles aceptables pero requiere monitoreo de desempeño."
     else:
-        return "🟢 ESTABLE"
+        return "🟢 ESTABLE", "El perfil del alumno muestra una alta probabilidad de permanencia institucional."
 
 # Carga de datos
 @st.cache_data
@@ -86,7 +50,8 @@ def load_data():
     if os.path.exists(path):
         df = pd.read_csv(path)
         df['Estatus'] = df['deserto'].map({0: 'Permanencia', 1: 'Deserción'})
-        df['Prioridad'] = df.apply(calcular_prioridad, axis=1)
+        # Aplicamos la misma lógica al dataset
+        df['Prioridad'] = df.apply(lambda r: obtener_diagnostico(r['promedio_anterior'], r['porcentaje_asistencia'], r['materias_reprobadas_previas'])[0], axis=1)
         return df
     return None
 
@@ -97,7 +62,7 @@ with st.sidebar:
     st.markdown("<h2 style='text-align: center; color: white;'>ITNL - ISC</h2>", unsafe_allow_html=True)
     st.markdown("---")
     menu = st.radio("SISTEMA DE GESTIÓN", 
-                    ["Vista Ejecutiva", "Análisis de Factores", "Modelo Predictivo", "Listado de Intervención", "Evaluación Individual"])
+                    ["Vista Ejecutiva", "Análisis de Factores", "Modelo Predictivo", "Listado de Intervención", "Simulador de Riesgo"])
     st.markdown("---")
     st.write("Mayo 2026")
 
@@ -126,7 +91,7 @@ if df is not None:
 
     elif menu == "Análisis de Factores":
         st.markdown("<h1 class='section-title'>Estudio de Factores de Riesgo</h1>", unsafe_allow_html=True)
-        sel = st.selectbox("Carrera:", ["Todas"] + list(df['carrera'].unique()))
+        sel = st.selectbox("Filtrar Carrera:", ["Todas"] + list(df['carrera'].unique()))
         df_f = df if sel == "Todas" else df[df['carrera'] == sel]
         t1, t2 = st.tabs(["Rendimiento Académico", "Esfuerzo Digital"])
         with t1:
@@ -165,23 +130,30 @@ if df is not None:
         st.dataframe(df_listado[['id_estudiante', 'carrera', 'promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'Prioridad']], use_container_width=True)
         st.markdown("---")
         st.subheader("Protocolos de Atención Sugeridos")
-        st.error("**⚠️ CRÍTICO:** Requiere reunión urgente con Coordinador de Carrera.")
-        st.warning("**🔴 ALTO:** Asignación inmediata de tutor par y curso de regularización.")
+        st.error("**⚠️ CRÍTICO:** Intervención urgente. Alumno por debajo del mínimo aprobatorio.")
+        st.warning("**🔴 ALTO:** Canalización a programas de regularización académica.")
 
-    elif menu == "Evaluación Individual":
-        st.markdown("<h1 class='section-title'>Evaluación de Riesgo Individual</h1>", unsafe_allow_html=True)
-        col1, col2 = st.columns(2)
-        with col1:
+    elif menu == "Simulador de Riesgo":
+        st.markdown("<h1 class='section-title'>Simulador de Riesgo Preventivo</h1>", unsafe_allow_html=True)
+        st.write("Ingrese los indicadores del estudiante para obtener un diagnóstico basado en el modelo institucional.")
+        
+        c1, c2 = st.columns(2)
+        with c1:
             v_p = st.slider("Promedio Institucional", 0.0, 100.0, 80.0)
             v_a = st.slider("Nivel de Asistencia (%)", 0.0, 100.0, 85.0)
-        with col2:
-            v_r = st.number_input("Créditos Fallidos", 0, 15, 0)
+        with c2:
+            v_r = st.number_input("Materias Reprobadas", 0, 15, 0)
             v_b = st.selectbox("¿Cuenta con Beca?", ["Sí", "No"])
 
-        if st.button("CALCULAR PUNTUACIÓN DE RIESGO"):
-            score = (100 - v_p) * 0.4 + (100 - v_a) * 0.3 + v_r * 5
+        if st.button("GENERAR DIAGNÓSTICO"):
+            nivel, desc = obtener_diagnostico(v_p, v_a, v_r)
             st.markdown("---")
-            if score > 50: st.error(f"Estatus: Riesgo Detectado ({score:.0f} puntos).")
-            else: st.success(f"Estatus: Nivel Estable ({score:.0f} puntos).")
+            st.subheader(f"Estatus Resultante: {nivel}")
+            if "⚠️" in nivel or "🔴" in nivel:
+                st.error(desc)
+            elif "🟡" in nivel:
+                st.warning(desc)
+            else:
+                st.success(desc)
 else:
     st.error("Repositorio institucional no encontrado.")
