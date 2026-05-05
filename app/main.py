@@ -15,22 +15,61 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CSS DE BLOQUEO TOTAL Y MEJORA DE CONTRASTE ---
+# --- CSS DE FUERZA BRUTA PARA VISIBILIDAD ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    /* 1. FONDO BLANCO GLOBAL */
     .stApp { background-color: #FFFFFF !important; }
-    [data-testid="stAppViewContainer"], .main * { color: #1E3D59 !important; font-family: 'Poppins', sans-serif !important; }
-    div.stAlert { background-color: #F8F9FA !important; border: 1px solid #E1E8ED !important; border-radius: 10px !important; }
-    [data-testid="stNotificationContent"] * { color: #1E3D59 !important; }
-    [data-testid="stSidebar"], [data-testid="stSidebar"] * { color: #FFFFFF !important; }
+
+    /* 2. FORZAR TEXTO OSCURO EN TODO EL CONTENIDO PRINCIPAL */
+    [data-testid="stAppViewContainer"] section.main * {
+        color: #1E3D59 !important;
+        font-family: 'Poppins', sans-serif !important;
+    }
+
+    /* 3. BLINDAJE ESPECÍFICO PARA ALERTAS (st.warning, st.error, st.info) */
+    /* Forzamos negro para máximo contraste en fondos de colores */
+    .stAlert, .stAlert * {
+        color: #000000 !important;
+    }
+
+    /* 4. BLINDAJE DE ETIQUETAS DE WIDGETS (SLIDERS, SELECTS) */
+    /* Esto soluciona que "Promedio Institucional" sea blanco */
+    [data-testid="stWidgetLabel"] *, 
+    [data-testid="stWidgetLabel"] p,
+    label p {
+        color: #1E3D59 !important;
+        font-weight: 700 !important;
+    }
+
+    /* 5. RESCATE DE SIDEBAR Y BOTONES (TEXTO BLANCO) */
+    [data-testid="stSidebar"] *, 
+    [data-testid="stSidebar"] span, 
+    [data-testid="stSidebar"] p { 
+        color: #FFFFFF !important; 
+    }
     .stButton > button, .stButton > button * { color: #FFFFFF !important; }
-    [data-baseweb="select"] div, ul[role="listbox"] * { background-color: #FFFFFF !important; color: #1E3D59 !important; }
-    .section-title { border-left: 10px solid #FF6E40 !important; padding-left: 20px !important; margin-bottom: 30px !important; display: block; font-weight: 800; font-size: 2.2rem; }
+
+    /* 6. SELECTBOX / LISTBOX (FONDO BLANCO) */
+    [data-baseweb="select"] div, [data-baseweb="popover"] *, ul[role="listbox"] * {
+        background-color: #FFFFFF !important;
+        color: #1E3D59 !important;
+    }
+
+    .section-title {
+        border-left: 10px solid #FF6E40 !important;
+        padding-left: 20px !important;
+        margin-bottom: 30px !important;
+        display: block;
+        font-weight: 800;
+        font-size: 2.2rem;
+    }
     </style>
     """, unsafe_allow_html=True)
 
-# Lógica de Priorización Mejorada
+# Lógica de Priorización
 def calcular_prioridad(row):
     if row['promedio_anterior'] < 70 and row['porcentaje_asistencia'] < 70:
         return "⚠️ CRÍTICO"
@@ -48,7 +87,6 @@ def load_data():
     if os.path.exists(path):
         df = pd.read_csv(path)
         df['Estatus'] = df['deserto'].map({0: 'Permanencia', 1: 'Deserción'})
-        # Aplicamos la nueva categorización sugerida por el usuario
         df['Prioridad'] = df.apply(calcular_prioridad, axis=1)
         return df
     return None
@@ -74,15 +112,14 @@ if df is not None:
         k2.metric("Índice Deserción", f"{df['deserto'].mean()*100:.1f}%")
         k3.metric("Casos Críticos", len(df[df['Prioridad'] == "⚠️ CRÍTICO"]))
         k4.metric("Promedio Institucional", f"{df['promedio_anterior'].mean():.1f}")
-        
         st.markdown("---")
-        c1, c2 = st.columns([7, 3])
-        with c1:
+        cl, cr = st.columns([7, 3])
+        with cl:
             st.subheader("Distribución Académica por Carrera")
             fig, ax = plt.subplots(figsize=(10, 5))
             sns.countplot(data=df, y='carrera', hue='carrera', palette='Blues_r', ax=ax, legend=False)
             st.pyplot(fig)
-        with c2:
+        with cr:
             st.subheader("Semáforo de Riesgo")
             counts = df['Prioridad'].value_counts()
             for nivel, total in counts.items():
@@ -92,7 +129,7 @@ if df is not None:
         st.markdown("<h1 class='section-title'>Estudio de Factores de Riesgo</h1>", unsafe_allow_html=True)
         sel = st.selectbox("Carrera:", ["Todas"] + list(df['carrera'].unique()))
         df_f = df if sel == "Todas" else df[df['carrera'] == sel]
-        t1, t2 = st.tabs(["Rendimiento Académico", "Actividad Digital"])
+        t1, t2 = st.tabs(["Rendimiento Académico", "Esfuerzo Digital"])
         with t1:
             c1, c2 = st.columns(2)
             with c1:
@@ -124,26 +161,22 @@ if df is not None:
 
     elif menu == "Listado de Intervención":
         st.markdown("<h1 class='section-title'>Listado de Prioridad Académica</h1>", unsafe_allow_html=True)
-        st.write("Clasificación avanzada basada en el cruce de Promedio, Asistencia y Materias Reprobadas.")
-        
         nivel_f = st.multiselect("Filtrar por Nivel de Riesgo:", ["⚠️ CRÍTICO", "🔴 ALTO", "🟡 MEDIO", "🟢 ESTABLE"], default=["⚠️ CRÍTICO", "🔴 ALTO"])
-        
         df_listado = df[df['Prioridad'].isin(nivel_f)]
         st.dataframe(df_listado[['id_estudiante', 'carrera', 'promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'Prioridad']], use_container_width=True)
-        
         st.markdown("---")
         st.subheader("Protocolos de Atención Sugeridos")
-        st.error("**⚠️ CRÍTICO:** Requiere reunión urgente con Coordinador de Carrera y padres de familia.")
+        st.error("**⚠️ CRÍTICO:** Requiere reunión urgente con Coordinador de Carrera.")
         st.warning("**🔴 ALTO:** Asignación inmediata de tutor par y curso de regularización.")
 
     elif menu == "Evaluación Individual":
         st.markdown("<h1 class='section-title'>Evaluación de Riesgo Individual</h1>", unsafe_allow_html=True)
-        c1, c2 = st.columns(2)
-        with c1:
+        col1, col2 = st.columns(2)
+        with col1:
             v_p = st.slider("Promedio Institucional", 0.0, 100.0, 80.0)
-            v_a = st.slider("Asistencia (%)", 0.0, 100.0, 85.0)
-        with c2:
-            v_r = st.number_input("Materias Fallidas", 0, 15, 0)
+            v_a = st.slider("Nivel de Asistencia (%)", 0.0, 100.0, 85.0)
+        with col2:
+            v_r = st.number_input("Créditos Fallidos", 0, 15, 0)
             v_b = st.selectbox("¿Cuenta con Beca?", ["Sí", "No"])
 
         if st.button("CALCULAR PUNTUACIÓN DE RIESGO"):
