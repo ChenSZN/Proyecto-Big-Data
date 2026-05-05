@@ -15,47 +15,24 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
-# --- CSS DE FUERZA BRUTA PARA VISIBILIDAD ---
+# --- CSS DE BLOQUEO TOTAL ABSOLUTO ---
 st.markdown("""
     <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
     
-    /* 1. FONDO BLANCO GLOBAL */
+    /* 1. FONDO BLANCO */
     .stApp { background-color: #FFFFFF !important; }
 
-    /* 2. FORZAR TEXTO OSCURO EN TODO EL CONTENIDO PRINCIPAL */
+    /* 2. REGLA MAESTRA DE COLOR OSCURO PARA TODO */
     [data-testid="stAppViewContainer"] section.main * {
         color: #1E3D59 !important;
         font-family: 'Poppins', sans-serif !important;
     }
 
-    /* 3. BLINDAJE ESPECÍFICO PARA ALERTAS (st.warning, st.error, st.info) */
-    /* Forzamos negro para máximo contraste en fondos de colores */
-    .stAlert, .stAlert * {
-        color: #000000 !important;
-    }
-
-    /* 4. BLINDAJE DE ETIQUETAS DE WIDGETS (SLIDERS, SELECTS) */
-    /* Esto soluciona que "Promedio Institucional" sea blanco */
-    [data-testid="stWidgetLabel"] *, 
-    [data-testid="stWidgetLabel"] p,
-    label p {
+    /* 3. BLINDAJE ESPECÍFICO PARA TÍTULOS (h1, h2, h3) */
+    h1, h2, h3, .section-title, [data-testid="stMarkdownContainer"] h1 {
         color: #1E3D59 !important;
-        font-weight: 700 !important;
-    }
-
-    /* 5. RESCATE DE SIDEBAR Y BOTONES (TEXTO BLANCO) */
-    [data-testid="stSidebar"] *, 
-    [data-testid="stSidebar"] span, 
-    [data-testid="stSidebar"] p { 
-        color: #FFFFFF !important; 
-    }
-    .stButton > button, .stButton > button * { color: #FFFFFF !important; }
-
-    /* 6. SELECTBOX / LISTBOX (FONDO BLANCO) */
-    [data-baseweb="select"] div, [data-baseweb="popover"] *, ul[role="listbox"] * {
-        background-color: #FFFFFF !important;
-        color: #1E3D59 !important;
+        font-weight: 800 !important;
     }
 
     .section-title {
@@ -63,8 +40,29 @@ st.markdown("""
         padding-left: 20px !important;
         margin-bottom: 30px !important;
         display: block;
-        font-weight: 800;
         font-size: 2.2rem;
+        color: #1E3D59 !important;
+    }
+
+    /* 4. BLINDAJE DE ALERTAS (TEXTO NEGRO) */
+    .stAlert, .stAlert * {
+        color: #000000 !important;
+    }
+
+    /* 5. ETIQUETAS DE WIDGETS (SLIDERS, ETC) */
+    [data-testid="stWidgetLabel"] *, label p {
+        color: #1E3D59 !important;
+        font-weight: 700 !important;
+    }
+
+    /* 6. RESCATE DE SIDEBAR Y BOTONES (TEXTO BLANCO) */
+    [data-testid="stSidebar"] *, [data-testid="stSidebar"] span { color: #FFFFFF !important; }
+    .stButton > button, .stButton > button * { color: #FFFFFF !important; }
+
+    /* 7. SELECTBOX (FONDO BLANCO) */
+    [data-baseweb="select"] div, ul[role="listbox"] * {
+        background-color: #FFFFFF !important;
+        color: #1E3D59 !important;
     }
     </style>
     """, unsafe_allow_html=True)
@@ -103,7 +101,7 @@ with st.sidebar:
     st.write("Mayo 2026")
 
 if df is not None:
-    plt.rcParams.update({'figure.facecolor': 'white', 'axes.facecolor': 'white', 'text.color': '#1E3D59'})
+    plt.rcParams.update({'figure.facecolor': 'white', 'text.color': '#1E3D59'})
 
     if menu == "Vista Ejecutiva":
         st.markdown("<h1 class='section-title'>Análisis de Permanencia Estudiantil</h1>", unsafe_allow_html=True)
@@ -111,7 +109,7 @@ if df is not None:
         k1.metric("Estudiantes", f"{len(df):,}")
         k2.metric("Índice Deserción", f"{df['deserto'].mean()*100:.1f}%")
         k3.metric("Casos Críticos", len(df[df['Prioridad'] == "⚠️ CRÍTICO"]))
-        k4.metric("Promedio Institucional", f"{df['promedio_anterior'].mean():.1f}")
+        k4.metric("Promedio Gral", f"{df['promedio_anterior'].mean():.1f}")
         st.markdown("---")
         cl, cr = st.columns([7, 3])
         with cl:
