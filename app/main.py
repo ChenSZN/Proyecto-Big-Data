@@ -23,14 +23,20 @@ st.markdown("""
     /* 1. FONDO BLANCO */
     .stApp { background-color: #FFFFFF !important; }
 
-    /* 2. REGLA MAESTRA DE COLOR OSCURO PARA TODO */
+    /* 2. REGLA MAESTRA DE COLOR OSCURO */
     [data-testid="stAppViewContainer"] section.main * {
         color: #1E3D59 !important;
         font-family: 'Poppins', sans-serif !important;
     }
 
-    /* 3. BLINDAJE ESPECÍFICO PARA TÍTULOS (h1, h2, h3) */
-    h1, h2, h3, .section-title, [data-testid="stMarkdownContainer"] h1 {
+    /* 3. BLINDAJE ESPECÍFICO PARA TEXTO DINÁMICO (st.write, st.markdown) */
+    /* Esto soluciona que el Semáforo de Riesgo sea blanco */
+    [data-testid="stMarkdownContainer"] * {
+        color: #1E3D59 !important;
+    }
+
+    /* 4. BLINDAJE DE TÍTULOS */
+    h1, h2, h3, .section-title {
         color: #1E3D59 !important;
         font-weight: 800 !important;
     }
@@ -41,22 +47,17 @@ st.markdown("""
         margin-bottom: 30px !important;
         display: block;
         font-size: 2.2rem;
-        color: #1E3D59 !important;
     }
 
-    /* 4. BLINDAJE DE ALERTAS (TEXTO NEGRO) */
+    /* 5. BLINDAJE DE ALERTAS (TEXTO NEGRO) */
     .stAlert, .stAlert * {
         color: #000000 !important;
     }
 
-    /* 5. ETIQUETAS DE WIDGETS (SLIDERS, ETC) */
-    [data-testid="stWidgetLabel"] *, label p {
-        color: #1E3D59 !important;
-        font-weight: 700 !important;
-    }
-
     /* 6. RESCATE DE SIDEBAR Y BOTONES (TEXTO BLANCO) */
-    [data-testid="stSidebar"] *, [data-testid="stSidebar"] span { color: #FFFFFF !important; }
+    [data-testid="stSidebar"] *, [data-testid="stSidebar"] span, [data-testid="stSidebar"] p { 
+        color: #FFFFFF !important; 
+    }
     .stButton > button, .stButton > button * { color: #FFFFFF !important; }
 
     /* 7. SELECTBOX (FONDO BLANCO) */
