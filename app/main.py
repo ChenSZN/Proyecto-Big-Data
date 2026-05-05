@@ -32,16 +32,16 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Lógica de Priorización Compartida (Simulador + Dataset)
+# Lógica de Diagnóstico Refinada (Sugerencia Usuario: Preventivo 70-79)
 def obtener_diagnostico(promedio, asistencia, reprobadas):
     if promedio < 70 and asistencia < 70:
-        return "⚠️ CRÍTICO", "Requiere intervención inmediata. El alumno está fuera de los parámetros mínimos aprobatorios y de permanencia."
-    elif promedio < 75 or asistencia < 75 or reprobadas > 2:
-        return "🔴 ALTO", "Riesgo elevado de deserción. Se recomienda canalización a tutorías académicas."
-    elif promedio < 85:
-        return "🟡 MEDIO", "Estatus preventivo. El alumno mantiene niveles aceptables pero requiere monitoreo de desempeño."
+        return "⚠️ CRÍTICO", "Intervención de emergencia requerida. El alumno incumple ambos estándares mínimos (70)."
+    elif promedio < 70 or asistencia < 70 or reprobadas > 2:
+        return "🔴 ALTO", "Estatus de reprobación detectado. Requiere canalización inmediata a cursos de regularización."
+    elif promedio <= 79 or asistencia <= 79:
+        return "🟡 PREVENTIVO", "Zona de riesgo moderado (70-79). Se recomienda monitoreo para evitar que el alumno caiga en estatus de reprobación."
     else:
-        return "🟢 ESTABLE", "El perfil del alumno muestra una alta probabilidad de permanencia institucional."
+        return "🟢 ESTABLE", "Desempeño óptimo (80+). El alumno cumple satisfactoriamente con los estándares institucionales."
 
 # Carga de datos
 @st.cache_data
@@ -50,7 +50,6 @@ def load_data():
     if os.path.exists(path):
         df = pd.read_csv(path)
         df['Estatus'] = df['deserto'].map({0: 'Permanencia', 1: 'Deserción'})
-        # Aplicamos la misma lógica al dataset
         df['Prioridad'] = df.apply(lambda r: obtener_diagnostico(r['promedio_anterior'], r['porcentaje_asistencia'], r['materias_reprobadas_previas'])[0], axis=1)
         return df
     return None
@@ -75,7 +74,7 @@ if df is not None:
         k1.metric("Estudiantes", f"{len(df):,}")
         k2.metric("Índice Deserción", f"{df['deserto'].mean()*100:.1f}%")
         k3.metric("Casos Críticos", len(df[df['Prioridad'] == "⚠️ CRÍTICO"]))
-        k4.metric("Promedio Gral", f"{df['promedio_anterior'].mean():.1f}")
+        k4.metric("Promedio Institucional", f"{df['promedio_anterior'].mean():.1f}")
         st.markdown("---")
         cl, cr = st.columns([7, 3])
         with cl:
@@ -84,7 +83,7 @@ if df is not None:
             sns.countplot(data=df, y='carrera', hue='carrera', palette='Blues_r', ax=ax, legend=False)
             st.pyplot(fig)
         with cr:
-            st.subheader("Semáforo de Riesgo")
+            st.subheader("Semáforo de Riesgo (ITNL)")
             counts = df['Prioridad'].value_counts()
             for nivel, total in counts.items():
                 st.write(f"**{nivel}:** {total} alumnos")
@@ -125,21 +124,19 @@ if df is not None:
 
     elif menu == "Listado de Intervención":
         st.markdown("<h1 class='section-title'>Listado de Prioridad Académica</h1>", unsafe_allow_html=True)
-        nivel_f = st.multiselect("Filtrar por Nivel de Riesgo:", ["⚠️ CRÍTICO", "🔴 ALTO", "🟡 MEDIO", "🟢 ESTABLE"], default=["⚠️ CRÍTICO", "🔴 ALTO"])
+        nivel_f = st.multiselect("Filtrar por Estatus:", ["⚠️ CRÍTICO", "🔴 ALTO", "🟡 PREVENTIVO", "🟢 ESTABLE"], default=["⚠️ CRÍTICO", "🔴 ALTO", "🟡 PREVENTIVO"])
         df_listado = df[df['Prioridad'].isin(nivel_f)]
         st.dataframe(df_listado[['id_estudiante', 'carrera', 'promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'Prioridad']], use_container_width=True)
         st.markdown("---")
-        st.subheader("Protocolos de Atención Sugeridos")
-        st.error("**⚠️ CRÍTICO:** Intervención urgente. Alumno por debajo del mínimo aprobatorio.")
-        st.warning("**🔴 ALTO:** Canalización a programas de regularización académica.")
+        st.subheader("Protocolos Institucionales Sugeridos")
+        st.error("**⚠️ CRÍTICO / 🔴 ALTO:** Alumnos con indicadores de reprobación inmediata.")
+        st.warning("**🟡 PREVENTIVO:** Alumnos en zona gris (70-79). Requieren orientación para evitar la caída en el promedio.")
 
     elif menu == "Simulador de Riesgo":
         st.markdown("<h1 class='section-title'>Simulador de Riesgo Preventivo</h1>", unsafe_allow_html=True)
-        st.write("Ingrese los indicadores del estudiante para obtener un diagnóstico basado en el modelo institucional.")
-        
         c1, c2 = st.columns(2)
         with c1:
-            v_p = st.slider("Promedio Institucional", 0.0, 100.0, 80.0)
+            v_p = st.slider("Promedio Institucional", 0.0, 100.0, 75.0) # Iniciamos en zona preventiva para prueba
             v_a = st.slider("Nivel de Asistencia (%)", 0.0, 100.0, 85.0)
         with c2:
             v_r = st.number_input("Materias Reprobadas", 0, 15, 0)
