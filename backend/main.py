@@ -18,12 +18,15 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(BASE_DIR, "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv")
 
 def load_data():
-    if not os.path.exists(CSV_PATH): return pd.DataFrame()
+    if not os.path.exists(CSV_PATH): 
+        print(f"CSV NOT FOUND AT {CSV_PATH}")
+        return pd.DataFrame()
     encodings = ['utf-8-sig', 'latin-1', 'cp1252', 'utf-8']
     df = None
     for enc in encodings:
         try:
             df = pd.read_csv(CSV_PATH, encoding=enc, sep=',', on_bad_lines='skip', engine='python')
+            print(f"Loaded CSV with {enc}")
             break
         except: continue
     
@@ -60,7 +63,7 @@ except Exception as e:
 
 @app.get("/")
 async def root():
-    return {"status": "online", "message": "ITNL Analytics API", "data_loaded": not df.empty}
+    return {"status": "online", "message": "ITNL Analytics API", "data_loaded": not df.empty, "rows": len(df)}
 
 @app.get("/api/drilldown/insights")
 async def get_selection_insights(carrera: str = None, semestre: str = None):
@@ -162,11 +165,12 @@ async def get_risk_profiles():
 
 @app.get("/api/patterns")
 async def get_patterns_api():
-    if df.empty: return []
+    if df.empty: return {"global": [], "reprobacion": [], "desercion": []}
     
     def get_corrs(target_col):
         cols = ['porcentaje_asistencia', 'promedio_anterior', 'uso_plataforma_semana', 'entregas_tareas_pct', 'materias_reprobadas_previas']
         available = [c for c in cols if c in df.columns]
+        if target_col not in df.columns: return []
         try:
             c = df[available + [target_col]].corr()[target_col].abs().drop(target_col).fillna(0.1)
             return [{"name": k.replace('_', ' ').title(), "value": round(float(v) * 100, 1)} for k, v in c.items()]
@@ -174,8 +178,8 @@ async def get_patterns_api():
 
     return {
         "global": get_corrs('p_num'),
-        "reprobacion": get_corrs('reprobo'),
-        "desercion": get_corrs('deserto')
+        "reprobacion": get_corrs('reprobo') if 'reprobo' in df.columns else get_corrs('p_num'),
+        "desercion": get_corrs('deserto') if 'deserto' in df.columns else get_corrs('p_num')
     }
 
 if __name__ == "__main__":
