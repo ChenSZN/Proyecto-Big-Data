@@ -28,13 +28,15 @@ export default function RootLayout({
           <div className="absolute -bottom-[10%] left-[20%] h-[40%] w-[40%] rounded-full bg-purple-600/5 blur-[120px]" />
         </div>
 
-        {/* Contenedor Principal Flexible */}
-        <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full p-2 md:p-6 gap-2 md:gap-6 overflow-hidden">
+        {/* Contenedor Principal Flexible - Sidebar Flush to Edge */}
+        <div className="flex flex-col md:flex-row min-h-screen md:h-screen w-full gap-0 overflow-hidden">
           <Sidebar />
-          <main className="flex-1 glass-card rounded-[24px] md:rounded-[48px] overflow-hidden relative flex flex-col border border-white/5 bg-slate-900/20 backdrop-blur-3xl shadow-2xl mt-16 md:mt-0">
-            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
-              {children}
-            </div>
+          <main className="flex-1 p-2 md:p-6 overflow-hidden relative flex flex-col mt-16 md:mt-0">
+             <div className="flex-1 glass-card rounded-[24px] md:rounded-[48px] overflow-hidden relative flex flex-col border border-white/5 bg-slate-900/20 backdrop-blur-3xl shadow-2xl">
+                <div className="flex-1 flex flex-col min-h-0 overflow-y-auto custom-scrollbar">
+                  {children}
+                </div>
+             </div>
           </main>
         </div>
       </body>

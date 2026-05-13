@@ -29,6 +29,7 @@ function DrillDownContent() {
   const [localFilter, setLocalFilter] = useState(searchParams.get("filter") || "TODOS");
   const [loading, setLoading] = useState(true);
 
+  // Load Filters
   useEffect(() => {
     const fetchFilters = async () => {
       try {
@@ -39,25 +40,28 @@ function DrillDownContent() {
     fetchFilters();
   }, []);
 
+  // Fetch Data - Fixed dependencies
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/drilldown/data?carrera=${selection.carrera}`);
+        const params = new URLSearchParams();
+        if (selection.carrera) params.append("carrera", selection.carrera);
+        if (selection.semestre) params.append("semestre", selection.semestre);
+        if (selection.search) params.append("search", selection.search);
+        
+        const res = await axios.get(`${API_URL}/drilldown/data?${params.toString()}`);
         setData(res.data);
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     };
     fetchData();
-  }, [selection.carrera]);
+  }, [selection.carrera, selection.semestre, selection.search]);
 
   const filteredData = useMemo(() => {
-    let base = data;
-    if (selection.semestre) base = base.filter(d => d.semestre_num === parseInt(selection.semestre));
-    if (selection.search) base = base.filter(d => d.id_estudiante.includes(selection.search.toUpperCase()));
-    if (localFilter !== "TODOS") base = base.filter(d => d.prioridad === localFilter);
-    return base;
-  }, [data, selection.semestre, selection.search, localFilter]);
+    if (localFilter === "TODOS") return data;
+    return data.filter(d => d.prioridad === localFilter);
+  }, [data, localFilter]);
 
   const chartData = useMemo(() => {
     const counts = data.reduce((acc: any, curr: any) => {
@@ -74,7 +78,6 @@ function DrillDownContent() {
   const radarData = useMemo(() => {
     if (filteredData.length === 0) return [];
     
-    // Normalizing values to show real SHAPE changes
     const avgAsis = filteredData.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / filteredData.length;
     const avgProm = (filteredData.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / filteredData.length) * 10;
     const avgPlat = Math.min((filteredData.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / filteredData.length) * 15, 100);
@@ -132,7 +135,7 @@ function DrillDownContent() {
               {selection.carrera && (
                 <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="glass-card p-6 rounded-[32px] bg-blue-600/10">
                    <div className="flex justify-between mb-4">
-                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest">Carrera: {selection.carrera}</p>
+                      <p className="text-[10px] font-black text-blue-400 uppercase tracking-widest truncate max-w-[150px]">{selection.carrera}</p>
                       <button onClick={() => setSelection({ carrera: "", semestre: "", search: "" })} className="text-[10px] font-black text-slate-500 underline">Cambiar</button>
                    </div>
                    <p className="text-[10px] font-black text-slate-500 uppercase mt-6 mb-4">Semestre</p>
@@ -151,8 +154,8 @@ function DrillDownContent() {
          </div>
 
          <div className="lg:col-span-9 flex flex-col gap-6 min-h-0">
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0 h-auto lg:h-[350px]">
-               <div className="glass-card p-6 rounded-[32px] bg-slate-900/20 relative overflow-hidden">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0 h-auto lg:h-[320px]">
+               <div className="glass-card p-6 rounded-[32px] bg-slate-900/20 relative overflow-hidden h-[300px] lg:h-full">
                   <div className="flex items-center gap-3 mb-4 text-slate-500">
                      <PieIcon className="h-4 w-4 text-blue-500" /> 
                      <span className="text-xs font-black uppercase">Resumen</span>
@@ -170,7 +173,7 @@ function DrillDownContent() {
                   </div>
                </div>
 
-               <div className="xl:col-span-2 glass-card p-6 rounded-[32px] bg-slate-900/20">
+               <div className="xl:col-span-2 glass-card p-6 rounded-[32px] bg-slate-900/20 h-[300px] lg:h-full">
                   <div className="flex items-center gap-3 mb-4 text-slate-500">
                      <BrainCircuit className="h-4 w-4 text-indigo-500" /> 
                      <span className="text-xs font-black uppercase">Diagnóstico (Telaraña)</span>
@@ -194,22 +197,22 @@ function DrillDownContent() {
                </div>
             </div>
 
-            <div className="flex-1 min-h-0 flex flex-col gap-4">
+            <div className="flex-1 min-h-0 flex flex-col gap-4 mt-6">
                <div className="flex justify-between items-center px-4">
-                  <h2 className="text-xl font-black text-white uppercase">Estudiantes ({filteredData.length})</h2>
+                  <h2 className="text-xl font-black text-white uppercase tracking-tighter">Listado ({filteredData.length})</h2>
                   <div className="flex gap-2 bg-white/5 p-1 rounded-xl">
                      {['TODOS', 'ALTO', 'MEDIO', 'BAJO'].map(f => (
                        <button key={f} onClick={() => setLocalFilter(f)}
-                         className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${localFilter === f ? 'bg-white text-black' : 'text-slate-500'}`}
+                         className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${localFilter === f ? 'bg-white text-black shadow-lg' : 'text-slate-500'}`}
                        >
                          {f}
                        </button>
                      ))}
                   </div>
                </div>
-               <div className="flex-1 overflow-auto custom-scrollbar glass-card rounded-[32px] bg-black/20">
+               <div className="flex-1 overflow-auto custom-scrollbar glass-card rounded-[32px] bg-black/20 border border-white/5">
                   <table className="w-full text-left">
-                    <thead className="sticky top-0 bg-[#0f172a] text-[10px] font-black uppercase text-slate-500 border-b border-white/5">
+                    <thead className="sticky top-0 bg-[#0f172a] text-[10px] font-black uppercase text-slate-500 border-b border-white/5 z-10">
                       <tr>
                         <th className="px-8 py-4">Matrícula</th>
                         <th className="px-8 py-4">Promedio</th>
