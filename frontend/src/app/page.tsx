@@ -14,7 +14,7 @@ import {
 
 import { useRouter } from "next/navigation";
 
-const API_URL = "/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
 function StatCard({ title, value, icon: Icon, color, trend, onClick }: any) {
   return (
