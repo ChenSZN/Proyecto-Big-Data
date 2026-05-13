@@ -30,12 +30,7 @@ export default function Simulator() {
 
   return (
     <div className="p-8 h-full flex flex-col gap-6 overflow-hidden">
-      <header className="shrink-0 text-center">
-        <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 mb-1">Motor de Inferencia IA</p>
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase leading-none">Simulador <span className="text-blue-600">Pro</span></h1>
-          <p className="mt-2 text-slate-500 font-medium text-xs max-w-xl mx-auto italic">Predicción de éxito o fallo académico basado en patrones históricos.</p>
-        </motion.div>
+      <header className="shrink-0 mb-4">
       </header>
 
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">

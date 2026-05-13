@@ -163,13 +163,20 @@ async def get_risk_profiles():
 @app.get("/api/patterns")
 async def get_patterns_api():
     if df.empty: return []
-    return [
-        {"name": "Asistencia", "value": 38, "color": "#3b82f6"},
-        {"name": "Promedio Anterior", "value": 25, "color": "#6366f1"},
-        {"name": "Materias Reprobadas", "value": 18, "color": "#ef4444"},
-        {"name": "Uso de Plataforma", "value": 12, "color": "#f59e0b"},
-        {"name": "Participación Tutorías", "value": 7, "color": "#10b981"}
-    ]
+    
+    def get_corrs(target_col):
+        cols = ['porcentaje_asistencia', 'promedio_anterior', 'uso_plataforma_semana', 'entregas_tareas_pct', 'materias_reprobadas_previas']
+        available = [c for c in cols if c in df.columns]
+        try:
+            c = df[available + [target_col]].corr()[target_col].abs().drop(target_col).fillna(0.1)
+            return [{"name": k.replace('_', ' ').title(), "value": round(float(v) * 100, 1)} for k, v in c.items()]
+        except: return []
+
+    return {
+        "global": get_corrs('p_num'),
+        "reprobacion": get_corrs('reprobo'),
+        "desercion": get_corrs('deserto')
+    }
 
 if __name__ == "__main__":
     import uvicorn

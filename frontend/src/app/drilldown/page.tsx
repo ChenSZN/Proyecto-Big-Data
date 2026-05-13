@@ -79,15 +79,15 @@ function DrillDownContent() {
   }, [data]);
 
   const insights = useMemo(() => {
-    if (data.length === 0) return [];
+    if (filteredData.length === 0) return [];
     return [
-      { subject: 'Asistencia', A: data.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / data.length },
-      { subject: 'Promedio', A: (data.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / data.length) * 10 },
-      { subject: 'Plataforma', A: Math.min((data.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / data.length) * 10, 100) },
-      { subject: 'Entregas', A: data.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / data.length },
-      { subject: 'Participación', A: data.filter(d => d.prioridad === 'BAJO').length / data.length * 100 }
+      { subject: 'Asistencia', A: filteredData.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / filteredData.length },
+      { subject: 'Promedio', A: (filteredData.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / filteredData.length) * 10 },
+      { subject: 'Plataforma', A: Math.min((filteredData.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / filteredData.length) * 10, 100) },
+      { subject: 'Entregas', A: filteredData.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / filteredData.length },
+      { subject: 'Participación', A: filteredData.filter((d: any) => d.prioridad === 'BAJO').length / filteredData.length * 100 }
     ];
-  }, [data]);
+  }, [filteredData]);
 
   return (
     <div className="p-6 h-full flex flex-col gap-6 overflow-hidden">
@@ -97,12 +97,6 @@ function DrillDownContent() {
              <ArrowLeft className="h-5 w-5" />
           </button>
           <div className="space-y-1">
-            <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic leading-tight">
-              Explorador <span className="text-blue-600 font-light not-italic tracking-normal">Académico</span>
-            </h1>
-            <div className="text-slate-500 font-bold uppercase tracking-[0.2em] text-[10px] flex items-center gap-3">
-               Sincronizado con Dataset ITNL
-            </div>
           </div>
         </div>
         <div className="flex items-center gap-3">
