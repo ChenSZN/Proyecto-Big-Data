@@ -27,63 +27,53 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* Mobile Menu Toggle - Visible only on small screens */}
+      {/* Mobile Menu Toggle - Snappier transition */}
       <button 
         onClick={() => setIsMobileOpen(true)}
-        className="md:hidden fixed top-6 left-6 z-[60] p-3 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/40"
+        className="md:hidden fixed top-6 left-6 z-[60] p-3 rounded-2xl bg-blue-600 text-white shadow-lg active:scale-95 transition-transform"
       >
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Mobile Overlay */}
-      <AnimatePresence>
-        {isMobileOpen && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setIsMobileOpen(false)}
-            className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[70]"
-          />
-        )}
-      </AnimatePresence>
+      {/* Mobile Overlay - Static background to avoid lag */}
+      {isMobileOpen && (
+        <div 
+          onClick={() => setIsMobileOpen(false)}
+          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[70] transition-opacity duration-300"
+        />
+      )}
 
-      {/* Sidebar Container */}
+      {/* Sidebar Container - Optimized transitions */}
       <aside className={`
-        fixed md:relative top-0 left-0 h-full z-[80] transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]
+        fixed md:relative top-0 left-0 h-full z-[80] 
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-        ${isCollapsed ? "w-24" : "w-72"}
+        ${isCollapsed ? "w-20" : "w-64"}
         flex flex-col bg-[#020617] border-r border-white/5 overflow-hidden shrink-0
+        transition-all duration-300 ease-out will-change-transform
       `}>
         {/* Glow ambiental superior */}
-        <div className="absolute -left-20 -top-20 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full" />
+        <div className="absolute -left-20 -top-20 w-64 h-64 bg-blue-600/5 blur-[80px] rounded-full pointer-events-none" />
         
         {/* Desktop Collapse Button */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
-          className="hidden md:block absolute top-8 right-6 z-50 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-slate-400 hover:text-white"
+          className="hidden md:block absolute top-8 right-4 z-50 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-slate-400"
         >
-          {isCollapsed ? <Menu className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
+          {isCollapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
 
         {/* Mobile Close Button */}
         <button 
           onClick={() => setIsMobileOpen(false)}
-          className="md:hidden absolute top-8 right-6 z-50 p-2 rounded-xl bg-white/5 hover:bg-white/10 text-slate-400"
+          className="md:hidden absolute top-8 right-6 z-50 p-2 rounded-xl bg-white/5 text-slate-400"
         >
           <X className="h-6 w-6" />
         </button>
 
         {/* Navegación */}
-        <nav className={`flex-1 ${isCollapsed ? "px-3" : "px-6"} py-10 mt-16 space-y-3 relative z-10`}>
+        <nav className={`flex-1 ${isCollapsed ? "px-2" : "px-4"} py-10 mt-16 space-y-2 relative z-10`}>
           {(!isCollapsed || isMobileOpen) && (
-            <motion.p 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="px-4 text-[10px] font-black text-slate-600 uppercase tracking-[0.2em] mb-8"
-            >
-              Menú Principal
-            </motion.p>
+            <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6">Principal</p>
           )}
           
           {menuItems.map((item) => {
@@ -93,36 +83,21 @@ export default function Sidebar() {
             return (
               <Link key={item.path} href={item.path} onClick={() => setIsMobileOpen(false)}>
                 <div className={`
-                  relative flex items-center ${!showText ? "justify-center" : "gap-4 px-5"} py-4 rounded-2xl transition-all duration-300 group
+                  relative flex items-center ${!showText ? "justify-center" : "gap-3 px-4"} py-3.5 rounded-xl transition-all duration-200 group
                   ${isActive 
-                    ? "bg-blue-600/10 text-white shadow-[inset_0_0_20px_rgba(59,130,246,0.05)] border border-blue-500/20" 
-                    : "text-slate-500 hover:text-slate-200 hover:bg-white/[0.03] border border-transparent"
+                    ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
+                    : "text-slate-500 hover:text-slate-200 hover:bg-white/[0.03]"
                   }
                 `}>
-                  {isActive && (
-                    <motion.div 
-                      layoutId="activeNav"
-                      className="absolute left-0 w-1 h-6 bg-blue-500 rounded-full"
-                      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-                    />
+                  <item.icon className={`h-5 w-5 ${isActive ? "text-white" : "group-hover:text-blue-400"}`} />
+                  
+                  {showText && (
+                    <span className="text-xs font-black tracking-tight uppercase whitespace-nowrap">
+                      {item.name}
+                    </span>
                   )}
                   
-                  <item.icon className={`h-5 w-5 transition-colors ${isActive ? "text-blue-500" : "group-hover:text-blue-400"}`} />
-                  
-                  <AnimatePresence>
-                    {showText && (
-                      <motion.span 
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, x: -10 }}
-                        className="text-sm font-black tracking-tight uppercase whitespace-nowrap"
-                      >
-                        {item.name}
-                      </motion.span>
-                    )}
-                  </AnimatePresence>
-                  
-                  {showText && isActive && <ChevronRight className="ml-auto h-4 w-4 text-blue-500" />}
+                  {showText && isActive && <ChevronRight className="ml-auto h-3 w-3 text-white/50" />}
                 </div>
               </Link>
             );
