@@ -24,7 +24,7 @@ export default function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
   return (
-    <aside className={`${isCollapsed ? "w-24" : "w-72"} h-full flex flex-col bg-[#020617] border-r border-white/5 relative overflow-hidden shrink-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]`}>
+    <aside className={`hidden md:flex ${isCollapsed ? "w-24" : "w-72"} h-full flex flex-col bg-[#020617] border-r border-white/5 relative overflow-hidden shrink-0 transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]`}>
       {/* Glow ambiental superior */}
       <div className="absolute -left-20 -top-20 w-64 h-64 bg-blue-600/10 blur-[100px] rounded-full" />
       

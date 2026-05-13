@@ -125,36 +125,42 @@ export default function Patterns() {
               initial={{ opacity: 0, x: 20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
-              className="lg:col-span-8 glass-card rounded-[40px] p-8 flex flex-col min-h-0 bg-slate-900/40 relative overflow-hidden"
+              className="lg:col-span-8 glass-card rounded-[40px] p-8 flex flex-col min-h-[400px] bg-slate-900/40 relative overflow-hidden"
             >
               <div className="absolute top-0 right-0 p-10 opacity-5 pointer-events-none">
                  <Cpu className="h-48 w-48" />
               </div>
 
-              <div className="flex-1 min-h-0">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 30 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
-                    <XAxis type="number" hide domain={[0, 100]} />
-                    <YAxis 
-                      dataKey="name" 
-                      type="category" 
-                      tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 'black'}}
-                      width={120}
-                      axisLine={false}
-                      tickLine={false}
-                    />
-                    <Tooltip 
-                      cursor={{fill: 'white', fillOpacity: 0.05}}
-                      contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '16px'}}
-                    />
-                    <Bar dataKey="value" radius={[0, 10, 10, 0]} barSize={32}>
-                      {chartData.map((entry: any, index: number) => (
-                        <Cell key={`cell-${index}`} fill={currentIndex === 2 ? '#ef4444' : currentIndex === 1 ? '#f59e0b' : '#3b82f6'} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
+              <div className="flex-1 min-h-[350px] w-full">
+                {chartData.length > 0 ? (
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 30 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
+                      <XAxis type="number" hide domain={[0, 100]} />
+                      <YAxis 
+                        dataKey="name" 
+                        type="category" 
+                        tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 'black'}}
+                        width={120}
+                        axisLine={false}
+                        tickLine={false}
+                      />
+                      <Tooltip 
+                        cursor={{fill: 'white', fillOpacity: 0.05}}
+                        contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '16px'}}
+                      />
+                      <Bar dataKey="value" radius={[0, 10, 10, 0]} barSize={32}>
+                        {chartData.map((entry: any, index: number) => (
+                          <Cell key={`cell-${index}`} fill={currentIndex === 2 ? '#ef4444' : currentIndex === 1 ? '#f59e0b' : '#3b82f6'} />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+                ) : (
+                  <div className="h-full flex items-center justify-center opacity-20">
+                     <p className="text-xs font-black uppercase tracking-widest">Calculando Correlaciones...</p>
+                  </div>
+                )}
               </div>
             </motion.div>
           </AnimatePresence>
