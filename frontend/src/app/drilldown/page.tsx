@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
-  RadarChart, PolarGrid, PolarAngleAxis, Radar, Legend
+  BarChart, Bar, XAxis, YAxis, Legend
 } from 'recharts';
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -216,19 +216,30 @@ function DrillDownContent() {
                  <div className="flex-1 min-h-0 relative">
                     {insights.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <RadarChart cx="50%" cy="50%" outerRadius="80%" data={insights}>
-                          <PolarGrid stroke="#ffffff10" />
-                          <PolarAngleAxis dataKey="subject" tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 'bold'}} />
-                          <Radar 
-                            name="Impacto" 
-                            dataKey="A" 
-                            stroke="#3b82f6" 
-                            fill="#3b82f6" 
-                            fillOpacity={0.4} 
-                            strokeWidth={3}
+                        <BarChart layout="vertical" data={insights} margin={{ left: 40, right: 30, top: 10, bottom: 10 }}>
+                          <XAxis type="number" hide domain={[0, 100]} />
+                          <YAxis 
+                            dataKey="subject" 
+                            type="category" 
+                            width={100}
+                            tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }} 
+                            axisLine={false}
+                            tickLine={false}
                           />
-                          <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '12px' }} />
-                        </RadarChart>
+                          <Tooltip 
+                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
+                            contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '12px' }} 
+                          />
+                          <Bar 
+                            dataKey="A" 
+                            radius={[0, 10, 10, 0]} 
+                            barSize={12}
+                          >
+                            {insights.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.A > 70 ? '#10b981' : entry.A > 40 ? '#3b82f6' : '#ef4444'} />
+                            ))}
+                          </Bar>
+                        </BarChart>
                       </ResponsiveContainer>
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center opacity-20">
