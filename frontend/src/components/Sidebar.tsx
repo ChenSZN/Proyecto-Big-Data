@@ -17,7 +17,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
   { name: 'Drill-Down', icon: Database, path: '/drilldown' },
-  { name: 'Patrones ML', icon: BrainCircuit, path: '/patterns' },
+  { name: 'PATRONES', icon: BrainCircuit, path: '/patterns' },
 ];
 
 export default function Sidebar() {

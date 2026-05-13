@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { 
   PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
-  BarChart, Bar, XAxis, YAxis, Legend, CartesianGrid
+  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar,
+  Legend
 } from 'recharts';
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -77,41 +78,24 @@ function DrillDownContent() {
     ];
   }, [data]);
 
-  const schoolAverages = useMemo(() => {
-    if (data.length === 0) return null;
-    return {
-      asistencia: data.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / data.length,
-      promedio: (data.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / data.length) * 10,
-      plataforma: Math.min((data.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / data.length) * 10, 100),
-      entregas: data.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / data.length
-    };
-  }, [data]);
-
   const insights = useMemo(() => {
-    if (filteredData.length === 0 || !schoolAverages) return [];
+    if (filteredData.length === 0) return [];
+    
+    // Group averages
+    const avgAsistencia = filteredData.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / filteredData.length;
+    const avgPromedio = (filteredData.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / filteredData.length) * 10;
+    const avgPlataforma = Math.min((filteredData.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / filteredData.length) * 10, 100);
+    const avgEntregas = filteredData.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / filteredData.length;
+    const avgMaterias = (filteredData.reduce((a, b) => a + (b.materias_reprobadas_previas || 0), 0) / filteredData.length) * 20;
+
     return [
-      { 
-        subject: 'Asistencia', 
-        Grupo: filteredData.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / filteredData.length,
-        Global: schoolAverages.asistencia
-      },
-      { 
-        subject: 'Rendimiento', 
-        Grupo: (filteredData.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / filteredData.length) * 10,
-        Global: schoolAverages.promedio
-      },
-      { 
-        subject: 'Plataforma', 
-        Grupo: Math.min((filteredData.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / filteredData.length) * 10, 100),
-        Global: schoolAverages.plataforma
-      },
-      { 
-        subject: 'Tareas', 
-        Grupo: filteredData.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / filteredData.length,
-        Global: schoolAverages.entregas
-      }
+      { subject: 'Asistencia', A: avgAsistencia, fullMark: 100 },
+      { subject: 'Rendimiento', A: avgPromedio, fullMark: 100 },
+      { subject: 'Plataforma', A: avgPlataforma, fullMark: 100 },
+      { subject: 'Tareas', A: avgEntregas, fullMark: 100 },
+      { subject: 'Reprobación', A: Math.min(avgMaterias, 100), fullMark: 100 },
     ];
-  }, [filteredData, schoolAverages]);
+  }, [filteredData]);
 
   return (
     <div className="p-6 h-full flex flex-col gap-6 overflow-hidden">
@@ -185,7 +169,7 @@ function DrillDownContent() {
          </div>
 
          <div className="lg:col-span-9 flex flex-col gap-6 min-h-0">
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0 min-h-[320px]">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0 min-h-[350px]">
                {/* Resumen de Riesgo (Donut) */}
                <div className="glass-card p-6 rounded-[32px] border border-white/5 flex flex-col min-h-0 bg-slate-900/20 relative group overflow-hidden">
                   <div className="flex items-center gap-3 mb-4 text-slate-500 shrink-0">
@@ -229,34 +213,31 @@ function DrillDownContent() {
                   </div>
                </div>
 
-               {/* Factores de Riesgo (Comparativa Útil) */}
+               {/* Diagnóstico por Telaraña (Spider Chart) */}
                <div className="xl:col-span-2 glass-card p-6 rounded-[32px] border border-white/5 flex flex-col min-h-0 bg-slate-900/20">
                   <div className="flex items-center justify-between mb-4 shrink-0">
                      <div className="flex items-center gap-3 text-slate-500">
                         <BrainCircuit className="h-4 w-4 text-indigo-500" /> 
-                        <span className="text-xs font-black uppercase tracking-widest">Diagnóstico: Grupo vs Promedio Global</span>
+                        <span className="text-xs font-black uppercase tracking-widest">Diagnóstico de Riesgo (Telaraña)</span>
                      </div>
                   </div>
-                  <div className="flex-1 min-h-[250px] relative">
+                  <div className="flex-1 min-h-[300px] relative">
                      {insights.length > 0 ? (
                       <ResponsiveContainer width="100%" height="100%">
-                        <BarChart data={insights} margin={{ left: 20, right: 20, top: 20, bottom: 0 }}>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                          <XAxis 
-                            dataKey="subject" 
-                            tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }} 
-                            axisLine={false}
-                            tickLine={false}
+                        <RadarChart cx="50%" cy="50%" outerRadius="70%" data={insights}>
+                          <PolarGrid stroke="#ffffff10" />
+                          <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'black' }} />
+                          <PolarRadiusAxis angle={30} domain={[0, 100]} hide />
+                          <Radar
+                            name="Grupo Seleccionado"
+                            dataKey="A"
+                            stroke="#3b82f6"
+                            fill="#3b82f6"
+                            fillOpacity={0.4}
+                            animationDuration={1500}
                           />
-                          <YAxis hide domain={[0, 100]} />
-                          <Tooltip 
-                            cursor={{ fill: 'rgba(255,255,255,0.05)' }}
-                            contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '12px' }} 
-                          />
-                          <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 'black', paddingTop: '10px' }} />
-                          <Bar name="Este Grupo" dataKey="Grupo" fill="#3b82f6" radius={[6, 6, 0, 0]} barSize={32} />
-                          <Bar name="Promedio Global" dataKey="Global" fill="#ffffff10" radius={[6, 6, 0, 0]} barSize={32} />
-                        </BarChart>
+                          <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '12px' }} />
+                        </RadarChart>
                       </ResponsiveContainer>
                     ) : (
                       <div className="absolute inset-0 flex items-center justify-center opacity-20">
