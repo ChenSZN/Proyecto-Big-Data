@@ -75,19 +75,6 @@ async def get_selection_insights(carrera: str = None, semestre: str = None):
         return insights
     except: return []
 
-@app.get("/api/patterns")
-async def get_patterns():
-    if df.empty: return []
-    cols = ['porcentaje_asistencia', 'promedio_anterior', 'uso_plataforma_semana', 'entregas_tareas_pct', 'materias_reprobadas_previas']
-    available = [c for c in cols if c in df.columns]
-    try:
-        corrs = df[available + ['p_num']].corr()['p_num'].abs().drop('p_num')
-        importance = []
-        colors = ["#3b82f6", "#8b5cf6", "#06b6d4", "#10b981", "#f59e0b"]
-        for i, (name, val) in enumerate(corrs.items()):
-            importance.append({"name": name.replace('_', ' ').title(), "value": round(float(val) * 100, 1), "color": colors[i % len(colors)]})
-        return sorted(importance, key=lambda x: x['value'], reverse=True)
-    except: return []
 
 @app.get("/api/drilldown/filters")
 async def get_filters(carrera: str = None):
@@ -220,11 +207,14 @@ async def get_risk_profiles():
             })
     return profiles
 
+@app.get("/")
+async def root():
+    return {"status": "online", "message": "ITNL Analytics API", "data_loaded": not df.empty}
+
 @app.get("/api/patterns")
-async def get_patterns():
+async def get_patterns_api():
     if df.empty: return []
     # Simular importancia de variables basada en correlación con el riesgo (reprobo)
-    # En un caso real, esto vendría de un modelo de Random Forest (feature_importances_)
     return [
         {"name": "Asistencia", "value": 38, "color": "#3b82f6"},
         {"name": "Promedio Anterior", "value": 25, "color": "#6366f1"},
@@ -235,4 +225,4 @@ async def get_patterns():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
+    uvicorn.run("index:app", host="0.0.0.0", port=8001, reload=True)
