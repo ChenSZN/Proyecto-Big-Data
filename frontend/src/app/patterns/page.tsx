@@ -132,7 +132,7 @@ export default function Patterns() {
               </div>
 
               <div className="flex-1 min-h-[350px] w-full">
-                {chartData.length > 0 ? (
+                {chartData && chartData.length > 0 ? (
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 30 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
@@ -157,8 +157,13 @@ export default function Patterns() {
                     </BarChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-full flex items-center justify-center opacity-20">
-                     <p className="text-xs font-black uppercase tracking-widest">Calculando Correlaciones...</p>
+                  <div className="h-full flex items-center justify-center opacity-40">
+                     <div className="text-center">
+                        <Activity className="h-8 w-8 text-blue-500 animate-spin mx-auto mb-4" />
+                        <p className="text-xs font-black uppercase tracking-widest">
+                           {importanceData ? "No hay datos suficientes para este patrón" : "Sincronizando con el motor de IA..."}
+                        </p>
+                     </div>
                   </div>
                 )}
               </div>
