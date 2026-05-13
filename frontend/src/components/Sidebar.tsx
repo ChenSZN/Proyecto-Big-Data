@@ -7,6 +7,7 @@ import {
   LayoutDashboard, 
   Database, 
   BrainCircuit, 
+  Globe,
   ChevronRight,
   ChevronLeft,
   Menu,
@@ -18,6 +19,7 @@ const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
   { name: 'Drill-Down', icon: Database, path: '/drilldown' },
   { name: 'PATRONES', icon: BrainCircuit, path: '/patterns' },
+  { name: 'ENTORNO', icon: Globe, path: '/environment' },
 ];
 
 export default function Sidebar() {

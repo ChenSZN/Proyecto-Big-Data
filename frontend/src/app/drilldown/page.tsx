@@ -4,12 +4,10 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { 
-  Search, BrainCircuit, ArrowLeft, Download, 
-  Activity, PieChart as PieIcon 
+  ArrowLeft, Activity, PieChart as PieIcon 
 } from "lucide-react";
 import { 
-  PieChart, Pie, Cell, ResponsiveContainer, Tooltip,
-  RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar
+  PieChart, Pie, Cell, ResponsiveContainer, Tooltip
 } from 'recharts';
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -74,58 +72,29 @@ function DrillDownContent() {
     ];
   }, [data]);
 
-  const radarData = useMemo(() => {
-    if (filteredData.length === 0) return [];
-    
-    // Weighted averages to show clear variance between risk levels
-    const n = filteredData.length;
-    const avgAsis = filteredData.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / n;
-    const avgProm = (filteredData.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / n);
-    const avgPlat = filteredData.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / n;
-    const avgTare = filteredData.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / n;
-    const avgRepr = filteredData.reduce((a, b) => a + (b.materias_reprobadas_previas || 0), 0) / n;
-
-    return [
-      { subject: 'Asistencia', A: Math.max(10, avgAsis) },
-      { subject: 'Rendimiento', A: Math.min(100, avgProm * 12) },
-      { subject: 'Plataforma', A: Math.min(100, avgPlat * 18) },
-      { subject: 'Tareas', A: Math.max(10, avgTare) },
-      { subject: 'Reprobación', A: Math.min(100, avgRepr * 25) },
-    ];
-  }, [filteredData]);
-
   return (
     <div className="p-6 h-full flex flex-col gap-6 overflow-hidden">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
-        <div className="flex items-center gap-4">
-          <button onClick={() => router.push("/")} className="p-3 rounded-2xl bg-white/5 hover:bg-white/10 text-slate-400">
-             <ArrowLeft className="h-5 w-5" />
-          </button>
-        </div>
-        <div className="flex items-center gap-3">
-           <div className="relative">
-              <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500" />
-              <input 
-                type="text" 
-                placeholder="Matrícula..." 
-                className="bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-6 text-sm font-bold text-white outline-none w-48"
-                value={selection.search}
-                onChange={(e) => setSelection({ ...selection, search: e.target.value })}
-              />
-           </div>
+      <header className="flex items-center gap-4 shrink-0">
+        <button onClick={() => router.push("/")} className="p-4 rounded-[20px] bg-white/5 hover:bg-white/10 text-slate-400 transition-all">
+           <ArrowLeft className="h-6 w-6" />
+        </button>
+        <div>
+          <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter">Explorador de Datos</h1>
+          <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Sincronización en Tiempo Real por Carrera y Semestre</p>
         </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 flex-1 min-h-0">
+         {/* Filtros Lateral */}
          <div className="lg:col-span-3 flex flex-col gap-6 shrink-0 h-fit">
             <AnimatePresence>
               {!selection.carrera && (
-                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card p-6 rounded-[32px] bg-blue-600/5">
-                   <p className="text-[10px] font-black text-blue-400 uppercase mb-4 tracking-widest">Carrera</p>
+                <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="glass-card p-8 rounded-[40px] bg-blue-600/5 border border-white/5">
+                   <p className="text-[10px] font-black text-blue-400 uppercase mb-6 tracking-widest">Seleccionar Carrera</p>
                    <div className="grid grid-cols-1 gap-2">
                       {filters.carreras.map((c: string) => (
                         <button key={c} onClick={() => setSelection({ ...selection, carrera: c })}
-                          className="px-4 py-3 rounded-xl bg-white/5 hover:bg-white/10 text-left text-[10px] font-black uppercase"
+                          className="px-5 py-4 rounded-2xl bg-white/5 hover:bg-white/10 text-left text-[11px] font-black uppercase tracking-tight transition-all"
                         >
                           {c}
                         </button>
@@ -134,17 +103,21 @@ function DrillDownContent() {
                 </motion.div>
               )}
               {selection.carrera && (
-                <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="glass-card p-6 rounded-[32px] bg-blue-600/10">
-                   <div className="flex justify-between mb-4">
-                      <p className="text-[10px] font-black text-blue-400 uppercase truncate max-w-[150px]">{selection.carrera}</p>
-                      <button onClick={() => setSelection({ carrera: "", semestre: "", search: "" })} className="text-[10px] font-black text-slate-500 underline">Cambiar</button>
+                <motion.div initial={{ scale: 0.95 }} animate={{ scale: 1 }} className="glass-card p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20">
+                   <div className="flex justify-between items-center mb-6">
+                      <div className="max-w-[140px]">
+                        <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Filtro Activo</p>
+                        <p className="text-sm font-black text-white uppercase truncate">{selection.carrera}</p>
+                      </div>
+                      <button onClick={() => setSelection({ carrera: "", semestre: "", search: "" })} className="text-[10px] font-black text-blue-400 hover:text-white underline">CAMBIAR</button>
                    </div>
+                   <p className="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest">Semestre</p>
                    <div className="grid grid-cols-4 gap-2">
                       {filters.semestres.map((s: number) => (
                         <button key={s} onClick={() => setSelection({ ...selection, semestre: selection.semestre === s.toString() ? "" : s.toString() })}
-                          className={`py-3 rounded-xl font-black text-xs ${selection.semestre === s.toString() ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500"}`}
+                          className={`py-4 rounded-2xl font-black text-sm transition-all ${selection.semestre === s.toString() ? "bg-blue-600 text-white shadow-xl shadow-blue-500/20" : "bg-white/5 text-slate-500 hover:bg-white/10"}`}
                         >
-                          {s}°
+                          {s}
                         </button>
                       ))}
                    </div>
@@ -154,84 +127,67 @@ function DrillDownContent() {
          </div>
 
          <div className="lg:col-span-9 flex flex-col gap-6 min-h-0">
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0 h-auto lg:h-[320px]">
-               {/* Resumen de Riesgo */}
-               <div className="glass-card p-6 rounded-[32px] bg-slate-900/20 relative flex flex-col h-[300px] lg:h-full">
-                  <div className="flex items-center gap-3 mb-4 text-slate-500">
-                     <PieIcon className="h-4 w-4 text-blue-500" /> 
-                     <span className="text-xs font-black uppercase tracking-widest">Resumen</span>
-                  </div>
-                  <div className="flex-1 relative min-h-0">
-                     <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie data={chartData} innerRadius={60} outerRadius={85} paddingAngle={5} dataKey="value" stroke="none">
-                            {chartData.map((entry) => (
-                              <Cell key={`cell-${entry.name}`} fill={entry.name === 'ALTO' ? '#ef4444' : entry.name === 'MEDIO' ? '#f59e0b' : '#10b981'} />
-                            ))}
-                          </Pie>
-                        </PieChart>
-                     </ResponsiveContainer>
-                     <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-                        <span className="text-3xl font-black text-white">{data.length}</span>
-                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Alumnos</span>
+            {/* Gráfica de Resumen Ampliada */}
+            <div className="glass-card p-10 rounded-[48px] bg-slate-900/20 border border-white/5 relative flex flex-col h-[350px] lg:h-[400px] shrink-0 overflow-hidden">
+               <div className="flex items-center justify-between mb-8">
+                  <div className="flex items-center gap-4 text-slate-400">
+                     <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-500">
+                        <PieIcon className="h-6 w-6" />
+                     </div>
+                     <div>
+                        <span className="text-sm font-black uppercase tracking-tighter text-white">Distribución de Riesgo</span>
+                        <p className="text-[10px] font-bold text-slate-500 uppercase">Estado Actual del Segmento</p>
                      </div>
                   </div>
-               </div>
-
-               {/* Diagnóstico de Riesgo (Radar) */}
-               <div className="xl:col-span-2 glass-card p-6 rounded-[32px] bg-slate-900/20 flex flex-col h-[300px] lg:h-full">
-                  <div className="flex items-center gap-3 mb-4 text-slate-500">
-                     <BrainCircuit className="h-4 w-4 text-indigo-500" /> 
-                     <span className="text-xs font-black uppercase tracking-widest">Diagnóstico de Riesgo</span>
-                  </div>
-                  <div className="flex-1 relative min-h-0">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
-                        <PolarGrid stroke="#ffffff10" />
-                        <PolarAngleAxis dataKey="subject" tick={{ fill: '#94a3b8', fontSize: 10, fontWeight: 'bold' }} />
-                        <PolarRadiusAxis angle={30} domain={[0, 100]} hide />
-                        <Radar
-                          name="Nivel"
-                          dataKey="A"
-                          stroke="#3b82f6"
-                          fill="#3b82f6"
-                          fillOpacity={0.4}
-                        />
-                      </RadarChart>
-                    </ResponsiveContainer>
-                  </div>
-               </div>
-            </div>
-
-            <div className="flex-1 min-h-0 flex flex-col gap-4 mt-6">
-               <div className="flex justify-between items-center px-4">
-                  <h2 className="text-xl font-black text-white uppercase tracking-tighter">Listado ({filteredData.length})</h2>
-                  <div className="flex gap-2 bg-white/5 p-1 rounded-xl">
+                  <div className="hidden md:flex gap-2 bg-white/5 p-1.5 rounded-2xl border border-white/5">
                      {['TODOS', 'ALTO', 'MEDIO', 'BAJO'].map(f => (
                        <button key={f} onClick={() => setLocalFilter(f)}
-                         className={`px-3 py-1.5 rounded-lg text-[10px] font-black transition-all ${localFilter === f ? 'bg-white text-black shadow-lg' : 'text-slate-500'}`}
+                         className={`px-5 py-2.5 rounded-[14px] text-[10px] font-black transition-all ${localFilter === f ? 'bg-white text-black shadow-lg' : 'text-slate-500 hover:text-slate-300'}`}
                        >
                          {f}
                        </button>
                      ))}
                   </div>
                </div>
-               <div className="flex-1 overflow-auto custom-scrollbar glass-card rounded-[32px] bg-black/20 border border-white/5">
+               
+               <div className="flex-1 relative min-h-0 flex items-center justify-center">
+                  <div className="w-full h-full max-w-md">
+                     <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie data={chartData} innerRadius={80} outerRadius={120} paddingAngle={10} dataKey="value" stroke="none">
+                            {chartData.map((entry) => (
+                              <Cell key={`cell-${entry.name}`} fill={entry.name === 'ALTO' ? '#ef4444' : entry.name === 'MEDIO' ? '#f59e0b' : '#10b981'} />
+                            ))}
+                          </Pie>
+                          <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontWeight: 'bold' }} />
+                        </PieChart>
+                     </ResponsiveContainer>
+                  </div>
+                  <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
+                     <span className="text-6xl font-black text-white leading-none tracking-tighter">{data.length}</span>
+                     <span className="text-[12px] font-black text-slate-500 uppercase tracking-[0.2em] mt-2">Estudiantes</span>
+                  </div>
+               </div>
+            </div>
+
+            {/* Listado Simplificado */}
+            <div className="flex-1 min-h-0 flex flex-col gap-4 mt-2">
+               <div className="flex-1 overflow-auto custom-scrollbar glass-card rounded-[48px] bg-black/20 border border-white/5">
                   <table className="w-full text-left">
-                    <thead className="sticky top-0 bg-[#0f172a] text-[10px] font-black uppercase text-slate-500 border-b border-white/5 z-10">
+                    <thead className="sticky top-0 bg-[#020617] text-[11px] font-black uppercase text-slate-500 border-b border-white/5 z-10">
                       <tr>
-                        <th className="px-8 py-4">Matrícula</th>
-                        <th className="px-8 py-4">Promedio</th>
-                        <th className="px-8 py-4 text-right">Riesgo</th>
+                        <th className="px-10 py-6 tracking-widest">Matrícula</th>
+                        <th className="px-10 py-6 tracking-widest text-center">Promedio</th>
+                        <th className="px-10 py-6 tracking-widest text-right">Riesgo Académico</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {filteredData.map((st, idx) => (
-                        <tr key={idx} className="hover:bg-white/5">
-                          <td className="px-8 py-4 font-black text-white">{st.id_estudiante}</td>
-                          <td className="px-8 py-4 font-bold">{st.promedio_anterior?.toFixed(1)}</td>
-                          <td className="px-8 py-4 text-right">
-                            <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${st.prioridad === 'ALTO' ? 'bg-red-500' : st.prioridad === 'MEDIO' ? 'bg-orange-500' : 'bg-emerald-500'}`}>
+                        <tr key={idx} className="hover:bg-white/5 transition-colors group">
+                          <td className="px-10 py-6 font-black text-white text-lg tracking-tight group-hover:text-blue-400 transition-colors">{st.id_estudiante}</td>
+                          <td className="px-10 py-6 font-black text-slate-400 text-center text-xl">{st.promedio_anterior?.toFixed(1)}</td>
+                          <td className="px-10 py-6 text-right">
+                            <span className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest shadow-xl ${st.prioridad === 'ALTO' ? 'bg-red-500 text-white' : st.prioridad === 'MEDIO' ? 'bg-orange-500 text-white' : 'bg-emerald-500 text-white'}`}>
                                {st.prioridad}
                              </span>
                           </td>

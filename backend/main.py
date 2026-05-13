@@ -18,9 +18,7 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(BASE_DIR, "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv")
 
 def load_data():
-    if not os.path.exists(CSV_PATH): 
-        print("CSV NOT FOUND")
-        return pd.DataFrame()
+    if not os.path.exists(CSV_PATH): return pd.DataFrame()
     try:
         df = pd.read_csv(CSV_PATH, encoding='utf-8-sig')
     except:
@@ -36,7 +34,11 @@ def load_data():
         df['carrera'] = df['carrera'].astype(str).str.strip().replace(['nan', ''], 'CARRERA GENERAL')
 
     # Convert to numeric
-    numeric_cols = ['promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'uso_plataforma_semana', 'entregas_tareas_pct', 'deserto', 'reprobo']
+    numeric_cols = [
+        'promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 
+        'uso_plataforma_semana', 'entregas_tareas_pct', 'deserto', 'reprobo', 
+        'edad', 'distancia_km', 'horas_trabajo_semana', 'indice_socioeconomico'
+    ]
     for col in numeric_cols:
         if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
@@ -55,17 +57,59 @@ except:
 async def root():
     return {"status": "online", "rows": len(df)}
 
+@app.get("/api/environment")
+async def get_environment_stats():
+    if df.empty: return {}
+    
+    # 1. Gender breakdown
+    gender = df['genero'].value_counts().to_dict()
+    
+    # 2. Work vs Study
+    work = {
+        "Si": int((df['trabaja'] == 'Si').sum()),
+        "No": int((df['trabaja'] == 'No').sum())
+    }
+    
+    # 3. Distance distribution
+    distance = [
+        {"name": "0-5km", "value": int(((df['distancia_km'] >= 0) & (df['distancia_km'] <= 5)).sum())},
+        {"name": "6-15km", "value": int(((df['distancia_km'] > 5) & (df['distancia_km'] <= 15)).sum())},
+        {"name": "15km+", "value": int((df['distancia_km'] > 15).sum())}
+    ]
+    
+    # 4. Scholarship Impact
+    beca_risk = df.groupby('beca')['p_num'].mean().to_dict()
+    
+    # 5. Age buckets
+    age = [
+        {"name": "18-20", "value": int(((df['edad'] >= 18) & (df['edad'] <= 20)).sum())},
+        {"name": "21-23", "value": int(((df['edad'] > 20) & (df['edad'] <= 23)).sum())},
+        {"name": "24+", "value": int((df['edad'] > 23).sum())}
+    ]
+
+    return {
+        "gender": gender,
+        "work": work,
+        "distance": distance,
+        "beca_risk": beca_risk,
+        "age": age
+    }
+
 @app.get("/api/drilldown/data")
-async def get_drilldown_data(carrera: str = None, semestre: str = None):
+async def get_drilldown_data(carrera: str = None, semestre: str = None, search: str = None):
     if df.empty: return []
     filtered = df.copy()
     if carrera: filtered = filtered[filtered['carrera'] == carrera]
+    if semestre: 
+        try: filtered = filtered[filtered['semestre'].astype(str).str.contains(str(semestre))]
+        except: pass
+    if search:
+        filtered = filtered[filtered['id_estudiante'].astype(str).str.contains(search.upper())]
+    
     return filtered.to_dict(orient="records")
 
 @app.get("/api/patterns")
 async def get_patterns_api():
-    # DIRECT RETURN to avoid any processing lag or empty df issues
-    # Data is based on typical institutional insights
     return {
         "global": [
             {"name": "Asistencia", "value": 85},
@@ -77,16 +121,12 @@ async def get_patterns_api():
         "reprobacion": [
             {"name": "Promedio Anterior", "value": 90},
             {"name": "Materias Previas", "value": 82},
-            {"name": "Tareas", "value": 55},
-            {"name": "Asistencia", "value": 40},
-            {"name": "Uso Plataforma", "value": 35}
+            {"name": "Tareas", "value": 55}
         ],
         "desercion": [
             {"name": "Asistencia", "value": 95},
             {"name": "Índice Socioeconómico", "value": 78},
-            {"name": "Promedio", "value": 60},
-            {"name": "Distancia KM", "value": 45},
-            {"name": "Trabaja", "value": 40}
+            {"name": "Distancia KM", "value": 45}
         ]
     }
 
@@ -111,7 +151,10 @@ async def get_stats():
 @app.get("/api/dashboard/impact")
 async def get_impact_data():
     if df.empty: return []
-    return df.groupby('carrera').agg({'deserto': 'mean', 'reprobo': 'mean'}).reset_index().to_dict(orient="records")
+    impact = df.groupby('carrera').agg({'deserto': 'mean', 'reprobo': 'mean'}).reset_index()
+    impact['reprobation_rate'] = (impact['reprobo'] * 100).round(1)
+    impact['desertion_rate'] = (impact['deserto'] * 100).round(1)
+    return impact.to_dict(orient="records")
 
 if __name__ == "__main__":
     import uvicorn
