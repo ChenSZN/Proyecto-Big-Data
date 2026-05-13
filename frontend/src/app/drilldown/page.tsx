@@ -77,20 +77,20 @@ function DrillDownContent() {
   const radarData = useMemo(() => {
     if (filteredData.length === 0) return [];
     
-    // SCALE FIX: We use relative scaling to ensure the shape varies significantly
-    // We normalize each axis to its expected impact range
-    const avgAsis = filteredData.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / filteredData.length;
-    const avgProm = (filteredData.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / filteredData.length);
-    const avgPlat = filteredData.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / filteredData.length;
-    const avgTare = filteredData.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / filteredData.length;
-    const avgRepr = filteredData.reduce((a, b) => a + (b.materias_reprobadas_previas || 0), 0) / filteredData.length;
+    // Weighted averages to show clear variance between risk levels
+    const n = filteredData.length;
+    const avgAsis = filteredData.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / n;
+    const avgProm = (filteredData.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / n);
+    const avgPlat = filteredData.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / n;
+    const avgTare = filteredData.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / n;
+    const avgRepr = filteredData.reduce((a, b) => a + (b.materias_reprobadas_previas || 0), 0) / n;
 
     return [
-      { subject: 'Asistencia', A: avgAsis }, // 0-100
-      { subject: 'Rendimiento', A: Math.min(avgProm * 12, 100) }, // Boost GPA variance
-      { subject: 'Plataforma', A: Math.min(avgPlat * 20, 100) }, // Boost Platform variance
-      { subject: 'Tareas', A: avgTare }, // 0-100
-      { subject: 'Riesgo Mat.', A: Math.min(avgRepr * 30, 100) }, // Boost Reprobation impact
+      { subject: 'Asistencia', A: Math.max(10, avgAsis) },
+      { subject: 'Rendimiento', A: Math.min(100, avgProm * 12) },
+      { subject: 'Plataforma', A: Math.min(100, avgPlat * 18) },
+      { subject: 'Tareas', A: Math.max(10, avgTare) },
+      { subject: 'Reprobación', A: Math.min(100, avgRepr * 25) },
     ];
   }, [filteredData]);
 
@@ -155,11 +155,11 @@ function DrillDownContent() {
 
          <div className="lg:col-span-9 flex flex-col gap-6 min-h-0">
             <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0 h-auto lg:h-[320px]">
-               {/* Resumen de Riesgo - Fixed centering and total */}
+               {/* Resumen de Riesgo */}
                <div className="glass-card p-6 rounded-[32px] bg-slate-900/20 relative flex flex-col h-[300px] lg:h-full">
                   <div className="flex items-center gap-3 mb-4 text-slate-500">
                      <PieIcon className="h-4 w-4 text-blue-500" /> 
-                     <span className="text-xs font-black uppercase">Resumen</span>
+                     <span className="text-xs font-black uppercase tracking-widest">Resumen</span>
                   </div>
                   <div className="flex-1 relative min-h-0">
                      <ResponsiveContainer width="100%" height="100%">
@@ -173,18 +173,18 @@ function DrillDownContent() {
                      </ResponsiveContainer>
                      <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
                         <span className="text-3xl font-black text-white">{data.length}</span>
-                        <span className="text-[10px] font-black text-slate-500 uppercase">Alumnos</span>
+                        <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Alumnos</span>
                      </div>
                   </div>
                </div>
 
-               {/* Diagnóstico (Radar) - Simplified and scaled */}
-               <div className="xl:col-span-2 glass-card p-6 rounded-[32px] bg-slate-900/20 h-[300px] lg:h-full">
+               {/* Diagnóstico de Riesgo (Radar) */}
+               <div className="xl:col-span-2 glass-card p-6 rounded-[32px] bg-slate-900/20 flex flex-col h-[300px] lg:h-full">
                   <div className="flex items-center gap-3 mb-4 text-slate-500">
                      <BrainCircuit className="h-4 w-4 text-indigo-500" /> 
-                     <span className="text-xs font-black uppercase">Diagnóstico de Riesgo</span>
+                     <span className="text-xs font-black uppercase tracking-widest">Diagnóstico de Riesgo</span>
                   </div>
-                  <div className="flex-1 min-h-0">
+                  <div className="flex-1 relative min-h-0">
                     <ResponsiveContainer width="100%" height="100%">
                       <RadarChart cx="50%" cy="50%" outerRadius="75%" data={radarData}>
                         <PolarGrid stroke="#ffffff10" />
@@ -222,7 +222,6 @@ function DrillDownContent() {
                       <tr>
                         <th className="px-8 py-4">Matrícula</th>
                         <th className="px-8 py-4">Promedio</th>
-                        <th className="px-8 py-4">Asistencia</th>
                         <th className="px-8 py-4 text-right">Riesgo</th>
                       </tr>
                     </thead>
@@ -231,7 +230,6 @@ function DrillDownContent() {
                         <tr key={idx} className="hover:bg-white/5">
                           <td className="px-8 py-4 font-black text-white">{st.id_estudiante}</td>
                           <td className="px-8 py-4 font-bold">{st.promedio_anterior?.toFixed(1)}</td>
-                          <td className="px-8 py-4 font-bold">{st.porcentaje_asistencia?.toFixed(1)}%</td>
                           <td className="px-8 py-4 text-right">
                             <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase ${st.prioridad === 'ALTO' ? 'bg-red-500' : st.prioridad === 'MEDIO' ? 'bg-orange-500' : 'bg-emerald-500'}`}>
                                {st.prioridad}
