@@ -52,7 +52,11 @@ def load_data():
             
     return df
 
-df = load_data()
+try:
+    df = load_data()
+except Exception as e:
+    print(f"Error loading data: {e}")
+    df = pd.DataFrame()
 
 @app.get("/api/drilldown/insights")
 async def get_selection_insights(carrera: str = None, semestre: str = None):
