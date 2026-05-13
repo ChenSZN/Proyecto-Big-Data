@@ -72,26 +72,7 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 h-full flex flex-col gap-6 overflow-hidden">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0">
-        <div className="space-y-1">
-          <h1 className="text-4xl font-black tracking-tighter text-white uppercase italic leading-tight">
-            Dashboard <span className="text-blue-600 font-light not-italic tracking-normal">Analítico</span>
-          </h1>
-          <div className="text-slate-500 font-bold uppercase tracking-[0.2em] text-xs flex items-center gap-3">
-             Sincronizado con Dataset ITNL • AI Engine Active
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-           <div className="bg-white/5 px-4 py-2 rounded-full border border-white/10 text-xs font-black text-blue-400 uppercase tracking-widest animate-pulse">
-              Predicción en Tiempo Real
-           </div>
-           <button 
-             onClick={() => alert("¡Enlace de reporte copiado al portapapeles!")}
-             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20"
-           >
-             <PieIcon className="h-4 w-4" /> Compartir
-           </button>
-        </div>
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 mb-2">
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
@@ -140,7 +121,7 @@ export default function Dashboard() {
           </div>
           
           <div className="flex-1 min-h-0 w-full flex flex-col gap-6">
-            <div className="h-1/2 min-h-0">
+            <div className="flex-1 min-h-0">
               <p className="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <Target className="h-4 w-4" /> Mayores Índices de Reprobación por Carrera
               </p>
@@ -148,7 +129,7 @@ export default function Dashboard() {
                 <BarChart layout="vertical" data={impactData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
                   <XAxis type="number" hide />
-                  <YAxis dataKey="carrera" type="category" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11, fontWeight: 'bold'}} width={150} />
+                  <YAxis dataKey="carrera" type="category" width={140} tick={{fill: '#94a3b8', fontSize: 9, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
                   <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} />
                   <Bar dataKey="reprobation_rate" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={16} />
                 </BarChart>
