@@ -24,7 +24,7 @@ import {
 import { motion } from "framer-motion";
 import axios from "axios";
 
-const API_URL = "http://localhost:8001/api";
+const API_URL = "/api";
 
 export default function Patterns() {
   const [mounted, setMounted] = useState(false);
