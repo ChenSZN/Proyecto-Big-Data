@@ -27,7 +27,7 @@ function DrillDownContent() {
     semestre: searchParams.get("semestre") || "",
     search: searchParams.get("id") || ""
   });
-  const [localFilter, setLocalFilter] = useState("TODOS");
+  const [localFilter, setLocalFilter] = useState(searchParams.get("filter") || "TODOS");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {

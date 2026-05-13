@@ -29,10 +29,10 @@ export default function RootLayout({
         </div>
 
         {/* Contenedor Principal Flexible */}
-        <div className="flex h-screen w-screen p-4 gap-4 overflow-hidden">
+        <div className="flex h-screen w-screen p-2 md:p-6 gap-2 md:gap-6 overflow-hidden">
           <Sidebar />
-          <main className="flex-1 glass-card rounded-[32px] overflow-hidden relative flex flex-col">
-            <div className="flex-1 flex flex-col min-h-0">
+          <main className="flex-1 glass-card rounded-[24px] md:rounded-[48px] overflow-hidden relative flex flex-col border border-white/5 bg-slate-900/20 backdrop-blur-3xl shadow-2xl">
+            <div className="flex-1 flex flex-col min-h-0 overflow-y-auto lg:overflow-hidden custom-scrollbar">
               {children}
             </div>
           </main>

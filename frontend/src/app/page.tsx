@@ -12,11 +12,16 @@ import {
   PieChart, Pie, LineChart, Line, Radar, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Legend
 } from 'recharts';
 
+import { useRouter } from "next/navigation";
+
 const API_URL = "http://localhost:8001/api";
 
-function StatCard({ title, value, icon: Icon, color, trend }: any) {
+function StatCard({ title, value, icon: Icon, color, trend, onClick }: any) {
   return (
-    <div className="glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group">
+    <div 
+      onClick={onClick}
+      className={`glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group ${onClick ? 'cursor-pointer hover:border-white/20 hover:scale-[1.02]' : ''}`}
+    >
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-2xl bg-white/5 ${color} group-hover:scale-110 transition-transform`}>
           <Icon className="h-6 w-6" />
@@ -35,6 +40,8 @@ export default function Dashboard() {
   const [profileData, setProfileData] = useState<any[]>([]);
   const [trendData, setTrendData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const router = useRouter();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -78,14 +85,47 @@ export default function Dashboard() {
            <div className="bg-white/5 px-4 py-2 rounded-full border border-white/10 text-xs font-black text-blue-400 uppercase tracking-widest animate-pulse">
               Predicción en Tiempo Real
            </div>
+           <button 
+             onClick={() => alert("¡Enlace de reporte copiado al portapapeles!")}
+             className="flex items-center gap-2 bg-blue-600 hover:bg-blue-500 text-white px-5 py-2.5 rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-lg shadow-blue-500/20"
+           >
+             <PieIcon className="h-4 w-4" /> Compartir
+           </button>
         </div>
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
-        <StatCard title="Total Alumnos" value={stats?.total_estudiantes || 0} icon={Users} color="text-blue-500" trend="Dataset Completo" />
-        <StatCard title="Tasa Deserción" value={`${stats?.tasa_desercion || 0}%`} icon={TrendingUp} color="text-red-500" trend="Riesgo Crítico" />
-        <StatCard title="Reprobación" value={`${stats?.tasa_reprobacion || 0}%`} icon={AlertTriangle} color="text-amber-500" trend="Índice Global" />
-        <StatCard title="Retención" value="92.4%" icon={CheckCircle} color="text-emerald-500" trend="Meta Institucional" />
+        <StatCard 
+          title="Total Alumnos" 
+          value={stats?.total_estudiantes || 0} 
+          icon={Users} 
+          color="text-blue-500" 
+          trend="Dataset Completo" 
+          onClick={() => router.push("/drilldown")}
+        />
+        <StatCard 
+          title="Tasa Deserción" 
+          value={`${stats?.tasa_desercion || 0}%`} 
+          icon={TrendingUp} 
+          color="text-red-500" 
+          trend="Riesgo Crítico" 
+          onClick={() => router.push("/drilldown?filter=ALTO")}
+        />
+        <StatCard 
+          title="Reprobación" 
+          value={`${stats?.tasa_reprobacion || 0}%`} 
+          icon={AlertTriangle} 
+          color="text-amber-500" 
+          trend="Índice Global" 
+          onClick={() => router.push("/drilldown?filter=ALTO")}
+        />
+        <StatCard 
+          title="Retención" 
+          value="92.4%" 
+          icon={CheckCircle} 
+          color="text-emerald-500" 
+          trend="Meta Institucional" 
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
@@ -115,18 +155,18 @@ export default function Dashboard() {
               </ResponsiveContainer>
             </div>
 
-            <div className="h-1/2 min-h-0 border-t border-white/5 pt-6">
+            <div className="h-1/2 min-h-0">
               <p className="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <LineIcon className="h-4 w-4" /> Evolución de Riesgo por Semestre
               </p>
-              <ResponsiveContainer width="100%" height="90%">
-                <LineChart data={trendData}>
+              <ResponsiveContainer width="100%" height="85%">
+                <LineChart data={trendData} onClick={(data: any) => data && data.activePayload && router.push(`/drilldown?semestre=${data.activePayload[0].payload.semestre_num}`)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                  <XAxis dataKey="semestre_num" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 11}} />
-                  <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} />
-                  <Line type="monotone" dataKey="deserto" stroke="#ef4444" strokeWidth={4} dot={{r: 5, fill: '#ef4444'}} />
-                  <Line type="monotone" dataKey="reprobo" stroke="#3b82f6" strokeWidth={4} dot={{r: 5, fill: '#3b82f6'}} />
+                  <XAxis dataKey="semestre_num" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
+                  <YAxis stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px' }} />
+                  <Line type="monotone" dataKey="reprobo" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} />
+                  <Line type="monotone" dataKey="deserto" stroke="#ef4444" strokeWidth={4} dot={{ r: 4, fill: '#ef4444', strokeWidth: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -143,54 +183,57 @@ export default function Dashboard() {
             <Activity className="h-6 w-6 text-indigo-500" />
           </div>
 
-          <div className="flex-1 min-h-0 w-full flex flex-col gap-6">
-             <div className="h-3/5 min-h-0 glass-card bg-black/20 rounded-[32px] p-6 border border-white/5">
-                <p className="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
-                   <Target className="h-4 w-4" /> Radar: Fortalezas y Debilidades por Segmento
+          <div className="flex-1 min-h-0 w-full flex flex-col gap-4">
+             <div className="h-[45%] min-h-0 glass-card bg-black/20 rounded-[32px] p-4 border border-white/5 relative">
+                <p className="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest flex items-center gap-2">
+                   <BarChart3 className="h-3 w-3" /> Comparativa de Rendimiento por Segmento
                 </p>
-                <ResponsiveContainer width="100%" height="90%">
-                  <RadarChart cx="50%" cy="50%" outerRadius="80%" data={[
-                    { name: 'Asistencia', ALTO: profileData.find(d => d.subject === 'ALTO')?.Asistencia || 0, MEDIO: profileData.find(d => d.subject === 'MEDIO')?.Asistencia || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Asistencia || 0 },
-                    { name: 'Promedio', ALTO: profileData.find(d => d.subject === 'ALTO')?.Promedio || 0, MEDIO: profileData.find(d => d.subject === 'MEDIO')?.Promedio || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Promedio || 0 },
-                    { name: 'Plataforma', ALTO: profileData.find(d => d.subject === 'ALTO')?.Plataforma || 0, MEDIO: profileData.find(d => d.subject === 'MEDIO')?.Plataforma || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Plataforma || 0 },
-                    { name: 'Entregas', ALTO: profileData.find(d => d.subject === 'ALTO')?.Entregas || 0, MEDIO: profileData.find(d => d.subject === 'MEDIO')?.Entregas || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Entregas || 0 },
-                    { name: 'Participación', ALTO: profileData.find(d => d.subject === 'ALTO')?.Participacion || 0, MEDIO: profileData.find(d => d.subject === 'MEDIO')?.Participacion || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Participacion || 0 },
-                  ]}>
-                    <PolarGrid stroke="#ffffff10" />
-                    <PolarAngleAxis dataKey="name" tick={{fill: '#94a3b8', fontSize: 10}} />
-                    <Radar name="ALTO RIESGO" dataKey="ALTO" stroke="#ef4444" fill="#ef4444" fillOpacity={0.5} />
-                    <Radar name="BAJO RIESGO" dataKey="BAJO" stroke="#10b981" fill="#10b981" fillOpacity={0.3} />
-                    <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} />
-                    <Legend />
-                  </RadarChart>
-                </ResponsiveContainer>
+                <div className="absolute inset-0 pt-10 px-4 pb-2">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={[
+                      { name: 'Asistencia', ALTO: profileData.find(d => d.subject === 'ALTO')?.Asistencia || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Asistencia || 0 },
+                      { name: 'Promedio', ALTO: profileData.find(d => d.subject === 'ALTO')?.Promedio || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Promedio || 0 },
+                      { name: 'Plataforma', ALTO: profileData.find(d => d.subject === 'ALTO')?.Plataforma || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Plataforma || 0 },
+                      { name: 'Tareas', ALTO: profileData.find(d => d.subject === 'ALTO')?.Entregas || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Entregas || 0 },
+                      { name: 'Participación', ALTO: profileData.find(d => d.subject === 'ALTO')?.Participacion || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Participacion || 0 },
+                    ]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 8, fontWeight: 900}} />
+                      <YAxis hide domain={[0, 100]} />
+                      <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 900, paddingTop: '10px' }} />
+                      <Bar name="ALTO RIESGO" dataKey="ALTO" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={12} />
+                      <Bar name="BAJO RIESGO" dataKey="BAJO" fill="#10b981" radius={[4, 4, 0, 0]} barSize={12} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
              </div>
 
-             <div className="h-2/5 min-h-0 grid grid-cols-1 gap-4">
-                <div className="bg-white/5 p-6 rounded-3xl border border-white/5 flex flex-col justify-center">
-                   <div className="flex justify-between items-center mb-4">
-                      <span className="text-xs font-black text-slate-300 uppercase tracking-widest">Peso de la Asistencia</span>
-                      <span className="text-sm font-black text-red-500">84.2%</span>
+             <div className="h-[55%] min-h-0 grid grid-cols-1 gap-3 overflow-hidden">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
+                   <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peso Asistencia</span>
+                      <span className="text-xs font-black text-red-500">84.2%</span>
                    </div>
-                   <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden">
+                   <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                       <div className="bg-red-500 h-full" style={{ width: '84.2%' }} />
                    </div>
                 </div>
-                <div className="bg-white/5 p-6 rounded-3xl border border-white/5 flex flex-col justify-center">
-                   <div className="flex justify-between items-center mb-4">
-                      <span className="text-xs font-black text-slate-300 uppercase tracking-widest">Impacto Plataforma</span>
-                      <span className="text-sm font-black text-amber-500">61.8%</span>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
+                   <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Impacto Plataforma</span>
+                      <span className="text-xs font-black text-amber-500">61.8%</span>
                    </div>
-                   <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden">
+                   <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                       <div className="bg-amber-500 h-full" style={{ width: '61.8%' }} />
                    </div>
                 </div>
-                <div className="bg-white/5 p-6 rounded-3xl border border-white/5 flex flex-col justify-center">
-                   <div className="flex justify-between items-center mb-4">
-                      <span className="text-xs font-black text-slate-300 uppercase tracking-widest">Entrega de Tareas</span>
-                      <span className="text-sm font-black text-blue-500">45.5%</span>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
+                   <div className="flex justify-between items-center mb-2">
+                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entrega Tareas</span>
+                      <span className="text-xs font-black text-blue-500">45.5%</span>
                    </div>
-                   <div className="w-full bg-white/10 h-3 rounded-full overflow-hidden">
+                   <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                       <div className="bg-blue-500 h-full" style={{ width: '45.5%' }} />
                    </div>
                 </div>

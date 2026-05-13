@@ -110,7 +110,7 @@ async def get_drilldown_data(carrera: str = None, semestre: str = None, search_i
         filtered = filtered[filtered['id_estudiante'].astype(str).str.contains(search_id.upper(), na=False)]
     
     cols = ['id_estudiante', 'promedio_anterior', 'porcentaje_asistencia', 'prioridad', 'carrera']
-    return filtered[cols].head(100).to_dict(orient="records")
+    return filtered[cols].to_dict(orient="records")
 
 @app.get("/api/stats")
 async def get_stats():
