@@ -83,9 +83,9 @@ function DrillDownContent() {
     return [
       { subject: 'Asistencia', A: data.reduce((a, b) => a + (b.porcentaje_asistencia || 0), 0) / data.length },
       { subject: 'Promedio', A: (data.reduce((a, b) => a + (b.promedio_anterior || 0), 0) / data.length) * 10 },
-      { subject: 'Plataforma', A: data.reduce((a, b) => a + (b.uso_plataforma || 0), 0) / data.length },
-      { subject: 'Entregas', A: 75 },
-      { subject: 'Participación', A: 60 }
+      { subject: 'Plataforma', A: Math.min((data.reduce((a, b) => a + (b.uso_plataforma_semana || 0), 0) / data.length) * 10, 100) },
+      { subject: 'Entregas', A: data.reduce((a, b) => a + (b.entregas_tareas_pct || 0), 0) / data.length },
+      { subject: 'Participación', A: data.filter(d => d.prioridad === 'BAJO').length / data.length * 100 }
     ];
   }, [data]);
 
