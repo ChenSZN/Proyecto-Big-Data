@@ -151,7 +151,7 @@ function DrillDownContent() {
          </div>
 
          <div className="lg:col-span-9 flex flex-col gap-6 min-h-0">
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0 h-[350px]">
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 shrink-0 h-auto lg:h-[350px]">
                <div className="glass-card p-6 rounded-[32px] bg-slate-900/20 relative overflow-hidden">
                   <div className="flex items-center gap-3 mb-4 text-slate-500">
                      <PieIcon className="h-4 w-4 text-blue-500" /> 
