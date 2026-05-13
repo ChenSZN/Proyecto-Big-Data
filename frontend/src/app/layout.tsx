@@ -31,8 +31,8 @@ export default function RootLayout({
         {/* Contenedor Principal Flexible */}
         <div className="flex h-screen w-screen p-4 gap-4 overflow-hidden">
           <Sidebar />
-          <main className="flex-1 glass-card rounded-[32px] overflow-y-auto relative">
-            <div className="min-h-full">
+          <main className="flex-1 glass-card rounded-[32px] overflow-hidden relative flex flex-col">
+            <div className="flex-1 flex flex-col min-h-0">
               {children}
             </div>
           </main>

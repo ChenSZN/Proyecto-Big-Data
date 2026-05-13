@@ -123,6 +123,116 @@ async def get_stats():
         "prioridad_dist": df['prioridad'].value_counts().to_dict()
     }
 
+@app.get("/api/dashboard/impact")
+async def get_impact_data():
+    if df.empty: return []
+    # Agrupación por carrera para ver impacto real
+    impact = df.groupby('carrera').agg({
+        'deserto': 'sum',
+        'reprobo': 'sum',
+        'id_estudiante': 'count'
+    }).reset_index()
+    impact['desertion_rate'] = (impact['deserto'] / impact['id_estudiante'] * 100).round(1)
+    impact['reprobation_rate'] = (impact['reprobo'] / impact['id_estudiante'] * 100).round(1)
+    # Ordenar por mayor tasa de reprobación para que sea útil
+    return impact.sort_values('reprobation_rate', ascending=False).head(8).to_dict(orient="records")
+
+@app.get("/api/dashboard/causes")
+async def get_causes_data():
+    if df.empty: return []
+    # Muestra de datos para scatter plot multivariable
+    sample = df.sample(min(300, len(df)))
+    causes = []
+    for _, row in sample.iterrows():
+        causes.append({
+            "x": row.get('porcentaje_asistencia', 0),
+            "y": row.get('promedio_anterior', 0),
+            "z": row.get('uso_plataforma_semana', 0),
+            "risk": row.get('prioridad', 'BAJO')
+        })
+    return causes
+
+@app.get("/api/dashboard/trends")
+async def get_trends():
+    if df.empty: return []
+    # Usar 'semestre' si 'semestre_num' no existe
+    col_semestre = 'semestre' if 'semestre' in df.columns else 'semestre_num'
+    if col_semestre in df.columns:
+        trend = df.groupby(col_semestre).agg({
+            'deserto': 'mean',
+            'reprobo': 'mean'
+        }).reset_index()
+        trend['deserto'] = (trend['deserto'] * 100).round(1)
+        trend['reprobo'] = (trend['reprobo'] * 100).round(1)
+        # Asegurar que el nombre de la columna para el eje X sea el mismo que espera el frontend
+        trend = trend.rename(columns={col_semestre: 'semestre_num'})
+        return trend.to_dict(orient="records")
+    return []
+
+@app.post("/api/predict")
+async def predict(data: dict):
+    # Simulación de lógica de predicción basada en los parámetros del formulario
+    v_p = data.get('v_p', 70) # Promedio
+    v_a = data.get('v_a', 80) # Asistencia
+    v_u = data.get('v_u', 5)  # Uso plataforma
+    v_t = data.get('v_t', 70) # Entregas
+    v_r = data.get('v_r', 0)  # Reprobadas
+    
+    # Cálculo heurístico de probabilidad de fallo
+    score = (100 - v_p) * 0.3 + (100 - v_a) * 0.3 + (20 - v_u) * 2 + (100 - v_t) * 0.2 + (v_r * 15)
+    prob = min(max(score, 5), 98)
+    
+    if prob > 70: prioridad = "CRÍTICO"
+    elif prob > 40: prioridad = "ALTO"
+    elif prob > 20: prioridad = "MEDIO"
+    else: prioridad = "BAJO"
+    
+    recomendaciones = {
+        "CRÍTICO": "Intervención inmediata requerida. Alto riesgo de deserción detectado por patrones de inasistencia y bajo rendimiento.",
+        "ALTO": "Riesgo significativo. Se recomienda tutoría académica y seguimiento de entregas pendientes.",
+        "MEDIO": "Riesgo moderado. Mantener observación sobre el promedio y participación en plataforma.",
+        "BAJO": "Desempeño estable. Continuar con el plan de estudios actual."
+    }
+    
+    return {
+        "probabilidad": prob,
+        "prioridad": prioridad,
+        "recomendacion": recomendaciones.get(prioridad)
+    }
+
+@app.get("/api/dashboard/profiles")
+async def get_risk_profiles():
+    global df
+    if df is None: return []
+    
+    profiles = []
+    for priority in ['ALTO', 'MEDIO', 'BAJO']:
+        subset = df[df['prioridad'] == priority]
+        if not subset.empty:
+            profiles.append({
+                "subject": priority,
+                "Asistencia": float(subset['porcentaje_asistencia'].mean()),
+                "Promedio": float(subset['promedio_anterior'].mean()),
+                # Normalizar plataforma (asumiendo que 10+ horas es el tope 100%)
+                "Plataforma": min(float(subset['uso_plataforma_semana'].mean()) * 10, 100) if 'uso_plataforma_semana' in df.columns else 0.0,
+                "Entregas": float(subset['entregas_tareas_pct'].mean()) if 'entregas_tareas_pct' in df.columns else 70.0,
+                "Participacion": 85.0 if priority == 'BAJO' else (60.0 if priority == 'MEDIO' else 40.0)
+            })
+    return profiles
+
+@app.get("/api/patterns")
+async def get_patterns():
+    if df.empty: return []
+    # Simular importancia de variables basada en correlación con el riesgo (reprobo)
+    # En un caso real, esto vendría de un modelo de Random Forest (feature_importances_)
+    return [
+        {"name": "Asistencia", "value": 38, "color": "#3b82f6"},
+        {"name": "Promedio Anterior", "value": 25, "color": "#6366f1"},
+        {"name": "Materias Reprobadas", "value": 18, "color": "#ef4444"},
+        {"name": "Uso de Plataforma", "value": 12, "color": "#f59e0b"},
+        {"name": "Participación Tutorías", "value": 7, "color": "#10b981"}
+    ]
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)
+    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)

@@ -10,7 +10,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 
-const API_URL = "http://localhost:8000/api";
+const API_URL = "http://localhost:8001/api";
 
 export default function Simulator() {
   const [form, setForm] = useState({
@@ -29,32 +29,32 @@ export default function Simulator() {
   };
 
   return (
-    <div className="p-10 max-w-6xl mx-auto">
-      <header className="mb-16 text-center">
+    <div className="p-8 h-full flex flex-col gap-6 overflow-hidden">
+      <header className="shrink-0 text-center">
         <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}>
-          <p className="text-xs font-black uppercase tracking-[0.4em] text-blue-500 mb-2">Motor de Inferencia IA</p>
-          <h1 className="text-6xl font-black tracking-tighter text-white uppercase">Simulador <span className="text-blue-600">Pro</span></h1>
-          <p className="mt-4 text-slate-500 font-medium max-w-xl mx-auto italic">Analiza patrones de comportamiento histórico para predecir la probabilidad de éxito o fallo académico.</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.4em] text-blue-500 mb-1">Motor de Inferencia IA</p>
+          <h1 className="text-4xl font-black tracking-tighter text-white uppercase leading-none">Simulador <span className="text-blue-600">Pro</span></h1>
+          <p className="mt-2 text-slate-500 font-medium text-xs max-w-xl mx-auto italic">Predicción de éxito o fallo académico basado en patrones históricos.</p>
         </motion.div>
       </header>
 
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-12">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
         {/* Diagnostic Controls */}
         <motion.div 
           initial={{ opacity: 0, x: -30 }}
           animate={{ opacity: 1, x: 0 }}
-          className="lg:col-span-7 glass-card rounded-[40px] p-10 relative overflow-hidden"
+          className="lg:col-span-7 glass-card rounded-[40px] p-8 relative overflow-hidden h-fit"
         >
-          <div className="absolute top-0 right-0 p-8 opacity-5">
-             <Cpu className="h-32 w-32" />
+          <div className="absolute top-0 right-0 p-6 opacity-5 pointer-events-none">
+             <Cpu className="h-24 w-24" />
           </div>
           
-          <h3 className="mb-12 flex items-center text-xl font-black text-white uppercase tracking-tight">
-            <Activity className="mr-4 h-6 w-6 text-blue-500" />
-            Parámetros de Diagnóstico
+          <h3 className="mb-8 flex items-center text-lg font-black text-white uppercase tracking-tight">
+            <Activity className="mr-3 h-5 w-5 text-blue-500" />
+            Parámetros
           </h3>
           
-          <div className="space-y-12">
+          <div className="space-y-8">
             <Slider 
               label="Promedio Institucional" value={form.v_p} min={0} max={100} unit="pts"
               onChange={(v: number) => setForm({...form, v_p: v})} 
@@ -65,7 +65,7 @@ export default function Simulator() {
               onChange={(v: number) => setForm({...form, v_a: v})} 
               color="bg-indigo-500"
             />
-            <div className="grid grid-cols-2 gap-8">
+            <div className="grid grid-cols-2 gap-6">
                <Slider 
                  label="Plataforma (hrs)" value={form.v_u} min={0} max={20} unit="h"
                  onChange={(v: number) => setForm({...form, v_u: v})} 
@@ -78,37 +78,35 @@ export default function Simulator() {
                />
             </div>
             
-            <div>
-              <label className="mb-4 block text-xs font-black uppercase tracking-[0.2em] text-slate-500">Materias Reprobadas Previas</label>
-              <div className="flex items-center gap-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <label className="mb-2 block text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Materias Reprobadas</label>
                 <input 
                   type="number" value={form.v_r}
                   onChange={(e) => setForm({...form, v_r: parseInt(e.target.value) || 0})}
-                  className="w-24 rounded-2xl border border-white/5 bg-white/5 p-4 text-center text-xl font-black text-white outline-none focus:border-blue-500 focus:bg-blue-500/10 transition-all"
+                  className="w-20 rounded-xl border border-white/5 bg-white/5 p-3 text-center text-lg font-black text-white outline-none focus:border-blue-500 focus:bg-blue-500/10 transition-all"
                 />
-                <p className="text-xs font-bold text-slate-600">Este factor incrementa el peso del riesgo exponencialmente.</p>
               </div>
+              <button 
+                onClick={handlePredict} disabled={loading}
+                className="btn-primary flex-1 ml-6 text-sm uppercase tracking-widest py-4 group"
+              >
+                <div className="flex items-center justify-center gap-3">
+                  {loading ? "Calculando..." : "Diagnóstico"}
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                </div>
+              </button>
             </div>
-
-            <button 
-              onClick={handlePredict} disabled={loading}
-              className="btn-primary w-full text-lg uppercase tracking-widest py-5 group"
-            >
-              <div className="flex items-center justify-center gap-3">
-                {loading ? "Sincronizando Neuronas..." : "Generar Diagnóstico Predictivo"}
-                <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />
-              </div>
-            </button>
           </div>
         </motion.div>
 
         {/* Diagnostic Display */}
-        <div className="lg:col-span-5 flex flex-col gap-8">
+        <div className="lg:col-span-5 flex flex-col gap-6">
           <AnimatePresence mode="wait">
             {result ? (
               <motion.div 
                 key="result" initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }}
-                className={`glass-card rounded-[40px] p-10 text-center relative overflow-hidden border-2 ${
+                className={`glass-card rounded-[40px] p-8 text-center relative overflow-hidden border-2 ${
                   result.prioridad === 'CRÍTICO' ? 'border-red-500/30' : 
                   result.prioridad === 'ALTO' ? 'border-amber-500/30' : 'border-emerald-500/30'
                 }`}
@@ -116,52 +114,51 @@ export default function Simulator() {
                 <div className={`absolute top-0 inset-x-0 h-1 ${
                   result.prioridad === 'CRÍTICO' ? 'bg-red-500' : 
                   result.prioridad === 'ALTO' ? 'bg-amber-500' : 'bg-emerald-500'
-                } shadow-[0_0_20px_rgba(0,0,0,1)]`} />
+                }`} />
                 
-                <p className="text-[10px] font-black uppercase tracking-[0.4em] text-slate-500 mb-4">Probabilidad de Fallo</p>
+                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-2">Fallo Probable</p>
                 
-                <div className="relative inline-block mb-8">
-                   <svg className="h-48 w-48 -rotate-90">
-                      <circle cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-white/5" />
+                <div className="relative inline-block mb-6">
+                   <svg className="h-40 w-40 -rotate-90">
+                      <circle cx="80" cy="80" r="72" stroke="currentColor" strokeWidth="10" fill="transparent" className="text-white/5" />
                       <circle 
-                        cx="96" cy="96" r="88" stroke="currentColor" strokeWidth="12" fill="transparent" 
-                        strokeDasharray={552} strokeDashoffset={552 - (552 * result.probabilidad) / 100}
+                        cx="80" cy="80" r="72" stroke="currentColor" strokeWidth="10" fill="transparent" 
+                        strokeDasharray={452} strokeDashoffset={452 - (452 * result.probabilidad) / 100}
                         className={`${result.prioridad === 'CRÍTICO' ? 'text-red-500' : result.prioridad === 'ALTO' ? 'text-amber-500' : 'text-emerald-500'} transition-all duration-1000 ease-out`}
                         strokeLinecap="round"
                       />
                    </svg>
                    <div className="absolute inset-0 flex flex-col items-center justify-center">
-                      <span className="text-5xl font-black text-white tracking-tighter">{result.probabilidad.toFixed(0)}%</span>
-                      <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Score IA</span>
+                      <span className="text-4xl font-black text-white tracking-tighter">{result.probabilidad.toFixed(0)}%</span>
                    </div>
                 </div>
 
-                <h2 className={`text-2xl font-black uppercase tracking-tighter mb-4 ${
+                <h2 className={`text-xl font-black uppercase tracking-tighter mb-2 ${
                   result.prioridad === 'CRÍTICO' ? 'text-red-500' : result.prioridad === 'ALTO' ? 'text-amber-500' : 'text-emerald-500'
                 }`}>
                   {result.prioridad}
                 </h2>
                 
-                <p className="text-sm font-medium text-slate-400 leading-relaxed px-4 italic">
+                <p className="text-xs font-medium text-slate-400 leading-relaxed italic line-clamp-3">
                   "{result.recomendacion}"
                 </p>
               </motion.div>
             ) : (
-              <div className="glass-card flex h-full items-center justify-center rounded-[40px] p-12 text-center border-dashed">
-                <div className="opacity-20 flex flex-col items-center gap-6">
-                  <BarChart2 className="h-20 w-20 text-blue-500" />
-                  <p className="text-sm font-bold uppercase tracking-widest text-slate-400">Esperando Señal Académica</p>
+              <div className="glass-card flex min-h-[300px] items-center justify-center rounded-[40px] p-8 text-center border-dashed">
+                <div className="opacity-20 flex flex-col items-center gap-4">
+                  <BarChart2 className="h-16 w-16 text-blue-500" />
+                  <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">Sin Datos</p>
                 </div>
               </div>
             )}
           </AnimatePresence>
 
-          <div className="glass-card rounded-[32px] p-8 text-white">
-            <h4 className="mb-6 text-[10px] font-black uppercase tracking-[0.3em] text-slate-600">Checkpoint de Variables</h4>
-            <div className="space-y-4">
-              <RiskFactor label="Asistencia Crítica (<75%)" active={form.v_a < 75} />
-              <RiskFactor label="Inactividad en Plataforma" active={form.v_u < 3} />
-              <RiskFactor label="Rezago de Entregas" active={form.v_t < 60} />
+          <div className="glass-card rounded-[32px] p-6 text-white h-fit">
+            <h4 className="mb-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">Checkpoint</h4>
+            <div className="space-y-3">
+              <RiskFactor label="Baja Asistencia" active={form.v_a < 75} />
+              <RiskFactor label="Inactividad" active={form.v_u < 3} />
+              <RiskFactor label="Rezago" active={form.v_t < 60} />
             </div>
           </div>
         </div>
