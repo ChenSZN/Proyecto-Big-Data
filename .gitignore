@@ -1,0 +1,21 @@
+node_modules/
+.next/
+out/
+build/
+.vercel
+*.log
+*.local
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+.env
+.pytest_cache/
+
+# Data
+*.csv
+!dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv
