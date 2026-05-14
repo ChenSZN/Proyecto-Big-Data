@@ -13,32 +13,66 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# RENDER-PROOF PATHING
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV_PATH = os.path.join(BASE_DIR, "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv")
+# Try multiple possible locations for the CSV
+possible_paths = [
+    os.path.join(BASE_DIR, "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv"),
+    os.path.join(os.path.dirname(BASE_DIR), "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv"),
+    "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv"
+]
 
 def load_data():
-    if not os.path.exists(CSV_PATH): return pd.DataFrame()
+    csv_file = None
+    for p in possible_paths:
+        if os.path.exists(p):
+            csv_file = p
+            print(f"FOUND CSV AT: {p}")
+            break
+            
+    if not csv_file:
+        print("CSV NOT FOUND IN ANY LOCATION")
+        return pd.DataFrame()
     
-    df = pd.read_csv(CSV_PATH, encoding='latin-1')
-    df.columns = [str(c).strip() for c in df.columns]
-    
-    # FORCE DATA FOR TEST (If this shows 99.9, then backend is working)
-    if 'entregas_tareas_pct' in df.columns:
-        df['entregas_tareas_pct'] = 99.9
-    if 'materias_reprobadas_previas' in df.columns:
-        df['materias_reprobadas_previas'] = 7
+    try:
+        # Use latin-1 as verified
+        df = pd.read_csv(csv_file, encoding='latin-1')
         
-    if 'riesgo_academico' in df.columns:
-        df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
-    else:
-        df['prioridad'] = 'BAJO'
+        # PHYSICAL COLUMN MAPPING (The absolute most reliable way)
+        # 0:id, 1:carrera, 2:semestre, 6:prom_ant, 7:asist, 8:previas, 12:trabaja, 17:tareas, 20:riesgo, 21:deserto, 22:reprobo
+        col_map = {
+            0: 'id_estudiante', 1: 'carrera', 2: 'semestre', 6: 'promedio_anterior',
+            7: 'porcentaje_asistencia', 8: 'materias_reprobadas_previas',
+            12: 'trabaja', 17: 'entregas_tareas_pct', 20: 'riesgo_academico',
+            21: 'deserto', 22: 'reprobo'
+        }
+        
+        new_cols = list(df.columns)
+        for idx, name in col_map.items():
+            if idx < len(new_cols):
+                new_cols[idx] = name
+        df.columns = new_cols
+        
+        # Numeric Force
+        for c in ['promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct', 'deserto', 'reprobo']:
+            if c in df.columns:
+                df[c] = pd.to_numeric(df[c].astype(str).str.replace(',', '.'), errors='coerce').fillna(0)
+        
+        if 'riesgo_academico' in df.columns:
+            df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
+        else:
+            df['prioridad'] = 'BAJO'
+            
+        return df
+    except Exception as e:
+        print(f"LOAD ERROR: {e}")
+        return pd.DataFrame()
 
-    return df
+df = load_data()
 
-try:
-    df = load_data()
-except Exception as e:
-    df = pd.DataFrame()
+@app.get("/")
+async def root():
+    return {"status": "online", "rows": len(df), "csv_found": not df.empty}
 
 @app.get("/api/drilldown/data")
 async def get_drilldown_data(carrera: str = None, semestre: str = None, search: str = None):
@@ -101,4 +135,6 @@ async def get_patterns_api():
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run("main:app", host="0.0.0.0", port=8001, reload=True)
+    import os
+    port = int(os.environ.get("PORT", 8001))
+    uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
