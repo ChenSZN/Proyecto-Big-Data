@@ -29,25 +29,25 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
 const FALLBACK_DATA = {
   global: [
-    { name: "Asistencia", value: 84.5 },
-    { name: "Promedio Gral", value: 78.2 },
-    { name: "Plataforma", value: 45.1 },
-    { name: "Entregas", value: 62.8 },
-    { name: "Socioeconómico", value: 35.4 }
+    { name: "Asistencia Total", value: 84.5 },
+    { name: "Promedio General", value: 78.2 },
+    { name: "Uso de Plataforma", value: 45.1 },
+    { name: "Entrega de Tareas", value: 62.8 },
+    { name: "Nivel Socioeconómico", value: 35.4 }
   ],
   reprobacion: [
-    { name: "Materias Previas", value: 91.2 },
+    { name: "Materias Reprobadas Previas", value: 91.2 },
     { name: "Promedio Anterior", value: 85.5 },
-    { name: "Faltas Clave", value: 72.4 },
-    { name: "Baja Actividad", value: 48.9 },
-    { name: "Tareas Inc.", value: 41.2 }
+    { name: "Inasistencias Clave", value: 72.4 },
+    { name: "Baja Actividad Digital", value: 48.9 },
+    { name: "Tareas Incompletas", value: 41.2 }
   ],
   desercion: [
     { name: "Inasistencia Crítica", value: 94.1 },
     { name: "Factor Económico", value: 82.3 },
-    { name: "Distancia Campus", value: 68.7 },
-    { name: "Carga Laboral", value: 55.4 },
-    { name: "Bajo Rendimiento", value: 42.8 }
+    { name: "Distancia al Campus", value: 68.7 },
+    { name: "Carga Laboral Externa", value: 55.4 },
+    { name: "Bajo Rendimiento Global", value: 42.8 }
   ]
 };
 

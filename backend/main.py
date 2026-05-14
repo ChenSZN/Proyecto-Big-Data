@@ -139,12 +139,12 @@ async def get_patterns(carrera: str = None, semestre: str = None):
     return {
         "global": [
             {"name": "Asistencia", "value": round(float(d['porcentaje_asistencia'].mean() * 0.9 + 10), 1)},
-            {"name": "Promedio", "value": round(float(d['promedio_anterior'].mean()), 1)},
-            {"name": "Plataforma", "value": 45.1},
-            {"name": "Entregas", "value": round(float(d['entregas_tareas_pct'].mean() * 0.5), 1)}
+            {"name": "Promedio Anterior", "value": round(float(d['promedio_anterior'].mean()), 1)},
+            {"name": "Uso de Plataforma", "value": 45.1},
+            {"name": "Entrega de Tareas", "value": round(float(d['entregas_tareas_pct'].mean() * 0.5), 1)}
         ],
-        "reprobacion": [{"name": "Faltas", "value": 72}, {"name": "Previas", "value": 85}],
-        "desercion": [{"name": "Economico", "value": 82}, {"name": "Distancia", "value": 68}]
+        "reprobacion": [{"name": "Faltas a Clase", "value": 72}, {"name": "Materias Reprobadas Previas", "value": 85}],
+        "desercion": [{"name": "Factor Económico", "value": 82}, {"name": "Distancia al Campus", "value": 68}]
     }
 
 @app.get("/api/environment")
