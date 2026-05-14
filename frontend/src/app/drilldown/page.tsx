@@ -105,12 +105,11 @@ function DrillDownContent() {
              <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter">Explorador</h1>
+            <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter">Explorador (TEST)</h1>
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Análisis ITNL</p>
           </div>
         </div>
 
-        {/* Top Mini Search */}
         <div className="relative group">
            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
            <input 
@@ -124,15 +123,13 @@ function DrillDownContent() {
 
       <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
          
-         {/* LEFT SIDEBAR: SHARED SPACE FOR CHART AND FILTERS */}
          <div className="lg:w-80 flex flex-col gap-4 shrink-0 h-full overflow-hidden">
             
-            {/* Chart Module (Top half of sidebar) */}
             <div className="glass-card p-6 rounded-[40px] bg-slate-900/20 border border-white/5 flex flex-col h-[280px] shrink-0">
                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 text-slate-400">
                      <PieIcon className="h-4 w-4 text-blue-500" />
-                     <span className="text-[9px] font-black uppercase tracking-widest text-white">Estado</span>
+                     <span className="text-[9px] font-black uppercase tracking-widest text-white">Estado REAL</span>
                   </div>
                   <div className="flex gap-1 bg-white/5 p-1 rounded-lg">
                      {['T', 'A', 'M', 'B'].map(f => (
@@ -161,16 +158,13 @@ function DrillDownContent() {
                </div>
             </div>
 
-            {/* Visual Filters Module (Bottom half of sidebar) */}
             <div className="flex-1 glass-card p-6 rounded-[40px] bg-blue-600/5 border border-white/5 flex flex-col min-h-0 overflow-hidden shadow-2xl">
                <div className="flex items-center gap-3 mb-4">
                   <Filter className="h-4 w-4 text-blue-400" />
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">Filtros Drill-Down</span>
+                  <span className="text-[10px] font-black text-white uppercase tracking-widest">Filtros</span>
                </div>
 
-               {/* Carrera List - Scrollable */}
                <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 mb-4">
-                  <p className="text-[8px] font-black text-slate-500 uppercase mb-2 tracking-widest">Seleccionar Carrera</p>
                   <div className="flex flex-col gap-1.5">
                      <button onClick={() => setSelection({...selection, carrera: ""})}
                         className={`px-4 py-3 rounded-2xl text-left text-[9px] font-black uppercase transition-all ${selection.carrera === "" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "bg-white/5 text-slate-500 hover:bg-white/10"}`}
@@ -187,9 +181,7 @@ function DrillDownContent() {
                   </div>
                </div>
 
-               {/* Semestre Grid */}
                <div className="shrink-0 pt-4 border-t border-white/5">
-                  <p className="text-[8px] font-black text-slate-500 uppercase mb-2 tracking-widest">Semestre</p>
                   <div className="grid grid-cols-5 gap-1.5">
                      <button onClick={() => setSelection({...selection, semestre: ""})}
                         className={`p-2 rounded-xl text-[9px] font-black uppercase transition-all ${selection.semestre === "" ? "bg-indigo-600 text-white" : "bg-white/5 text-slate-500"}`}
@@ -208,7 +200,6 @@ function DrillDownContent() {
             </div>
          </div>
 
-         {/* RIGHT SIDE: TABLE (Occupies all remaining space) */}
          <div className="flex-1 flex flex-col min-h-0 overflow-hidden">
             <div className="flex-1 min-h-0 overflow-hidden glass-card rounded-[48px] bg-black/20 border border-white/5 flex flex-col shadow-2xl">
                <div className="flex-1 overflow-auto custom-scrollbar">
@@ -216,22 +207,22 @@ function DrillDownContent() {
                     <thead className="sticky top-0 bg-[#0f172a] text-[10px] font-black uppercase text-slate-500 border-b border-white/5 z-10 shadow-lg">
                       <tr>
                         <th onClick={() => handleSort('id_estudiante')} className="px-6 py-6 cursor-pointer hover:text-white transition-colors">
-                           <div className="flex items-center gap-2">Estudiante {sortConfig.key === 'id_estudiante' && (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}</div>
+                           Estudiante
                         </th>
                         <th onClick={() => handleSort('promedio_anterior')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
-                           <div className="flex items-center justify-center gap-2">Prom {sortConfig.key === 'promedio_anterior' && (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}</div>
+                           Prom
                         </th>
                         <th onClick={() => handleSort('porcentaje_asistencia')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
-                           <div className="flex items-center justify-center gap-2">Asist % {sortConfig.key === 'porcentaje_asistencia' && (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}</div>
+                           Asist %
                         </th>
                         <th onClick={() => handleSort('entregas_tareas_pct')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
-                           <div className="flex items-center justify-center gap-2">Tareas % {sortConfig.key === 'entregas_tareas_pct' && (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}</div>
+                           Tareas %
                         </th>
                         <th onClick={() => handleSort('materias_reprobadas_previas')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
-                           <div className="flex items-center justify-center gap-2">Previas {sortConfig.key === 'materias_reprobadas_previas' && (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}</div>
+                           Previas
                         </th>
                         <th onClick={() => handleSort('prioridad')} className="px-6 py-6 text-right cursor-pointer hover:text-white transition-colors">
-                           <div className="flex items-center justify-end gap-2">Riesgo {sortConfig.key === 'prioridad' && (sortConfig.direction === 'asc' ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />)}</div>
+                           Riesgo
                         </th>
                       </tr>
                     </thead>
