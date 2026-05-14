@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import numpy as np
 import os
+import sys
 
 app = FastAPI()
 
@@ -14,26 +15,31 @@ app.add_middleware(
 )
 
 # RENDER-PROOF PATHING
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-possible_paths = [
-    os.path.join(BASE_DIR, "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv"),
-    os.path.join(os.path.dirname(BASE_DIR), "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv"),
-    "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv"
-]
+# We'll search everywhere for that CSV
+FILENAME = "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv"
+
+def find_csv():
+    # 1. Try local dir
+    if os.path.exists(FILENAME): return FILENAME
+    # 2. Try backend/ subdir
+    if os.path.exists(os.path.join("backend", FILENAME)): return os.path.join("backend", FILENAME)
+    # 3. Try parent dir
+    if os.path.exists(os.path.join("..", FILENAME)): return os.path.join("..", FILENAME)
+    # 4. Try absolute search from BASE_DIR
+    base = os.path.dirname(os.path.abspath(__file__))
+    if os.path.exists(os.path.join(base, FILENAME)): return os.path.join(base, FILENAME)
+    return None
 
 def load_data():
-    csv_file = None
-    for p in possible_paths:
-        if os.path.exists(p):
-            csv_file = p
-            break
-            
-    if not csv_file: return pd.DataFrame()
+    csv_file = find_csv()
+    if not csv_file: 
+        print(f"CRITICAL: {FILENAME} not found")
+        return pd.DataFrame()
     
     try:
+        # Verified encoding and physical positions
         df = pd.read_csv(csv_file, encoding='latin-1')
         
-        # Mapping physical positions
         col_map = {
             0: 'id_estudiante', 1: 'carrera', 2: 'semestre', 6: 'promedio_anterior',
             7: 'porcentaje_asistencia', 8: 'materias_reprobadas_previas',
@@ -46,7 +52,7 @@ def load_data():
             if idx < len(new_cols): new_cols[idx] = name
         df.columns = new_cols
         
-        # Numeric extraction
+        # Clean numeric
         numeric_cols = ['promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct', 'deserto', 'reprobo', 'uso_plataforma_semana']
         for c in numeric_cols:
             if c in df.columns:
@@ -54,9 +60,21 @@ def load_data():
         
         df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
         return df
-    except: return pd.DataFrame()
+    except Exception as e:
+        print(f"LOAD ERROR: {e}")
+        return pd.DataFrame()
 
 df = load_data()
+
+@app.get("/api/debug")
+async def debug():
+    return {
+        "cwd": os.getcwd(),
+        "files_here": os.listdir("."),
+        "csv_found": find_csv(),
+        "df_rows": len(df),
+        "sys_path": sys.path
+    }
 
 @app.get("/api/stats")
 async def get_stats():
@@ -95,9 +113,9 @@ async def get_profiles():
                 "subject": risk,
                 "Asistencia": round(float(sub['porcentaje_asistencia'].mean()), 1),
                 "Promedio": round(float(sub['promedio_anterior'].mean()), 1),
-                "Plataforma": round(float(sub['uso_plataforma_semana'].mean() * 10), 1), # Scaled
+                "Plataforma": round(float(sub['uso_plataforma_semana'].mean() * 10), 1),
                 "Entregas": round(float(sub['entregas_tareas_pct'].mean()), 1),
-                "Participacion": 85 if risk == 'BAJO' else 40 # Static proxy if missing
+                "Participacion": 85 if risk == 'BAJO' else 40
             })
     return profiles
 
@@ -136,6 +154,5 @@ async def get_environment_stats():
 
 if __name__ == "__main__":
     import uvicorn
-    import os
     port = int(os.environ.get("PORT", 8001))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
