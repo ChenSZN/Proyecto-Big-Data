@@ -82,26 +82,24 @@ export default function Sidebar() {
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Mobile Overlay - High performance (no blur) */}
+      {/* Mobile Overlay - Ultra-fast (no blur, shorter duration) */}
       {isMobileOpen && (
         <div 
           onClick={() => setIsMobileOpen(false)}
-          className="md:hidden fixed inset-0 bg-black/80 z-[70] transition-opacity duration-200"
+          className="md:hidden fixed inset-0 bg-black/80 z-[70] transition-opacity duration-150"
         />
       )}
 
-      {/* Sidebar Container - Optimized for speed */}
+      {/* Sidebar Container - Max performance */}
       <aside className={`
         fixed md:relative top-0 left-0 h-full z-[80] 
-        ${isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"}
+        ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
         ${isCollapsed ? "w-20" : "w-72"}
         flex flex-col bg-[#020617] border-r border-white/5 overflow-hidden shrink-0
-        transition-transform duration-200 ease-out md:transition-all will-change-transform
+        transition-transform duration-150 ease-out will-change-transform
       `}>
-        {/* Glow ambiental superior - Desktop only for performance */}
-        <div className="hidden md:block absolute -left-20 -top-20 w-64 h-64 bg-blue-600/5 blur-[80px] rounded-full pointer-events-none" />
+        {/* Logo removed as requested */}
         
-        {/* Desktop Collapse Button */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="hidden md:block absolute top-8 right-4 z-50 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-slate-400"
@@ -109,23 +107,9 @@ export default function Sidebar() {
           {isCollapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
 
-        <div className={`p-8 ${isCollapsed ? "items-center" : ""} flex flex-col`}>
-           <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
-                 <GraduationCap className="text-white h-6 w-6" />
-              </div>
-              {showText && (
-                 <div>
-                    <h1 className="text-xl font-black text-white italic tracking-tighter leading-none">ITNL</h1>
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-1">Analytics Hub</p>
-                 </div>
-              )}
-           </div>
-        </div>
-
-        <nav className={`flex-1 ${isCollapsed ? "px-2" : "px-4"} space-y-1 relative z-10 overflow-y-auto custom-scrollbar`}>
+        <nav className={`flex-1 ${isCollapsed ? "px-2" : "px-4"} space-y-1 relative z-10 overflow-y-auto custom-scrollbar mt-16`}>
           {showText && (
-            <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4 mt-4">Navegación</p>
+            <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Navegación</p>
           )}
           
           {menuItems.map((item) => {
@@ -195,9 +179,9 @@ export default function Sidebar() {
 
         {showText && (
           <div className="p-6 border-t border-white/5">
-             <div className="flex items-center gap-3 p-3 rounded-2xl bg-blue-600/5 border border-blue-500/10">
+             <div className="flex items-center gap-3 p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
                 <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">En Línea (Cloud)</span>
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Live en Render</span>
              </div>
           </div>
         )}
