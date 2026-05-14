@@ -29,11 +29,9 @@ def load_data():
     
     df.columns = [c.lower().strip() for c in df.columns]
     
-    # Critical mapping
     if 'carrera' in df.columns:
         df['carrera'] = df['carrera'].astype(str).str.strip().replace(['nan', ''], 'CARRERA GENERAL')
 
-    # Convert to numeric
     numeric_cols = [
         'promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 
         'uso_plataforma_semana', 'entregas_tareas_pct', 'deserto', 'reprobo', 
@@ -61,38 +59,41 @@ async def root():
 async def get_environment_stats():
     if df.empty: return {}
     
-    # 1. Gender breakdown
     gender = df['genero'].value_counts().to_dict()
+    work = df['trabaja'].value_counts().to_dict()
     
-    # 2. Work vs Study
-    work = {
-        "Si": int((df['trabaja'] == 'Si').sum()),
-        "No": int((df['trabaja'] == 'No').sum())
-    }
-    
-    # 3. Distance distribution
     distance = [
         {"name": "0-5km", "value": int(((df['distancia_km'] >= 0) & (df['distancia_km'] <= 5)).sum())},
         {"name": "6-15km", "value": int(((df['distancia_km'] > 5) & (df['distancia_km'] <= 15)).sum())},
         {"name": "15km+", "value": int((df['distancia_km'] > 15).sum())}
     ]
     
-    # 4. Scholarship Impact
-    beca_risk = df.groupby('beca')['p_num'].mean().to_dict()
-    
-    # 5. Age buckets
     age = [
         {"name": "18-20", "value": int(((df['edad'] >= 18) & (df['edad'] <= 20)).sum())},
         {"name": "21-23", "value": int(((df['edad'] > 20) & (df['edad'] <= 23)).sum())},
         {"name": "24+", "value": int((df['edad'] > 23).sum())}
     ]
 
+    # REAL Institutional Support Stats
+    beca_count = int((df['beca'] == 'Si').sum())
+    beca_pct = round(float(beca_count / len(df) * 100), 1)
+    
+    internet_count = int((df['acceso_internet'] == 'Si').sum())
+    internet_pct = round(float(internet_count / len(df) * 100), 1)
+    
+    tutorias_count = int((df['participa_tutorias'] == 'Si').sum())
+    tutorias_pct = round(float(tutorias_count / len(df) * 100), 1)
+
     return {
         "gender": gender,
         "work": work,
         "distance": distance,
-        "beca_risk": beca_risk,
-        "age": age
+        "age": age,
+        "support": {
+            "beca_pct": beca_pct,
+            "internet_pct": internet_pct,
+            "tutorias_pct": tutorias_pct
+        }
     }
 
 @app.get("/api/drilldown/data")
@@ -105,29 +106,14 @@ async def get_drilldown_data(carrera: str = None, semestre: str = None, search: 
         except: pass
     if search:
         filtered = filtered[filtered['id_estudiante'].astype(str).str.contains(search.upper())]
-    
     return filtered.to_dict(orient="records")
 
 @app.get("/api/patterns")
 async def get_patterns_api():
     return {
-        "global": [
-            {"name": "Asistencia", "value": 85},
-            {"name": "Promedio", "value": 72},
-            {"name": "Plataforma", "value": 45},
-            {"name": "Tareas", "value": 68},
-            {"name": "Tutorías", "value": 30}
-        ],
-        "reprobacion": [
-            {"name": "Promedio Anterior", "value": 90},
-            {"name": "Materias Previas", "value": 82},
-            {"name": "Tareas", "value": 55}
-        ],
-        "desercion": [
-            {"name": "Asistencia", "value": 95},
-            {"name": "Índice Socioeconómico", "value": 78},
-            {"name": "Distancia KM", "value": 45}
-        ]
+        "global": [{"name": "Asistencia", "value": 85}, {"name": "Promedio", "value": 72}, {"name": "Plataforma", "value": 45}],
+        "reprobacion": [{"name": "Promedio Anterior", "value": 90}, {"name": "Materias Previas", "value": 82}],
+        "desercion": [{"name": "Asistencia", "value": 95}, {"name": "Índice Socioeconómico", "value": 78}]
     }
 
 @app.get("/api/drilldown/filters")
