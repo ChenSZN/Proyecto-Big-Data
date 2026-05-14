@@ -16,6 +16,18 @@ import { useRouter } from "next/navigation";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
+// Helper function to fix encoding artifacts (mojibake) in frontend
+const cleanText = (text: string) => {
+  if (!text) return "";
+  try { return decodeURIComponent(escape(text)); } catch (e) {
+    return text
+      .replace(/Ã¡/g, 'á').replace(/Ã©/g, 'é').replace(/Ã\xad/g, 'í')
+      .replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ')
+      .replace(/Ã\u0081/g, 'Á').replace(/Ã\u0089/g, 'É').replace(/Ã\u008D/g, 'Í')
+      .replace(/Ã\u0093/g, 'Ó').replace(/Ã\u009A/g, 'Ú').replace(/Ã\u0091/g, 'Ñ');
+  }
+};
+
 function StatCard({ title, value, icon: Icon, color, trend, onClick }: any) {
   return (
     <div 
@@ -53,7 +65,14 @@ export default function Dashboard() {
           axios.get(`${API_URL}/dashboard/trends`)
         ]);
         setStats(s.data);
-        setImpactData(i.data);
+        
+        // Clean text in impact data
+        const cleanedImpact = (i.data || []).map((item: any) => ({
+           ...item,
+           carrera: cleanText(item.carrera)
+        }));
+        setImpactData(cleanedImpact);
+        
         setProfileData(p.data);
         setTrendData(t.data);
       } catch (e) { console.error(e); }
@@ -110,7 +129,6 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
-        {/* PARTE 1: ENFOCADA A LOS NÚMEROS (IMPACTO) */}
         <div className="glass-card p-8 rounded-[40px] border border-white/5 flex flex-col min-h-0 bg-slate-900/20">
           <div className="flex items-center justify-between mb-6 shrink-0">
             <div>
@@ -154,7 +172,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* PARTE 2: ENFOCADA AL POR QUÉ (CAUSAS) */}
         <div className="glass-card p-8 rounded-[40px] border border-white/5 flex flex-col min-h-0 bg-blue-600/5">
           <div className="flex items-center justify-between mb-6 shrink-0">
             <div>

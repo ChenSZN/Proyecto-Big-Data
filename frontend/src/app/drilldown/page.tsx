@@ -15,6 +15,22 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
+// Helper function to fix common encoding issues (mojibake) in the frontend
+const cleanText = (text: string) => {
+  if (!text) return "";
+  try {
+    // Attempt to fix UTF-8 read as Latin-1
+    return decodeURIComponent(escape(text));
+  } catch (e) {
+    // Manual mapping for the most common Spanish artifacts if decode fails
+    return text
+      .replace(/Ã¡/g, 'á').replace(/Ã©/g, 'é').replace(/Ã\xad/g, 'í')
+      .replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ')
+      .replace(/Ã\u0081/g, 'Á').replace(/Ã\u0089/g, 'É').replace(/Ã\u008D/g, 'Í')
+      .replace(/Ã\u0093/g, 'Ó').replace(/Ã\u009A/g, 'Ú').replace(/Ã\u0091/g, 'Ñ');
+  }
+};
+
 function DrillDownContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -35,7 +51,9 @@ function DrillDownContent() {
     const fetchFilters = async () => {
       try {
         const res = await axios.get(`${API_URL}/drilldown/filters`);
-        setFilters(res.data);
+        // Clean career names from the API
+        const cleanedCarreras = (res.data.carreras || []).map((c: string) => cleanText(c));
+        setFilters({ ...res.data, carreras: cleanedCarreras });
       } catch (e) { console.error(e); }
     };
     fetchFilters();
@@ -46,6 +64,9 @@ function DrillDownContent() {
       setLoading(true);
       try {
         const params = new URLSearchParams();
+        // Send original name to API if needed, but here we assume selection.carrera is cleaned
+        // If the API expects the "broken" name to filter, we might need to keep it.
+        // However, usually it's better to clean everything.
         if (selection.carrera) params.append("carrera", selection.carrera);
         if (selection.semestre) params.append("semestre", selection.semestre);
         if (selection.search) params.append("search", selection.search);
