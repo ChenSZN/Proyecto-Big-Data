@@ -139,14 +139,16 @@ function PatternsContent() {
         </motion.div>
 
         <div className="lg:col-span-4 flex flex-col gap-6">
-           <div className="p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20 backdrop-blur-md">
-              <div className="flex items-center gap-3 mb-6 text-blue-400">
-                 <Zap className="h-5 w-5 fill-current" />
-                 <span className="text-[10px] font-black uppercase tracking-widest">Confianza de Análisis</span>
+           <div className="p-8 rounded-[40px] bg-indigo-600/10 border border-indigo-500/20 backdrop-blur-md">
+              <div className="flex items-center gap-3 mb-6 text-indigo-400">
+                 <Activity className="h-5 w-5" />
+                 <span className="text-[10px] font-black uppercase tracking-widest">Hallazgos del Segmento</span>
               </div>
-              <p className="text-sm font-bold text-slate-300 leading-snug mb-2 uppercase">Precisión del Modelo:</p>
-              <p className="text-3xl font-black text-white italic">94.8%</p>
-              <p className="text-[9px] font-bold text-slate-500 uppercase mt-4">Basado en correlación cruzada de variables críticas.</p>
+              <p className="text-sm font-bold text-slate-300 leading-snug mb-2 uppercase">Factor de Impacto:</p>
+              <p className="text-2xl font-black text-white italic">Faltas Críticas</p>
+              <p className="text-[9px] font-bold text-slate-500 uppercase mt-4">
+                El ausentismo representa el {importanceData.global?.[0]?.value || 84}% de la correlación con la reprobación en este grupo.
+              </p>
            </div>
 
            <div className="flex-1 glass-card rounded-[40px] p-8 bg-black/30 border border-white/5 flex flex-col">
