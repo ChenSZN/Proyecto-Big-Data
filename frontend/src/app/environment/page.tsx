@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { 
   Users, Briefcase, MapPin, GraduationCap, 
@@ -33,23 +34,31 @@ const FALLBACK_ENV = {
   support: { beca_pct: 35.4, internet_pct: 92.1, tutorias_pct: 28.5 }
 };
 
-export default function Environment() {
+function EnvironmentContent() {
+  const searchParams = useSearchParams();
   const [data, setData] = useState<any>(FALLBACK_ENV);
   const [totalStudents, setTotalStudents] = useState(5000);
+  const [loading, setLoading] = useState(false);
+
+  const carrera = searchParams.get("carrera") || "";
+  const semestre = searchParams.get("semestre") || "";
 
   useEffect(() => {
     const fetchEnv = async () => {
+      setLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/environment`);
+        const query = `?carrera=${encodeURIComponent(carrera)}&semestre=${semestre}`;
+        const res = await axios.get(`${API_URL}/environment${query}`);
         if (res.data && res.data.gender) {
           setData(res.data);
           const total = Object.values(res.data.gender as object).reduce((a, b) => a + (b as number), 0);
           setTotalStudents(total);
         }
-      } catch (e) { console.warn("Fallback data active."); }
+      } catch (e) { console.warn("Fallback active."); }
+      finally { setLoading(false); }
     };
     fetchEnv();
-  }, []);
+  }, [carrera, semestre]);
 
   const ageData = data?.age || FALLBACK_ENV.age;
   const distanceData = data?.distance || FALLBACK_ENV.distance;
@@ -64,18 +73,16 @@ export default function Environment() {
           <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter">Entorno Estudiantil</h1>
           <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Análisis Socio-Demográfico y Apoyos</p>
         </div>
-        <div className="bg-blue-600/10 border border-blue-500/20 px-5 py-2 rounded-[20px] flex items-center gap-3">
+        <div className="bg-blue-600/10 border border-blue-500/20 px-5 py-2 rounded-[20px] flex items-center gap-3 shadow-lg shadow-blue-500/5">
            <Database className="h-5 w-5 text-blue-500" />
            <div>
-              <p className="text-[9px] font-black text-slate-500 uppercase leading-none">Población Total</p>
+              <p className="text-[9px] font-black text-slate-500 uppercase leading-none">Población del Segmento</p>
               <p className="text-xl font-black text-white italic">{totalStudents.toLocaleString()} Alumnos</p>
            </div>
         </div>
       </header>
 
-      {/* Main Grid - Adjusted to fit screen without scroll on PC */}
       <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-0">
-         {/* Distribución por Género */}
          <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2 text-blue-400">
                <Users className="h-4 w-4" />
@@ -93,7 +100,6 @@ export default function Environment() {
             </div>
          </div>
 
-         {/* Situación Laboral */}
          <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2 text-amber-500">
                <Briefcase className="h-4 w-4" />
@@ -112,7 +118,6 @@ export default function Environment() {
             </div>
          </div>
 
-         {/* Rango de Edad */}
          <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-0">
             <div className="flex items-center gap-2 mb-2 text-indigo-400">
                <Users2 className="h-4 w-4" />
@@ -130,7 +135,6 @@ export default function Environment() {
             </div>
          </div>
 
-         {/* Movilidad Estudiantil */}
          <div className="lg:col-span-2 glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5 flex flex-col min-h-0">
             <div className="flex items-center justify-between mb-4">
                <div className="flex items-center gap-3 text-emerald-400">
@@ -150,7 +154,6 @@ export default function Environment() {
             </div>
          </div>
 
-         {/* Factores de Permanencia */}
          <div className="glass-card p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20 flex flex-col min-h-0">
             <div className="flex items-center gap-3 mb-6 text-blue-400">
                <Zap className="h-5 w-5" />
@@ -179,5 +182,13 @@ export default function Environment() {
          </div>
       </div>
     </div>
+  );
+}
+
+export default function Environment() {
+  return (
+    <Suspense fallback={<div className="h-full flex items-center justify-center"><Activity className="h-10 w-10 text-blue-500 animate-spin" /></div>}>
+       <EnvironmentContent />
+    </Suspense>
   );
 }

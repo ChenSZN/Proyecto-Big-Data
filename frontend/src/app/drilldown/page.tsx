@@ -15,69 +15,31 @@ import { motion, AnimatePresence } from "framer-motion";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
-// Helper function to fix common encoding issues (mojibake) in the frontend
-const cleanText = (text: string) => {
-  if (!text) return "";
-  try {
-    // Attempt to fix UTF-8 read as Latin-1
-    return decodeURIComponent(escape(text));
-  } catch (e) {
-    // Manual mapping for the most common Spanish artifacts if decode fails
-    return text
-      .replace(/Ã¡/g, 'á').replace(/Ã©/g, 'é').replace(/Ã\xad/g, 'í')
-      .replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ')
-      .replace(/Ã\u0081/g, 'Á').replace(/Ã\u0089/g, 'É').replace(/Ã\u008D/g, 'Í')
-      .replace(/Ã\u0093/g, 'Ó').replace(/Ã\u009A/g, 'Ú').replace(/Ã\u0091/g, 'Ñ');
-  }
-};
-
 function DrillDownContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   
   const [data, setData] = useState<any[]>([]);
-  const [filters, setFilters] = useState<any>({ carreras: [], semestres: [] });
-  const [selection, setSelection] = useState({
-    carrera: searchParams.get("carrera") || "",
-    semestre: searchParams.get("semestre") || "",
-    search: searchParams.get("id") || ""
-  });
-  const [localFilter, setLocalFilter] = useState(searchParams.get("filter") || "TODOS");
+  const [localFilter, setLocalFilter] = useState("TODOS");
   const [loading, setLoading] = useState(true);
   
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
 
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const res = await axios.get(`${API_URL}/drilldown/filters`);
-        // Clean career names from the API
-        const cleanedCarreras = (res.data.carreras || []).map((c: string) => cleanText(c));
-        setFilters({ ...res.data, carreras: cleanedCarreras });
-      } catch (e) { console.error(e); }
-    };
-    fetchFilters();
-  }, []);
+  const carrera = searchParams.get("carrera") || "";
+  const semestre = searchParams.get("semestre") || "";
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const params = new URLSearchParams();
-        // Send original name to API if needed, but here we assume selection.carrera is cleaned
-        // If the API expects the "broken" name to filter, we might need to keep it.
-        // However, usually it's better to clean everything.
-        if (selection.carrera) params.append("carrera", selection.carrera);
-        if (selection.semestre) params.append("semestre", selection.semestre);
-        if (selection.search) params.append("search", selection.search);
-        
-        const res = await axios.get(`${API_URL}/drilldown/data?${params.toString()}`);
+        const query = `?carrera=${encodeURIComponent(carrera)}&semestre=${semestre}`;
+        const res = await axios.get(`${API_URL}/drilldown/data${query}`);
         setData(res.data);
       } catch (e) { console.error(e); }
       finally { setLoading(false); }
     };
     fetchData();
-  }, [selection.carrera, selection.semestre, selection.search]);
+  }, [carrera, semestre]);
 
   const sortedAndFilteredData = useMemo(() => {
     let result = [...data];
@@ -120,27 +82,14 @@ function DrillDownContent() {
 
   return (
     <div className="p-4 md:p-6 h-full flex flex-col gap-6 overflow-hidden bg-[#020617]">
-      <header className="flex items-center justify-between shrink-0">
-        <div className="flex items-center gap-4">
-          <button onClick={() => router.push("/")} className="p-3 rounded-[16px] bg-white/5 hover:bg-white/10 text-slate-400">
-             <ArrowLeft className="h-5 w-5" />
-          </button>
-          <div>
-            <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter">Explorador</h1>
-            <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Análisis ITNL</p>
-          </div>
-        </div>
-      </header>
-
       <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">
          
          <div className="lg:w-80 flex flex-col gap-4 shrink-0 h-full overflow-hidden">
-            
             <div className="glass-card p-6 rounded-[40px] bg-slate-900/20 border border-white/5 flex flex-col h-[280px] shrink-0">
                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 text-slate-400">
                      <PieIcon className="h-4 w-4 text-blue-500" />
-                     <span className="text-[9px] font-black uppercase tracking-widest text-white">Estado</span>
+                     <span className="text-[9px] font-black uppercase tracking-widest text-white">Estado del Segmento</span>
                   </div>
                   <div className="flex gap-1 bg-white/5 p-1 rounded-lg">
                      {['T', 'A', 'M', 'B'].map(f => (
@@ -173,45 +122,12 @@ function DrillDownContent() {
                </div>
             </div>
 
-            <div className="flex-1 glass-card p-6 rounded-[40px] bg-blue-600/5 border border-white/5 flex flex-col min-h-0 overflow-hidden shadow-2xl">
-               <div className="flex items-center gap-3 mb-4">
-                  <Filter className="h-4 w-4 text-blue-400" />
-                  <span className="text-[10px] font-black text-white uppercase tracking-widest">Filtros</span>
-               </div>
-
-               <div className="flex-1 overflow-y-auto custom-scrollbar pr-1 mb-4">
-                  <div className="flex flex-col gap-1.5">
-                     <button onClick={() => setSelection({...selection, carrera: ""})}
-                        className={`px-4 py-3 rounded-2xl text-left text-[9px] font-black uppercase transition-all ${selection.carrera === "" ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "bg-white/5 text-slate-500 hover:bg-white/10"}`}
-                     >
-                       TODAS LAS CARRERAS
-                     </button>
-                     {filters.carreras.map((c: string) => (
-                        <button key={c} onClick={() => setSelection({ ...selection, carrera: c })}
-                           className={`px-4 py-3 rounded-2xl text-left text-[9px] font-black uppercase transition-all ${selection.carrera === c ? "bg-blue-600 text-white shadow-lg shadow-blue-500/20" : "bg-white/5 text-slate-500 hover:bg-white/10"}`}
-                        >
-                           {c}
-                        </button>
-                     ))}
-                  </div>
-               </div>
-
-               <div className="shrink-0 pt-4 border-t border-white/5">
-                  <div className="grid grid-cols-5 gap-1.5">
-                     <button onClick={() => setSelection({...selection, semestre: ""})}
-                        className={`p-2 rounded-xl text-[9px] font-black uppercase transition-all ${selection.semestre === "" ? "bg-indigo-600 text-white" : "bg-white/5 text-slate-500"}`}
-                     >
-                       ALL
-                     </button>
-                     {filters.semestres.map((s: number) => (
-                        <button key={s} onClick={() => setSelection({ ...selection, semestre: selection.semestre === s.toString() ? "" : s.toString() })}
-                           className={`p-2 rounded-xl text-[9px] font-black uppercase transition-all ${selection.semestre === s.toString() ? "bg-indigo-600 text-white shadow-lg shadow-indigo-500/20" : "bg-white/5 text-slate-500 hover:bg-white/10"}`}
-                        >
-                           {s}°
-                        </button>
-                     ))}
-                  </div>
-               </div>
+            <div className="flex-1 glass-card p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20 flex flex-col justify-center items-center text-center">
+               <Filter className="h-8 w-8 text-blue-400 mb-4" />
+               <h3 className="text-xs font-black text-white uppercase tracking-widest mb-2">Filtro Global Activo</h3>
+               <p className="text-[10px] font-bold text-slate-500 uppercase leading-tight">
+                  Usa el panel de la izquierda para cambiar la carrera o el semestre en tiempo real.
+               </p>
             </div>
          </div>
 
@@ -288,7 +204,7 @@ function DrillDownContent() {
 export default function DrillDown() {
   return (
     <Suspense fallback={<div className="h-full flex items-center justify-center"><Activity className="h-8 w-8 animate-spin text-blue-500" /></div>}>
-      <DrillDownContent />
+       <DrillDownContent />
     </Suspense>
   );
 }

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, Suspense } from "react";
 import axios from "axios";
+import { useSearchParams } from "next/navigation";
 import { 
   Users, TrendingUp, AlertTriangle, CheckCircle, 
   BarChart3, Activity, PieChart as PieIcon, LineChart as LineIcon,
@@ -22,9 +23,7 @@ const cleanText = (text: string) => {
   try { return decodeURIComponent(escape(text)); } catch (e) {
     return text
       .replace(/Ã¡/g, 'á').replace(/Ã©/g, 'é').replace(/Ã\xad/g, 'í')
-      .replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ')
-      .replace(/Ã\u0081/g, 'Á').replace(/Ã\u0089/g, 'É').replace(/Ã\u008D/g, 'Í')
-      .replace(/Ã\u0093/g, 'Ó').replace(/Ã\u009A/g, 'Ú').replace(/Ã\u0091/g, 'Ñ');
+      .replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ');
   }
 };
 
@@ -46,27 +45,32 @@ function StatCard({ title, value, icon: Icon, color, trend, onClick }: any) {
   );
 }
 
-export default function Dashboard() {
+function DashboardContent() {
+  const searchParams = useSearchParams();
+  const router = useRouter();
+  
   const [stats, setStats] = useState<any>(null);
   const [impactData, setImpactData] = useState<any[]>([]);
   const [profileData, setProfileData] = useState<any[]>([]);
   const [trendData, setTrendData] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const router = useRouter();
+  const carrera = searchParams.get("carrera") || "";
+  const semestre = searchParams.get("semestre") || "";
 
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
+        const query = `?carrera=${encodeURIComponent(carrera)}&semestre=${semestre}`;
         const [s, i, p, t] = await Promise.all([
-          axios.get(`${API_URL}/stats`),
-          axios.get(`${API_URL}/dashboard/impact`),
-          axios.get(`${API_URL}/dashboard/profiles`),
-          axios.get(`${API_URL}/dashboard/trends`)
+          axios.get(`${API_URL}/stats${query}`),
+          axios.get(`${API_URL}/dashboard/impact${query}`),
+          axios.get(`${API_URL}/dashboard/profiles${query}`),
+          axios.get(`${API_URL}/dashboard/trends${query}`)
         ]);
         setStats(s.data);
         
-        // Clean text in impact data
         const cleanedImpact = (i.data || []).map((item: any) => ({
            ...item,
            carrera: cleanText(item.carrera)
@@ -79,7 +83,7 @@ export default function Dashboard() {
       finally { setLoading(false); }
     };
     fetchData();
-  }, []);
+  }, [carrera, semestre]);
 
   if (loading) {
      return (
@@ -91,9 +95,6 @@ export default function Dashboard() {
 
   return (
     <div className="p-6 h-full flex flex-col gap-6 overflow-hidden">
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 mb-2">
-      </header>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
         <StatCard 
           title="Total Alumnos" 
@@ -121,7 +122,7 @@ export default function Dashboard() {
         />
         <StatCard 
           title="Retención" 
-          value="92.4%" 
+          value={`${(100 - (stats?.tasa_desercion || 0)).toFixed(1)}%`} 
           icon={CheckCircle} 
           color="text-emerald-500" 
           trend="" 
@@ -164,8 +165,8 @@ export default function Dashboard() {
                   <XAxis dataKey="semestre_num" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
                   <YAxis stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
                   <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px' }} />
-                  <Line type="monotone" dataKey="reprobo" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} />
-                  <Line type="monotone" dataKey="deserto" stroke="#ef4444" strokeWidth={4} dot={{ r: 4, fill: '#ef4444', strokeWidth: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} />
+                  <Line name="REPROBACIÓN" type="monotone" dataKey="reprobo" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} />
+                  <Line name="DESERCIÓN" type="monotone" dataKey="deserto" stroke="#ef4444" strokeWidth={4} dot={{ r: 4, fill: '#ef4444', strokeWidth: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
@@ -240,5 +241,13 @@ export default function Dashboard() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <Suspense fallback={<div className="h-full flex items-center justify-center"><Activity className="h-10 w-10 text-blue-500 animate-spin" /></div>}>
+       <DashboardContent />
+    </Suspense>
   );
 }

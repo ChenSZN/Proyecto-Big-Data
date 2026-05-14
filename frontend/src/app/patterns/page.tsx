@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { 
   BrainCircuit, 
   TrendingDown,
@@ -50,22 +51,29 @@ const FALLBACK_DATA = {
   ]
 };
 
-export default function Patterns() {
+function PatternsContent() {
+  const searchParams = useSearchParams();
   const [importanceData, setImportanceData] = useState<any>(FALLBACK_DATA);
   const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
+  const carrera = searchParams.get("carrera") || "";
+  const semestre = searchParams.get("semestre") || "";
+
   useEffect(() => {
     const fetchPatterns = async () => {
+      setLoading(true);
       try {
-        const res = await axios.get(`${API_URL}/patterns`);
-        if (res.data && res.data.global && res.data.global.length > 0) {
+        const query = `?carrera=${encodeURIComponent(carrera)}&semestre=${semestre}`;
+        const res = await axios.get(`${API_URL}/patterns${query}`);
+        if (res.data && res.data.global) {
           setImportanceData(res.data);
         }
-      } catch (e) { console.warn("Fallback data active."); }
+      } catch (e) { console.warn("Fallback active."); }
+      finally { setLoading(false); }
     };
     fetchPatterns();
-  }, []);
+  }, [carrera, semestre]);
 
   const slides = [
     { id: 'global', title: 'Patrones de Riesgo Institucional', icon: BrainCircuit, color: 'text-blue-500', bar: '#3b82f6' },
@@ -106,7 +114,7 @@ export default function Patterns() {
 
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
         <motion.div 
-          key={currentIndex}
+          key={`${currentIndex}-${carrera}-${semestre}`}
           initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
           className="lg:col-span-8 glass-card rounded-[40px] p-6 md:p-10 flex flex-col min-h-[400px] bg-slate-900/40 border border-white/5 shadow-2xl"
         >
@@ -138,7 +146,7 @@ export default function Patterns() {
               </div>
               <p className="text-sm font-bold text-slate-300 leading-snug mb-2 uppercase">Precisión del Modelo:</p>
               <p className="text-3xl font-black text-white italic">94.8%</p>
-              <p className="text-[9px] font-bold text-slate-500 uppercase mt-4">Basado en correlación cruzada de {importanceData.global?.length || 5} variables críticas.</p>
+              <p className="text-[9px] font-bold text-slate-500 uppercase mt-4">Basado en correlación cruzada de variables críticas.</p>
            </div>
 
            <div className="flex-1 glass-card rounded-[40px] p-8 bg-black/30 border border-white/5 flex flex-col">
@@ -162,5 +170,13 @@ export default function Patterns() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function Patterns() {
+  return (
+    <Suspense fallback={<div className="h-full flex items-center justify-center"><Activity className="h-8 w-8 animate-spin text-blue-500" /></div>}>
+       <PatternsContent />
+    </Suspense>
   );
 }

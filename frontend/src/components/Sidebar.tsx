@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
+import axios from 'axios';
 import { 
   LayoutDashboard, 
   Database, 
@@ -11,33 +12,76 @@ import {
   ChevronRight,
   ChevronLeft,
   Menu,
-  X
+  X,
+  Filter,
+  GraduationCap,
+  Calendar
 } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
 const menuItems = [
   { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
-  { name: 'Drill-Down', icon: Database, path: '/drilldown' },
-  { name: 'PATRONES', icon: BrainCircuit, path: '/patterns' },
-  { name: 'ENTORNO', icon: Globe, path: '/environment' },
+  { name: 'Explorador', icon: Database, path: '/drilldown' },
+  { name: 'Patrones', icon: BrainCircuit, path: '/patterns' },
+  { name: 'Entorno', icon: Globe, path: '/environment' },
 ];
+
+// Simple encoding fix for Spanish text
+const cleanText = (text: string) => {
+  if (!text) return "";
+  try { return decodeURIComponent(escape(text)); } catch (e) {
+    return text.replace(/Ã¡/g, 'á').replace(/Ã©/g, 'é').replace(/Ã\xad/g, 'í').replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ');
+  }
+};
 
 export default function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
+  
+  const [filters, setFilters] = useState<{carreras: string[], semestres: number[]}>({ carreras: [], semestres: [] });
+  
+  const currentCarrera = searchParams.get("carrera") || "TODAS";
+  const currentSemestre = searchParams.get("semestre") || "ALL";
+
+  useEffect(() => {
+    const fetchFilters = async () => {
+      try {
+        const res = await axios.get(`${API_URL}/drilldown/filters`);
+        setFilters({
+           carreras: (res.data.carreras || []).map((c: string) => cleanText(c)),
+           semestres: res.data.semestres || []
+        });
+      } catch (e) { console.error("Error loading filters", e); }
+    };
+    fetchFilters();
+  }, []);
+
+  const updateGlobalFilter = (key: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (value === "TODAS" || value === "ALL" || value === "") {
+      params.delete(key);
+    } else {
+      params.set(key, value);
+    }
+    router.push(`${pathname}?${params.toString()}`);
+  };
+
+  const showText = !isCollapsed || isMobileOpen;
 
   return (
     <>
-      {/* Mobile Menu Toggle - Snappier transition */}
       <button 
         onClick={() => setIsMobileOpen(true)}
-        className="md:hidden fixed top-6 left-6 z-[60] p-3 rounded-2xl bg-blue-600 text-white shadow-lg active:scale-95 transition-transform"
+        className="md:hidden fixed top-6 left-6 z-[60] p-3 rounded-2xl bg-blue-600 text-white shadow-lg shadow-blue-500/20 active:scale-95 transition-transform"
       >
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Mobile Overlay - Static background to avoid lag */}
       {isMobileOpen && (
         <div 
           onClick={() => setIsMobileOpen(false)}
@@ -45,18 +89,15 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar Container - Optimized transitions */}
       <aside className={`
         fixed md:relative top-0 left-0 h-full z-[80] 
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
-        ${isCollapsed ? "w-20" : "w-64"}
+        ${isCollapsed ? "w-20" : "w-72"}
         flex flex-col bg-[#020617] border-r border-white/5 overflow-hidden shrink-0
         transition-all duration-300 ease-out will-change-transform
       `}>
-        {/* Glow ambiental superior */}
         <div className="absolute -left-20 -top-20 w-64 h-64 bg-blue-600/5 blur-[80px] rounded-full pointer-events-none" />
         
-        {/* Desktop Collapse Button */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="hidden md:block absolute top-8 right-4 z-50 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-slate-400"
@@ -64,47 +105,92 @@ export default function Sidebar() {
           {isCollapsed ? <Menu className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
         </button>
 
-        {/* Mobile Close Button */}
-        <button 
-          onClick={() => setIsMobileOpen(false)}
-          className="md:hidden absolute top-8 right-6 z-50 p-2 rounded-xl bg-white/5 text-slate-400"
-        >
-          <X className="h-6 w-6" />
-        </button>
+        <div className={`p-8 ${isCollapsed ? "items-center" : ""} flex flex-col`}>
+           <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-2xl bg-blue-600 flex items-center justify-center shadow-lg shadow-blue-600/20">
+                 <GraduationCap className="text-white h-6 w-6" />
+              </div>
+              {showText && (
+                 <div>
+                    <h1 className="text-xl font-black text-white italic tracking-tighter leading-none">ITNL</h1>
+                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest mt-1">Analytics Hub</p>
+                 </div>
+              )}
+           </div>
+        </div>
 
-        {/* Navegación */}
-        <nav className={`flex-1 ${isCollapsed ? "px-2" : "px-4"} py-10 mt-16 space-y-2 relative z-10`}>
-          {(!isCollapsed || isMobileOpen) && (
-            <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-6">Principal</p>
+        <nav className={`flex-1 ${isCollapsed ? "px-2" : "px-4"} space-y-1 relative z-10 overflow-y-auto custom-scrollbar`}>
+          {showText && (
+            <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4 mt-4">Navegación</p>
           )}
           
           {menuItems.map((item) => {
             const isActive = pathname === item.path;
-            const showText = !isCollapsed || isMobileOpen;
-
             return (
-              <Link key={item.path} href={item.path} onClick={() => setIsMobileOpen(false)}>
+              <Link key={item.path} href={`${item.path}?${searchParams.toString()}`} onClick={() => setIsMobileOpen(false)}>
                 <div className={`
-                  relative flex items-center ${!showText ? "justify-center" : "gap-3 px-4"} py-3.5 rounded-xl transition-all duration-200 group
+                  relative flex items-center ${!showText ? "justify-center" : "gap-3 px-4"} py-3 rounded-xl transition-all duration-200 group
                   ${isActive 
                     ? "bg-blue-600 text-white shadow-lg shadow-blue-600/20" 
                     : "text-slate-500 hover:text-slate-200 hover:bg-white/[0.03]"
                   }
                 `}>
                   <item.icon className={`h-5 w-5 ${isActive ? "text-white" : "group-hover:text-blue-400"}`} />
-                  
-                  {showText && (
-                    <span className="text-xs font-black tracking-tight uppercase whitespace-nowrap">
-                      {item.name}
-                    </span>
-                  )}
-                  
-                  {showText && isActive && <ChevronRight className="ml-auto h-3 w-3 text-white/50" />}
+                  {showText && <span className="text-xs font-black tracking-tight uppercase">{item.name}</span>}
                 </div>
               </Link>
             );
           })}
+
+          {showText && (
+            <div className="mt-10 space-y-6 px-2">
+               <div className="pt-6 border-t border-white/5">
+                  <div className="flex items-center gap-2 mb-4 text-slate-400">
+                     <Filter className="h-3 w-3" />
+                     <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Filtro Global</span>
+                  </div>
+                  
+                  <div className="space-y-4">
+                     <div>
+                        <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-2">Carrera</label>
+                        <select 
+                          value={currentCarrera}
+                          onChange={(e) => updateGlobalFilter("carrera", e.target.value)}
+                          className="w-full bg-white/5 border border-white/5 rounded-xl px-3 py-2.5 text-[10px] font-black text-slate-300 outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
+                        >
+                           <option value="TODAS">TODAS LAS CARRERAS</option>
+                           {filters.carreras.map(c => <option key={c} value={c}>{c}</option>)}
+                        </select>
+                     </div>
+
+                     <div>
+                        <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-2">Semestre</label>
+                        <div className="grid grid-cols-4 gap-1">
+                           {["ALL", 1, 2, 3, 4, 5, 6, 7].map(s => (
+                              <button 
+                                key={s}
+                                onClick={() => updateGlobalFilter("semestre", s.toString())}
+                                className={`p-2 rounded-lg text-[9px] font-black transition-all ${currentSemestre === s.toString() ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500 hover:bg-white/10"}`}
+                              >
+                                 {s === "ALL" ? "A" : s}
+                              </button>
+                           ))}
+                        </div>
+                     </div>
+                  </div>
+               </div>
+            </div>
+          )}
         </nav>
+
+        {showText && (
+          <div className="p-6 border-t border-white/5">
+             <div className="flex items-center gap-3 p-3 rounded-2xl bg-blue-600/5 border border-blue-500/10">
+                <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">En Línea (Cloud)</span>
+             </div>
+          </div>
+        )}
       </aside>
     </>
   );
