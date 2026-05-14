@@ -21,7 +21,6 @@ def load_data():
     if not os.path.exists(CSV_PATH): 
         return pd.DataFrame()
     
-    # Try multiple encodings
     encodings = ['utf-8-sig', 'latin-1', 'cp1252']
     df = pd.DataFrame()
     for enc in encodings:
@@ -32,8 +31,7 @@ def load_data():
             
     if df.empty: return pd.DataFrame()
     
-    # ULTIMATE NORMALIZATION: Lowercase and strip everything
-    # We will rename columns based on partial matches to be 100% sure
+    # Normalize Columns - Partial Match
     raw_cols = df.columns.tolist()
     new_cols = {}
     
@@ -58,7 +56,7 @@ def load_data():
         
     df.rename(columns=new_cols, inplace=True)
     
-    # Standardize types
+    # FORCE NUMERIC
     numeric_cols = [
         'promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 
         'entregas_tareas_pct', 'deserto', 'reprobo', 'edad', 'distancia_km'
@@ -66,18 +64,20 @@ def load_data():
     
     for col in numeric_cols:
         if col in df.columns:
-            # Handle string numbers with commas
-            if df[col].dtype == object:
-                df[col] = df[col].astype(str).str.replace(',', '.')
+            # Clean non-numeric characters except dots and commas
+            df[col] = df[col].astype(str).str.replace(',', '.').str.extract(r'(\d+\.?\d*)')[0]
             df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-    # Risk Priority
+    # Priority
     if 'riesgo_academico' in df.columns:
         df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
     else:
         df['prioridad'] = 'BAJO'
         
     df['p_num'] = df['prioridad'].map({"ALTO": 3, "MEDIO": 2, "BAJO": 1}).fillna(1)
+    
+    print("DATA LOADED SUCCESS. Samples:")
+    print(df[['id_estudiante', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct']].head())
             
     return df
 
@@ -93,10 +93,8 @@ async def root():
 @app.get("/api/environment")
 async def get_environment_stats():
     if df.empty: return {}
-    
     gender = df['genero'].value_counts().to_dict() if 'genero' in df.columns else {}
     work = df['trabaja'].value_counts().to_dict() if 'trabaja' in df.columns else {}
-    
     distance = []
     if 'distancia_km' in df.columns:
         distance = [
@@ -104,7 +102,6 @@ async def get_environment_stats():
             {"name": "6-15km", "value": int(((df['distancia_km'] > 5) & (df['distancia_km'] <= 15)).sum())},
             {"name": "15km+", "value": int((df['distancia_km'] > 15).sum())}
         ]
-    
     age = []
     if 'edad' in df.columns:
         age = [
@@ -112,13 +109,11 @@ async def get_environment_stats():
             {"name": "21-23", "value": int(((df['edad'] > 20) & (df['edad'] <= 23)).sum())},
             {"name": "24+", "value": int((df['edad'] > 23).sum())}
         ]
-
     support = {
         "beca_pct": round(float((df['beca'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'beca' in df.columns else 0,
         "internet_pct": round(float((df['acceso_internet'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'acceso_internet' in df.columns else 0,
         "tutorias_pct": round(float((df['participa_tutorias'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'participa_tutorias' in df.columns else 0
     }
-
     return { "gender": gender, "work": work, "distance": distance, "age": age, "support": support }
 
 @app.get("/api/drilldown/data")
