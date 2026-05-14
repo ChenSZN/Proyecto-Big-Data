@@ -166,13 +166,19 @@ export default function Sidebar() {
                      <div>
                         <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-2">Semestre</label>
                         <div className="grid grid-cols-4 gap-1">
-                           {["ALL", 1, 2, 3, 4, 5, 6, 7].map(s => (
+                           <button 
+                             onClick={() => updateGlobalFilter("semestre", "ALL")}
+                             className={`p-2 rounded-lg text-[9px] font-black transition-all ${currentSemestre === "ALL" ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500 hover:bg-white/10"}`}
+                           >
+                              ALL
+                           </button>
+                           {filters.semestres.map(s => (
                               <button 
                                 key={s}
                                 onClick={() => updateGlobalFilter("semestre", s.toString())}
                                 className={`p-2 rounded-lg text-[9px] font-black transition-all ${currentSemestre === s.toString() ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500 hover:bg-white/10"}`}
                               >
-                                 {s === "ALL" ? "A" : s}
+                                 {s}
                               </button>
                            ))}
                         </div>
