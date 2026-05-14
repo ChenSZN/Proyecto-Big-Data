@@ -95,6 +95,9 @@ function DrillDownContent() {
                      <th onClick={() => handleSort('id_estudiante')} className="px-8 py-6 cursor-pointer hover:text-white transition-colors">
                         Identificador
                      </th>
+                     <th onClick={() => handleSort('carrera')} className="px-6 py-6 cursor-pointer hover:text-white transition-colors">
+                        Carrera
+                     </th>
                      <th onClick={() => handleSort('promedio_anterior')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
                         Promedio
                      </th>
@@ -122,6 +125,11 @@ function DrillDownContent() {
                              </div>
                              <span className="font-black text-white text-[14px] tracking-tight">{st.id_estudiante}</span>
                           </div>
+                       </td>
+                       <td className="px-6 py-5">
+                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-tight line-clamp-1">
+                             {st.carrera?.replace(/Ã¡/g, 'á').replace(/Ã©/g, 'é').replace(/Ã\xad/g, 'í').replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ')}
+                          </span>
                        </td>
                        <td className="px-6 py-5 font-black text-slate-300 text-center text-sm">{(st.promedio_anterior || 0).toFixed(1)}</td>
                        <td className="px-6 py-5 text-center">
