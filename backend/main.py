@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Query
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 import pandas as pd
 import numpy as np
@@ -22,43 +22,62 @@ def load_data():
     # Use latin-1 as verified by debug script
     df = pd.read_csv(CSV_PATH, encoding='latin-1')
     
-    # Normalize column names to exact matches needed by frontend
-    # This avoids any hidden character issues
-    cols_map = {
-        'id_estudiante': 'id_estudiante',
-        'carrera': 'carrera',
-        'semestre': 'semestre',
-        'promedio_anterior': 'promedio_anterior',
-        'porcentaje_asistencia': 'porcentaje_asistencia',
-        'materias_reprobadas_previas': 'materias_reprobadas_previas',
-        'entregas_tareas_pct': 'entregas_tareas_pct',
-        'trabaja': 'trabaja',
-        'riesgo_academico': 'riesgo_academico',
-        'deserto': 'deserto',
-        'reprobo': 'reprobo'
+    # INDEX-BASED MAPPING (The ultimate fix)
+    # We map columns by their physical position to bypass any name/encoding issues
+    # Physical order from CSV: id_est, carrera, sem, turno, edad, gen, prom, asist, previas, ..., plataforma, tareas, ...
+    
+    col_positions = {
+        0: 'id_estudiante',
+        1: 'carrera',
+        2: 'semestre',
+        6: 'promedio_anterior',
+        7: 'porcentaje_asistencia',
+        8: 'materias_reprobadas_previas',
+        12: 'trabaja',
+        15: 'acceso_internet',
+        17: 'entregas_tareas_pct',
+        20: 'riesgo_academico',
+        21: 'deserto',
+        22: 'reprobo'
     }
     
-    # Clean the actual columns in DF to match our map keys
-    df.columns = [c.strip() for c in df.columns]
+    new_cols = list(df.columns)
+    for pos, name in col_positions.items():
+        if pos < len(new_cols):
+            new_cols[pos] = name
+            
+    df.columns = new_cols
     
+    # Clean numeric data aggressively
+    def force_num(val):
+        try:
+            if pd.isna(val): return 0.0
+            s = str(val).replace(',', '.')
+            # Extract first number found
+            match = "".join(filter(lambda x: x.isdigit() or x == '.', s))
+            return float(match) if match else 0.0
+        except: return 0.0
+
+    numeric_cols = ['promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct', 'deserto', 'reprobo']
+    for c in numeric_cols:
+        if c in df.columns:
+            df[c] = df[c].apply(force_num)
+
     # Risk priority mapping
     if 'riesgo_academico' in df.columns:
         df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
     else:
         df['prioridad'] = 'BAJO'
 
-    # Fill NaNs for safety
-    df = df.fillna(0)
-    
-    print("SERVER DATA LOADED. Columns:", df.columns.tolist())
-    print("Sample Row:", df.iloc[0].to_dict())
+    print("ULTIMATE DATA LOAD SUCCESS. Sample Check:")
+    print(df[['id_estudiante', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct']].head(2))
             
     return df
 
 try:
     df = load_data()
 except Exception as e:
-    print(f"LOAD ERROR: {e}")
+    print(f"ULTIMATE LOAD ERROR: {e}")
     df = pd.DataFrame()
 
 @app.get("/api/drilldown/data")
@@ -71,10 +90,7 @@ async def get_drilldown_data(carrera: str = None, semestre: str = None, search: 
         except: pass
     if search:
         filtered = filtered[filtered['id_estudiante'].astype(str).str.contains(search.upper())]
-    
-    # Convert to records
-    records = filtered.to_dict(orient="records")
-    return records
+    return filtered.to_dict(orient="records")
 
 @app.get("/api/drilldown/filters")
 async def get_filters():
@@ -108,16 +124,6 @@ async def get_environment_stats():
     return {
         "gender": df['genero'].value_counts().to_dict() if 'genero' in df.columns else {},
         "work": df['trabaja'].value_counts().to_dict() if 'trabaja' in df.columns else {},
-        "distance": [
-            {"name": "0-5km", "value": int(((df['distancia_km'] >= 0) & (df['distancia_km'] <= 5)).sum())},
-            {"name": "6-15km", "value": int(((df['distancia_km'] > 5) & (df['distancia_km'] <= 15)).sum())},
-            {"name": "15km+", "value": int((df['distancia_km'] > 15).sum())}
-        ] if 'distancia_km' in df.columns else [],
-        "age": [
-            {"name": "18-20", "value": int(((df['edad'] >= 18) & (df['edad'] <= 20)).sum())},
-            {"name": "21-23", "value": int(((df['edad'] > 20) & (df['edad'] <= 23)).sum())},
-            {"name": "24+", "value": int((df['edad'] > 23).sum())}
-        ] if 'edad' in df.columns else [],
         "support": {
             "beca_pct": round(float((df['beca'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'beca' in df.columns else 0,
             "internet_pct": round(float((df['acceso_internet'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'acceso_internet' in df.columns else 0,
