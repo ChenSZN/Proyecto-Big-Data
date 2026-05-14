@@ -9,13 +9,10 @@ import {
   Database, 
   BrainCircuit, 
   Globe,
-  ChevronRight,
   ChevronLeft,
   Menu,
-  X,
   Filter,
   GraduationCap,
-  Calendar
 } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
@@ -27,7 +24,6 @@ const menuItems = [
   { name: 'Entorno', icon: Globe, path: '/environment' },
 ];
 
-// Simple encoding fix for Spanish text
 const cleanText = (text: string) => {
   if (!text) return "";
   try { return decodeURIComponent(escape(text)); } catch (e) {
@@ -42,7 +38,6 @@ export default function Sidebar() {
   
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  
   const [filters, setFilters] = useState<{carreras: string[], semestres: number[]}>({ carreras: [], semestres: [] });
   
   const currentCarrera = searchParams.get("carrera") || "TODAS";
@@ -62,8 +57,8 @@ export default function Sidebar() {
   }, []);
 
   const updateGlobalFilter = (key: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (value === "TODAS" || value === "ALL" || value === "") {
+    const params = new URLSearchParams(window.location.search);
+    if (value === "TODAS" || value === "ALL" || value === "" || value === "0") {
       params.delete(key);
     } else {
       params.set(key, value);
@@ -82,7 +77,6 @@ export default function Sidebar() {
         <Menu className="h-6 w-6" />
       </button>
 
-      {/* Mobile Overlay - Ultra-fast (no blur, shorter duration) */}
       {isMobileOpen && (
         <div 
           onClick={() => setIsMobileOpen(false)}
@@ -90,7 +84,6 @@ export default function Sidebar() {
         />
       )}
 
-      {/* Sidebar Container - Max performance */}
       <aside className={`
         fixed md:relative top-0 left-0 h-full z-[80] 
         ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
@@ -98,8 +91,6 @@ export default function Sidebar() {
         flex flex-col bg-[#020617] border-r border-white/5 overflow-hidden shrink-0
         transition-transform duration-150 ease-out will-change-transform
       `}>
-        {/* Logo removed as requested */}
-        
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="hidden md:block absolute top-8 right-4 z-50 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-slate-400"

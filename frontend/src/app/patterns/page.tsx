@@ -10,8 +10,6 @@ import {
   ChevronRight,
   Activity,
   Zap,
-  Cpu,
-  Database
 } from "lucide-react";
 import { 
   BarChart, 
@@ -22,7 +20,7 @@ import {
   ResponsiveContainer,
   Cell
 } from "recharts";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
@@ -61,7 +59,7 @@ function PatternsContent() {
   const semestre = searchParams.get("semestre") || "";
 
   useEffect(() => {
-    const fetchPatterns = async () => {
+    const fetchData = async () => {
       setLoading(true);
       try {
         const query = `?carrera=${encodeURIComponent(carrera)}&semestre=${semestre}`;
@@ -72,7 +70,7 @@ function PatternsContent() {
       } catch (e) { console.warn("Fallback active."); }
       finally { setLoading(false); }
     };
-    fetchPatterns();
+    fetchData();
   }, [carrera, semestre]);
 
   const slides = [
@@ -118,55 +116,62 @@ function PatternsContent() {
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
           className="flex-1 glass-card rounded-[40px] p-4 md:p-10 flex flex-col min-h-[450px] bg-slate-900/40 border border-white/5 shadow-2xl overflow-hidden"
         >
-          <div className="flex-1 w-full min-h-0">
-            <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={chartData} layout="vertical" margin={{ left: 120, right: 20, top: 20, bottom: 20 }}>
-                <XAxis type="number" hide domain={[0, 100]} />
-                <YAxis dataKey="name" type="category" tick={{fill: '#94a3b8', fontSize: 11, fontWeight: '900'}} width={120} axisLine={false} tickLine={false} />
-                <Tooltip 
-                   cursor={{fill: 'white', fillOpacity: 0.05}} 
-                   contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '12px'}}
-                   itemStyle={{color: '#fff', fontWeight: '900'}}
-                />
-                <Bar dataKey="value" radius={[0, 16, 16, 0]} barSize={40}>
-                  {chartData.map((_: any, i: number) => (
-                    <Cell key={i} fill={currentSlide.bar} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
-          
-          {/* Mobile Legend / Footer */}
-          <div className="mt-8 pt-8 border-t border-white/5 grid grid-cols-1 md:grid-cols-3 gap-6">
-             <div className="flex items-center gap-4">
-                <div className={`p-3 rounded-2xl bg-white/5 ${currentSlide.color}`}>
-                   <BrainCircuit className="h-5 w-5" />
+          {loading ? (
+            <div className="flex-1 flex items-center justify-center">
+               <Activity className="h-8 w-8 animate-spin text-blue-500" />
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 w-full min-h-0">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} layout="vertical" margin={{ left: 120, right: 20, top: 20, bottom: 20 }}>
+                    <XAxis type="number" hide domain={[0, 100]} />
+                    <YAxis dataKey="name" type="category" tick={{fill: '#94a3b8', fontSize: 11, fontWeight: '900'}} width={120} axisLine={false} tickLine={false} />
+                    <Tooltip 
+                       cursor={{fill: 'white', fillOpacity: 0.05}} 
+                       contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '12px'}}
+                       itemStyle={{color: '#fff', fontWeight: '900'}}
+                    />
+                    <Bar dataKey="value" radius={[0, 16, 16, 0]} barSize={40}>
+                      {chartData.map((_: any, i: number) => (
+                        <Cell key={i} fill={currentSlide.bar} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+              
+              <div className="mt-8 pt-8 border-t border-white/5 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="flex items-center gap-4">
+                    <div className={`p-3 rounded-2xl bg-white/5 ${currentSlide.color}`}>
+                      <BrainCircuit className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase">Precisión IA</p>
+                      <p className="text-sm font-black text-white italic">94.8% Correlación</p>
+                    </div>
                 </div>
-                <div>
-                   <p className="text-[10px] font-black text-slate-500 uppercase">Precisión IA</p>
-                   <p className="text-sm font-black text-white italic">94.8% Correlación</p>
+                <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-white/5 text-emerald-500">
+                      <Activity className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase">Estado Datos</p>
+                      <p className="text-sm font-black text-white italic">Dataset Completo</p>
+                    </div>
                 </div>
-             </div>
-             <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-white/5 text-emerald-500">
-                   <Activity className="h-5 w-5" />
+                <div className="flex items-center gap-4">
+                    <div className="p-3 rounded-2xl bg-white/5 text-amber-500">
+                      <Zap className="h-5 w-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-500 uppercase">Recomendación</p>
+                      <p className="text-sm font-black text-white italic">Intervención Directa</p>
+                    </div>
                 </div>
-                <div>
-                   <p className="text-[10px] font-black text-slate-500 uppercase">Estado Datos</p>
-                   <p className="text-sm font-black text-white italic">Dataset Completo</p>
-                </div>
-             </div>
-             <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-white/5 text-amber-500">
-                   <Zap className="h-5 w-5" />
-                </div>
-                <div>
-                   <p className="text-[10px] font-black text-slate-500 uppercase">Recomendación</p>
-                   <p className="text-sm font-black text-white italic">Intervención Directa</p>
-                </div>
-             </div>
-          </div>
+              </div>
+            </>
+          )}
         </motion.div>
       </div>
     </div>

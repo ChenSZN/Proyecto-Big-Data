@@ -4,13 +4,12 @@ import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import axios from "axios";
 import { 
-  Users, Briefcase, MapPin, GraduationCap, 
-  Activity, Users2, Globe, Zap, Database
+  Users, Briefcase, MapPin, 
+  Activity, Users2, Zap, Database
 } from "lucide-react";
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, 
   ResponsiveContainer, PieChart, Pie, Cell,
-  CartesianGrid
 } from "recharts";
 import { motion } from "framer-motion";
 
