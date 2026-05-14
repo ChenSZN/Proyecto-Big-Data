@@ -19,7 +19,6 @@ CSV_PATH = os.path.join(BASE_DIR, "dataset_desercion_reprobacion_tecnologico_nue
 
 def load_data():
     if not os.path.exists(CSV_PATH): 
-        print("CSV NOT FOUND at", CSV_PATH)
         return pd.DataFrame()
     
     # Try multiple encodings
@@ -28,39 +27,51 @@ def load_data():
     for enc in encodings:
         try:
             df = pd.read_csv(CSV_PATH, encoding=enc)
-            print(f"Loaded CSV with {enc}")
-            break
-        except Exception as e:
-            continue
+            if not df.empty: break
+        except: continue
             
     if df.empty: return pd.DataFrame()
     
-    # Normalize column names: remove BOM, hidden chars, spaces, and lowercase
-    df.columns = [re.sub(r'[^\w\s]', '', c).lower().strip().replace(' ', '_') for c in df.columns]
-    print("Columns loaded:", df.columns.tolist())
+    # ULTIMATE NORMALIZATION: Lowercase and strip everything
+    # We will rename columns based on partial matches to be 100% sure
+    raw_cols = df.columns.tolist()
+    new_cols = {}
     
-    if 'carrera' in df.columns:
-        df['carrera'] = df['carrera'].astype(str).str.strip().replace(['nan', ''], 'CARRERA GENERAL')
+    for c in raw_cols:
+        cl = c.lower().strip()
+        if 'estudiante' in cl: new_cols[c] = 'id_estudiante'
+        elif 'carrera' in cl: new_cols[c] = 'carrera'
+        elif 'asistencia' in cl: new_cols[c] = 'porcentaje_asistencia'
+        elif 'promedio' in cl and 'anterior' in cl: new_cols[c] = 'promedio_anterior'
+        elif 'reprobadas' in cl or 'previas' in cl: new_cols[c] = 'materias_reprobadas_previas'
+        elif 'tareas' in cl: new_cols[c] = 'entregas_tareas_pct'
+        elif 'trabaja' in cl: new_cols[c] = 'trabaja'
+        elif 'beca' in cl: new_cols[c] = 'beca'
+        elif 'internet' in cl: new_cols[c] = 'acceso_internet'
+        elif 'tutorias' in cl: new_cols[c] = 'participa_tutorias'
+        elif 'semestre' in cl: new_cols[c] = 'semestre'
+        elif 'riesgo' in cl: new_cols[c] = 'riesgo_academico'
+        elif 'deserto' in cl: new_cols[c] = 'deserto'
+        elif 'reprobo' in cl: new_cols[c] = 'reprobo'
+        elif 'edad' in cl: new_cols[c] = 'edad'
+        elif 'distancia' in cl: new_cols[c] = 'distancia_km'
+        
+    df.rename(columns=new_cols, inplace=True)
+    
+    # Standardize types
+    numeric_cols = [
+        'promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 
+        'entregas_tareas_pct', 'deserto', 'reprobo', 'edad', 'distancia_km'
+    ]
+    
+    for col in numeric_cols:
+        if col in df.columns:
+            # Handle string numbers with commas
+            if df[col].dtype == object:
+                df[col] = df[col].astype(str).str.replace(',', '.')
+            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-    # Force conversion of critical columns
-    # We use a mapping to handle potential variations in names
-    col_mapping = {
-        'promedio_anterior': 'promedio_anterior',
-        'porcentaje_asistencia': 'porcentaje_asistencia',
-        'materias_reprobadas_previas': 'materias_reprobadas_previas',
-        'entregas_tareas_pct': 'entregas_tareas_pct',
-        'deserto': 'deserto',
-        'reprobo': 'reprobo'
-    }
-
-    for target in col_mapping.keys():
-        if target in df.columns:
-            # Clean string numbers if they exist (replace comma with dot)
-            if df[target].dtype == object:
-                df[target] = df[target].astype(str).str.replace(',', '.')
-            df[target] = pd.to_numeric(df[target], errors='coerce').fillna(0)
-
-    # Academic Risk Mapping
+    # Risk Priority
     if 'riesgo_academico' in df.columns:
         df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
     else:
@@ -72,13 +83,12 @@ def load_data():
 
 try:
     df = load_data()
-except Exception as e:
-    print(f"Error loading data: {e}")
+except:
     df = pd.DataFrame()
 
 @app.get("/")
 async def root():
-    return {"status": "online", "rows": len(df), "columns": df.columns.tolist() if not df.empty else []}
+    return {"status": "online", "rows": len(df), "cols": df.columns.tolist()}
 
 @app.get("/api/environment")
 async def get_environment_stats():
@@ -89,7 +99,6 @@ async def get_environment_stats():
     
     distance = []
     if 'distancia_km' in df.columns:
-        df['distancia_km'] = pd.to_numeric(df['distancia_km'], errors='coerce').fillna(0)
         distance = [
             {"name": "0-5km", "value": int(((df['distancia_km'] >= 0) & (df['distancia_km'] <= 5)).sum())},
             {"name": "6-15km", "value": int(((df['distancia_km'] > 5) & (df['distancia_km'] <= 15)).sum())},
@@ -98,7 +107,6 @@ async def get_environment_stats():
     
     age = []
     if 'edad' in df.columns:
-        df['edad'] = pd.to_numeric(df['edad'], errors='coerce').fillna(0)
         age = [
             {"name": "18-20", "value": int(((df['edad'] >= 18) & (df['edad'] <= 20)).sum())},
             {"name": "21-23", "value": int(((df['edad'] > 20) & (df['edad'] <= 23)).sum())},
@@ -106,18 +114,12 @@ async def get_environment_stats():
         ]
 
     support = {
-        "beca_pct": round(float((df['beca'] == 'Si').mean() * 100), 1) if 'beca' in df.columns else 0,
-        "internet_pct": round(float((df['acceso_internet'] == 'Si').mean() * 100), 1) if 'acceso_internet' in df.columns else 0,
-        "tutorias_pct": round(float((df['participa_tutorias'] == 'Si').mean() * 100), 1) if 'participa_tutorias' in df.columns else 0
+        "beca_pct": round(float((df['beca'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'beca' in df.columns else 0,
+        "internet_pct": round(float((df['acceso_internet'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'acceso_internet' in df.columns else 0,
+        "tutorias_pct": round(float((df['participa_tutorias'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'participa_tutorias' in df.columns else 0
     }
 
-    return {
-        "gender": gender,
-        "work": work,
-        "distance": distance,
-        "age": age,
-        "support": support
-    }
+    return { "gender": gender, "work": work, "distance": distance, "age": age, "support": support }
 
 @app.get("/api/drilldown/data")
 async def get_drilldown_data(carrera: str = None, semestre: str = None, search: str = None):
