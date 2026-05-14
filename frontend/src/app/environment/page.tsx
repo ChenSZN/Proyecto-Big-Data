@@ -39,8 +39,8 @@ function EnvironmentContent() {
   const [totalStudents, setTotalStudents] = useState(5000);
   const [loading, setLoading] = useState(false);
 
-  const carrera = searchParams.get("carrera") || "";
-  const semestre = searchParams.get("semestre") || "";
+  const carrera = searchParams.get("carrera") || "TODAS";
+  const semestre = searchParams.get("semestre") || "ALL";
 
   useEffect(() => {
     const fetchEnv = async () => {

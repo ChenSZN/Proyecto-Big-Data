@@ -55,8 +55,8 @@ function PatternsContent() {
   const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const carrera = searchParams.get("carrera") || "";
-  const semestre = searchParams.get("semestre") || "";
+  const carrera = searchParams.get("carrera") || "TODAS";
+  const semestre = searchParams.get("semestre") || "ALL";
 
   useEffect(() => {
     const fetchData = async () => {

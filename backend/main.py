@@ -59,14 +59,20 @@ def load_data():
 
 df_raw = load_data()
 
-def get_filtered_df(carrera: str = None, semestre: str = None):
+def get_filtered_df(carrera: str = "TODAS", semestre: str = "ALL"):
     d = df_raw.copy()
-    if carrera and carrera != "TODAS":
-        # Handle encoded career names if needed, but here we assume clean names
-        d = d[d['carrera'] == carrera]
-    if semestre and semestre != "ALL":
-        try: d = d[d['semestre'].astype(str) == str(semestre)]
-        except: pass
+    if carrera and carrera != "TODAS" and carrera != "":
+        # Case-insensitive robust string matching with stripping
+        d = d[d['carrera'].astype(str).str.strip().str.upper() == carrera.strip().upper()]
+    
+    if semestre and semestre != "ALL" and semestre != "":
+        try:
+            # Numeric comparison is safer for semestres
+            sem_val = float(semestre)
+            d = d[pd.to_numeric(d['semestre'], errors='coerce') == sem_val]
+        except:
+            # Fallback to string comparison if not numeric
+            d = d[d['semestre'].astype(str).str.strip() == str(semestre).strip()]
     return d
 
 @app.get("/api/stats")
