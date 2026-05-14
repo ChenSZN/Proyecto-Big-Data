@@ -38,7 +38,7 @@ export default function Sidebar() {
   
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
-  const [filters, setFilters] = useState<{carreras: string[], semestres: number[]}>({ carreras: [], semestres: [] });
+  const [filters, setFilters] = useState<{carreras: {value: string, label: string}[], semestres: number[]}>({ carreras: [], semestres: [] });
   
   const currentCarrera = searchParams.get("carrera") || "TODAS";
   const currentSemestre = searchParams.get("semestre") || "ALL";
@@ -48,7 +48,12 @@ export default function Sidebar() {
       try {
         const res = await axios.get(`${API_URL}/drilldown/filters`);
         setFilters({
-           carreras: (res.data.carreras || []).map((c: string) => cleanText(c)),
+           // Store raw values (as-is from API) to use as filter params
+           // and display labels (cleaned) for the UI
+           carreras: (res.data.carreras || []).map((c: string) => ({
+             value: c,          // raw value sent to server
+             label: cleanText(c) // display name in the dropdown
+           })),
            semestres: res.data.semestres || []
         });
       } catch (e) { console.error("Error loading filters", e); }
@@ -138,7 +143,7 @@ export default function Sidebar() {
                           className="w-full bg-white/5 border border-white/5 rounded-xl px-3 py-2.5 text-[10px] font-black text-slate-300 outline-none focus:border-blue-500/50 transition-all appearance-none cursor-pointer"
                         >
                            <option value="TODAS">TODAS LAS CARRERAS</option>
-                           {filters.carreras.map(c => <option key={c} value={c}>{c}</option>)}
+                           {filters.carreras.map(c => <option key={c.value} value={c.value}>{c.label}</option>)}
                         </select>
                      </div>
 

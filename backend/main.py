@@ -26,12 +26,12 @@ def find_csv():
 def load_data():
     csv_file = find_csv()
     if not csv_file: return pd.DataFrame()
-    encodings = ['utf-8-sig', 'latin-1', 'cp1252']
+    # Use latin-1 to correctly read the accented characters in the CSV
     df = None
-    for enc in encodings:
+    for enc in ['utf-8-sig', 'utf-8', 'latin-1', 'cp1252']:
         try:
             df = pd.read_csv(csv_file, encoding=enc)
-            if 'carrera' in df.columns or len(df.columns) > 1: break
+            if len(df.columns) > 3: break
         except: continue
     if df is None: return pd.DataFrame()
     
@@ -39,6 +39,7 @@ def load_data():
         col_map = {
             0: 'id_estudiante', 1: 'carrera', 2: 'semestre', 6: 'promedio_anterior',
             7: 'porcentaje_asistencia', 8: 'materias_reprobadas_previas',
+            9: 'distancia_campus',
             12: 'trabaja', 13: 'genero', 14: 'acceso_internet', 15: 'beca',
             16: 'uso_plataforma_semana', 17: 'entregas_tareas_pct', 
             18: 'participa_tutorias', 20: 'riesgo_academico', 21: 'deserto', 22: 'reprobo'
@@ -48,12 +49,15 @@ def load_data():
             if idx < len(new_cols): new_cols[idx] = name
         df.columns = new_cols
         
-        numeric_cols = ['promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct', 'deserto', 'reprobo', 'uso_plataforma_semana']
+        numeric_cols = ['promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas',
+                        'entregas_tareas_pct', 'deserto', 'reprobo', 'uso_plataforma_semana', 'distancia_campus']
         for c in numeric_cols:
             if c in df.columns:
                 df[c] = pd.to_numeric(df[c].astype(str).str.replace(',', '.'), errors='coerce').fillna(0)
         
         df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
+        # Store clean display name alongside the raw name for frontend use
+        df['carrera_display'] = df['carrera'].astype(str).str.strip()
         return df
     except: return pd.DataFrame()
 
@@ -61,17 +65,15 @@ df_raw = load_data()
 
 def get_filtered_df(carrera: str = "TODAS", semestre: str = "ALL"):
     d = df_raw.copy()
-    if carrera and carrera != "TODAS" and carrera != "":
-        # Case-insensitive robust string matching with stripping
-        d = d[d['carrera'].astype(str).str.strip().str.upper() == carrera.strip().upper()]
+    if carrera and carrera not in ("TODAS", ""):
+        # Direct string match (latin-1 loaded, so names match what the filter API returns)
+        d = d[d['carrera'].astype(str).str.strip() == carrera.strip()]
     
-    if semestre and semestre != "ALL" and semestre != "":
+    if semestre and semestre not in ("ALL", ""):
         try:
-            # Numeric comparison is safer for semestres
             sem_val = float(semestre)
             d = d[pd.to_numeric(d['semestre'], errors='coerce') == sem_val]
         except:
-            # Fallback to string comparison if not numeric
             d = d[d['semestre'].astype(str).str.strip() == str(semestre).strip()]
     return d
 
@@ -132,9 +134,11 @@ async def get_drilldown_data(carrera: str = None, semestre: str = None, search: 
 @app.get("/api/drilldown/filters")
 async def get_filters():
     if df_raw.empty: return {"carreras": [], "semestres": []}
+    # Return raw carrera names (latin-1 loaded) so the Sidebar filter values
+    # exactly match what the backend will compare against
     return {
-        "carreras": sorted(df_raw['carrera'].unique().tolist()),
-        "semestres": sorted(df_raw['semestre'].unique().tolist())
+        "carreras": sorted(df_raw['carrera'].astype(str).str.strip().unique().tolist()),
+        "semestres": sorted([int(s) for s in df_raw['semestre'].dropna().unique().tolist()])
     }
 
 @app.get("/api/patterns")
@@ -157,13 +161,35 @@ async def get_patterns(carrera: str = None, semestre: str = None):
 async def get_environment_stats(carrera: str = None, semestre: str = None):
     d = get_filtered_df(carrera, semestre)
     if d.empty: return {}
+    
+    # Build distance distribution if column exists
+    distance_data = []
+    if 'distancia_campus' in d.columns:
+        bins = [0, 5, 15, 999]
+        labels = ['0-5km', '6-15km', '15km+']
+        d['dist_bin'] = pd.cut(d['distancia_campus'], bins=bins, labels=labels, right=True)
+        dist_counts = d['dist_bin'].value_counts().reindex(labels, fill_value=0)
+        distance_data = [{"name": k, "value": int(v)} for k, v in dist_counts.items()]
+    
+    # Build age distribution if column exists
+    age_data = []
+    if 'edad' in d.columns:
+        d['edad_num'] = pd.to_numeric(d['edad'], errors='coerce')
+        bins = [0, 20, 23, 100]
+        labels = ['18-20', '21-23', '24+']
+        d['age_bin'] = pd.cut(d['edad_num'], bins=bins, labels=labels, right=True)
+        age_counts = d['age_bin'].value_counts().reindex(labels, fill_value=0)
+        age_data = [{"name": k, "value": int(v)} for k, v in age_counts.items()]
+
     return {
         "gender": d['genero'].value_counts().to_dict() if 'genero' in d.columns else {},
         "work": d['trabaja'].value_counts().to_dict() if 'trabaja' in d.columns else {},
+        "distance": distance_data,
+        "age": age_data,
         "support": {
-            "beca_pct": round(float((d['beca'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'beca' in d.columns else 0,
-            "internet_pct": round(float((d['acceso_internet'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'acceso_internet' in d.columns else 0,
-            "tutorias_pct": round(float((d['participa_tutorias'].astype(str).str.contains('S', na=False)).mean() * 100), 1) if 'participa_tutorias' in d.columns else 0
+            "beca_pct": round(float((d['beca'].astype(str).str.upper().str.contains('SI|S$', na=False, regex=True)).mean() * 100), 1) if 'beca' in d.columns else 0,
+            "internet_pct": round(float((d['acceso_internet'].astype(str).str.upper().str.contains('SI|S$', na=False, regex=True)).mean() * 100), 1) if 'acceso_internet' in d.columns else 0,
+            "tutorias_pct": round(float((d['participa_tutorias'].astype(str).str.upper().str.contains('SI|S$', na=False, regex=True)).mean() * 100), 1) if 'participa_tutorias' in d.columns else 0
         }
     }
 
