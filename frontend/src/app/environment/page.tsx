@@ -150,29 +150,31 @@ export default function Environment() {
             </div>
          </div>
 
-         {/* Apoyo Institucional */}
+         {/* Factores de Permanencia */}
          <div className="glass-card p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20 flex flex-col min-h-0">
             <div className="flex items-center gap-3 mb-6 text-blue-400">
-               <GraduationCap className="h-5 w-5" />
-               <span className="text-xs font-black uppercase tracking-widest">Apoyo Institucional</span>
+               <Zap className="h-5 w-5" />
+               <span className="text-xs font-black uppercase tracking-widest">Factores de Permanencia</span>
             </div>
-            <div className="flex-1 flex flex-col justify-between gap-2 overflow-hidden">
-               <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                  <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Cobertura Becas</p>
-                  <p className="text-2xl font-black text-white italic">{support.beca_pct}%</p>
-               </div>
-               
-               <div className="p-4 rounded-2xl bg-black/20 border border-white/5">
-                  <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Tecnología</p>
-                  <p className="text-2xl font-black text-white italic">{support.internet_pct}%</p>
-               </div>
-
-               <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
-                  <p className="text-[9px] font-black text-slate-500 uppercase mb-1">Tutorías</p>
-                  <p className="text-[11px] font-bold text-slate-300 leading-tight">
-                    <span className="text-white font-black">{support.tutorias_pct}%</span> participación activa.
-                  </p>
-               </div>
+            <div className="flex-1 flex flex-col justify-between gap-4 overflow-hidden">
+               {[
+                 { label: "Acceso Tecnológico", val: support.internet_pct, color: "bg-blue-500" },
+                 { label: "Cobertura de Becas", val: support.beca_pct, color: "bg-emerald-500" },
+                 { label: "Participación Tutorías", val: support.tutorias_pct, color: "bg-amber-500" }
+               ].map((item, i) => (
+                 <div key={i} className="p-4 rounded-2xl bg-black/20 border border-white/5">
+                    <div className="flex justify-between items-center mb-2">
+                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.label}</p>
+                       <p className="text-sm font-black text-white">{item.val}%</p>
+                    </div>
+                    <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
+                       <div className={`${item.color} h-full transition-all duration-1000`} style={{ width: `${item.val}%` }} />
+                    </div>
+                 </div>
+               ))}
+               <p className="text-[9px] font-bold text-slate-500 uppercase mt-2 text-center italic">
+                 Factores externos que impactan directamente en la retención estudiantil.
+               </p>
             </div>
          </div>
       </div>

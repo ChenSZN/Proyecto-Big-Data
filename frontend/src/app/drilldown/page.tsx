@@ -130,16 +130,6 @@ function DrillDownContent() {
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Análisis ITNL</p>
           </div>
         </div>
-
-        <div className="relative group">
-           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-500" />
-           <input 
-             type="text" placeholder="BUSCAR MATRÍCULA..."
-             value={selection.search}
-             onChange={(e) => setSelection({...selection, search: e.target.value.toUpperCase()})}
-             className="bg-white/5 border border-white/5 rounded-xl pl-9 pr-4 py-2 text-[10px] font-black text-white outline-none focus:border-blue-500 w-48 transition-all"
-           />
-        </div>
       </header>
 
       <div className="flex flex-col lg:flex-row gap-6 flex-1 min-h-0">

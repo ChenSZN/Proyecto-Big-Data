@@ -100,7 +100,7 @@ export default function Dashboard() {
           value={stats?.total_estudiantes || 0} 
           icon={Users} 
           color="text-blue-500" 
-          trend="Dataset Completo" 
+          trend="" 
           onClick={() => router.push("/drilldown")}
         />
         <StatCard 
@@ -108,7 +108,7 @@ export default function Dashboard() {
           value={`${stats?.tasa_desercion || 0}%`} 
           icon={TrendingUp} 
           color="text-red-500" 
-          trend="Riesgo Crítico" 
+          trend="" 
           onClick={() => router.push("/drilldown?filter=ALTO")}
         />
         <StatCard 
@@ -116,7 +116,7 @@ export default function Dashboard() {
           value={`${stats?.tasa_reprobacion || 0}%`} 
           icon={AlertTriangle} 
           color="text-amber-500" 
-          trend="Índice Global" 
+          trend="" 
           onClick={() => router.push("/drilldown?filter=ALTO")}
         />
         <StatCard 
@@ -124,7 +124,7 @@ export default function Dashboard() {
           value="92.4%" 
           icon={CheckCircle} 
           color="text-emerald-500" 
-          trend="Meta Institucional" 
+          trend="" 
         />
       </div>
 
