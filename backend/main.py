@@ -19,65 +19,25 @@ CSV_PATH = os.path.join(BASE_DIR, "dataset_desercion_reprobacion_tecnologico_nue
 def load_data():
     if not os.path.exists(CSV_PATH): return pd.DataFrame()
     
-    # Use latin-1 as verified by debug script
     df = pd.read_csv(CSV_PATH, encoding='latin-1')
+    df.columns = [str(c).strip() for c in df.columns]
     
-    # INDEX-BASED MAPPING (The ultimate fix)
-    # We map columns by their physical position to bypass any name/encoding issues
-    # Physical order from CSV: id_est, carrera, sem, turno, edad, gen, prom, asist, previas, ..., plataforma, tareas, ...
-    
-    col_positions = {
-        0: 'id_estudiante',
-        1: 'carrera',
-        2: 'semestre',
-        6: 'promedio_anterior',
-        7: 'porcentaje_asistencia',
-        8: 'materias_reprobadas_previas',
-        12: 'trabaja',
-        15: 'acceso_internet',
-        17: 'entregas_tareas_pct',
-        20: 'riesgo_academico',
-        21: 'deserto',
-        22: 'reprobo'
-    }
-    
-    new_cols = list(df.columns)
-    for pos, name in col_positions.items():
-        if pos < len(new_cols):
-            new_cols[pos] = name
-            
-    df.columns = new_cols
-    
-    # Clean numeric data aggressively
-    def force_num(val):
-        try:
-            if pd.isna(val): return 0.0
-            s = str(val).replace(',', '.')
-            # Extract first number found
-            match = "".join(filter(lambda x: x.isdigit() or x == '.', s))
-            return float(match) if match else 0.0
-        except: return 0.0
-
-    numeric_cols = ['promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct', 'deserto', 'reprobo']
-    for c in numeric_cols:
-        if c in df.columns:
-            df[c] = df[c].apply(force_num)
-
-    # Risk priority mapping
+    # FORCE DATA FOR TEST (If this shows 99.9, then backend is working)
+    if 'entregas_tareas_pct' in df.columns:
+        df['entregas_tareas_pct'] = 99.9
+    if 'materias_reprobadas_previas' in df.columns:
+        df['materias_reprobadas_previas'] = 7
+        
     if 'riesgo_academico' in df.columns:
         df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
     else:
         df['prioridad'] = 'BAJO'
 
-    print("ULTIMATE DATA LOAD SUCCESS. Sample Check:")
-    print(df[['id_estudiante', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct']].head(2))
-            
     return df
 
 try:
     df = load_data()
 except Exception as e:
-    print(f"ULTIMATE LOAD ERROR: {e}")
     df = pd.DataFrame()
 
 @app.get("/api/drilldown/data")
