@@ -62,7 +62,10 @@ function DashboardContent() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = `?carrera=${encodeURIComponent(carrera)}&semestre=${semestre}`;
+        const params = new URLSearchParams();
+        if (carrera) params.set("carrera", carrera);
+        if (semestre) params.set("semestre", semestre);
+        const query = params.toString() ? `?${params.toString()}` : "";
         const [s, i, p, t] = await Promise.all([
           axios.get(`${API_URL}/stats${query}`),
           axios.get(`${API_URL}/dashboard/impact${query}`),
@@ -70,13 +73,11 @@ function DashboardContent() {
           axios.get(`${API_URL}/dashboard/trends${query}`)
         ]);
         setStats(s.data);
-        
         const cleanedImpact = (i.data || []).map((item: any) => ({
            ...item,
            carrera: cleanText(item.carrera)
         }));
         setImpactData(cleanedImpact);
-        
         setProfileData(p.data);
         setTrendData(t.data);
       } catch (e) { console.error(e); }

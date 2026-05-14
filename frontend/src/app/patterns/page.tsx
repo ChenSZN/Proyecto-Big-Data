@@ -55,14 +55,18 @@ function PatternsContent() {
   const [loading, setLoading] = useState(false);
   const [currentIndex, setCurrentIndex] = useState(0);
 
-  const carrera = searchParams.get("carrera") || "TODAS";
-  const semestre = searchParams.get("semestre") || "ALL";
+  const carrera = searchParams.get("carrera") || "";
+  const semestre = searchParams.get("semestre") || "";
 
   useEffect(() => {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const query = `?carrera=${encodeURIComponent(carrera)}&semestre=${semestre}`;
+        // Only send params that are actually set
+        const params = new URLSearchParams();
+        if (carrera) params.set("carrera", carrera);
+        if (semestre) params.set("semestre", semestre);
+        const query = params.toString() ? `?${params.toString()}` : "";
         const res = await axios.get(`${API_URL}/patterns${query}`);
         if (res.data && res.data.global) {
           setImportanceData(res.data);
@@ -72,6 +76,9 @@ function PatternsContent() {
     };
     fetchData();
   }, [carrera, semestre]);
+
+  const carreraLabel = carrera ? carrera.replace(/Ingenier.a/g, 'Ing.') : null;
+  const semestreLabel = semestre ? `Semestre ${semestre}` : null;
 
   const slides = [
     { id: 'global', title: 'Patrones de Riesgo Institucional', icon: BrainCircuit, color: 'text-blue-500', bar: '#3b82f6' },
@@ -92,6 +99,12 @@ function PatternsContent() {
           <div>
             <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">{currentSlide.title}</h2>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Análisis Basado en 5,000 Alumnos</p>
+            {(carreraLabel || semestreLabel) && (
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {carreraLabel && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 uppercase">{carreraLabel}</span>}
+                {semestreLabel && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-amber-600/20 border border-amber-500/30 text-amber-400 uppercase">{semestreLabel}</span>}
+              </div>
+            )}
           </div>
         </div>
         
