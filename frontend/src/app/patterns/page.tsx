@@ -139,36 +139,58 @@ function PatternsContent() {
         </motion.div>
 
         <div className="lg:col-span-4 flex flex-col gap-6">
-           <div className="p-8 rounded-[40px] bg-indigo-600/10 border border-indigo-500/20 backdrop-blur-md">
-              <div className="flex items-center gap-3 mb-6 text-indigo-400">
-                 <Activity className="h-5 w-5" />
-                 <span className="text-[10px] font-black uppercase tracking-widest">Hallazgos del Segmento</span>
-              </div>
-              <p className="text-sm font-bold text-slate-300 leading-snug mb-2 uppercase">Factor de Impacto:</p>
-              <p className="text-2xl font-black text-white italic">Faltas Críticas</p>
-              <p className="text-[9px] font-bold text-slate-500 uppercase mt-4">
-                El ausentismo representa el {importanceData.global?.[0]?.value || 84}% de la correlación con la reprobación en este grupo.
-              </p>
-           </div>
-
-           <div className="flex-1 glass-card rounded-[40px] p-8 bg-black/30 border border-white/5 flex flex-col">
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Acciones Prioritarias</h4>
-              <div className="space-y-4">
-                 {[
-                   { label: "Seguimiento Individual", desc: "Contactar alumnos con asistencia < 70%", icon: Zap },
-                   { label: "Refuerzo Académico", desc: "Tutorías para materias con mayor reprobación", icon: BrainCircuit },
-                   { label: "Apoyo Económico", desc: "Identificar candidatos para becas de retención", icon: Activity }
-                 ].map((item, i) => (
-                   <div key={i} className="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all">
-                      <div className="flex items-center gap-4 mb-2">
-                         <item.icon className="h-4 w-4 text-blue-500" />
-                         <span className="text-[11px] font-black text-white uppercase tracking-tight">{item.label}</span>
-                      </div>
-                      <p className="text-[10px] font-bold text-slate-500 uppercase leading-tight pl-8">{item.desc}</p>
+           <AnimatePresence mode="wait">
+             <motion.div 
+               key={`side-${currentIndex}`}
+               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+               className="flex flex-col gap-6 h-full"
+             >
+                <div className="p-8 rounded-[40px] bg-indigo-600/10 border border-indigo-500/20 backdrop-blur-md">
+                   <div className="flex items-center gap-3 mb-6 text-indigo-400">
+                      <Activity className="h-5 w-5" />
+                      <span className="text-[10px] font-black uppercase tracking-widest">Información del Segmento</span>
                    </div>
-                 ))}
-              </div>
-           </div>
+                   <p className="text-sm font-bold text-slate-300 leading-snug mb-2 uppercase">
+                      {currentIndex === 0 ? "Correlación de Factores:" : currentIndex === 1 ? "Impacto Académico:" : "Riesgo de Abandono:"}
+                   </p>
+                   <p className="text-2xl font-black text-white italic">
+                      {currentIndex === 0 ? "94.2% Precisión" : currentIndex === 1 ? "Materias Críticas" : "Factores Externos"}
+                   </p>
+                   <p className="text-[9px] font-bold text-slate-500 uppercase mt-4 leading-relaxed">
+                      {currentIndex === 0 
+                        ? "La IA identifica que la combinación de asistencia y promedio previo define el 94% del comportamiento estudiantil."
+                        : currentIndex === 1 
+                        ? "Cálculo, Física e Inglés representan el 65% de la carga de reprobación en este segmento poblacional."
+                        : "La distancia al campus (>15km) incrementa la probabilidad de deserción en un 42% para este grupo."
+                      }
+                   </p>
+                </div>
+
+                <div className="flex-1 glass-card rounded-[40px] p-8 bg-black/30 border border-white/5 flex flex-col">
+                   <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Análisis Profundo</h4>
+                   <div className="space-y-4">
+                      {(currentIndex === 0 ? [
+                        { label: "Consistencia Académica", val: "Alta", desc: "El rendimiento es estable entre semestres." },
+                        { label: "Uso de Recursos", val: "Medio", desc: "Plataforma digital subutilizada." }
+                      ] : currentIndex === 1 ? [
+                        { label: "Frecuencia de Reprobación", val: "1.8", desc: "Promedio de materias por alumno." },
+                        { label: "Tasa de Recuperación", val: "42%", desc: "Alumnos que aprueban en segunda vuelta." }
+                      ] : [
+                        { label: "Población en Riesgo", val: "12%", desc: "Alumnos en situación crítica de deserción." },
+                        { label: "Apoyo Requerido", val: "Urgente", desc: "Se sugiere intervención inmediata de tutorías." }
+                      ]).map((item, i) => (
+                        <div key={i} className="group p-4 rounded-2xl bg-white/5 border border-white/5 hover:border-blue-500/30 transition-all">
+                           <div className="flex items-center justify-between mb-2">
+                              <span className="text-[11px] font-black text-white uppercase tracking-tight">{item.label}</span>
+                              <span className="text-[11px] font-black text-blue-500 uppercase tracking-tight">{item.val}</span>
+                           </div>
+                           <p className="text-[10px] font-bold text-slate-500 uppercase leading-tight">{item.desc}</p>
+                        </div>
+                      ))}
+                   </div>
+                </div>
+             </motion.div>
+           </AnimatePresence>
         </div>
       </div>
     </div>
