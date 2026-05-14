@@ -105,7 +105,7 @@ function DrillDownContent() {
              <ArrowLeft className="h-5 w-5" />
           </button>
           <div>
-            <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter">Explorador (TEST)</h1>
+            <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter">Explorador</h1>
             <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Análisis ITNL</p>
           </div>
         </div>
@@ -129,7 +129,7 @@ function DrillDownContent() {
                <div className="flex items-center justify-between mb-4">
                   <div className="flex items-center gap-2 text-slate-400">
                      <PieIcon className="h-4 w-4 text-blue-500" />
-                     <span className="text-[9px] font-black uppercase tracking-widest text-white">Estado REAL</span>
+                     <span className="text-[9px] font-black uppercase tracking-widest text-white">Estado</span>
                   </div>
                   <div className="flex gap-1 bg-white/5 p-1 rounded-lg">
                      {['T', 'A', 'M', 'B'].map(f => (
