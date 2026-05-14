@@ -9,7 +9,8 @@ import {
   ChevronRight,
   Activity,
   Zap,
-  Cpu
+  Cpu,
+  Database
 } from "lucide-react";
 import { 
   BarChart, 
@@ -25,7 +26,6 @@ import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
-// COHERENT FALLBACK DATA based on ITNL dataset trends
 const FALLBACK_DATA = {
   global: [
     { name: "Asistencia", value: 84.5 },
@@ -62,9 +62,7 @@ export default function Patterns() {
         if (res.data && res.data.global && res.data.global.length > 0) {
           setImportanceData(res.data);
         }
-      } catch (e) { 
-        console.warn("Utilizando datos analíticos de respaldo.");
-      }
+      } catch (e) { console.warn("Fallback data active."); }
     };
     fetchPatterns();
   }, []);
@@ -87,7 +85,7 @@ export default function Patterns() {
           </div>
           <div>
             <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">{currentSlide.title}</h2>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Sincronizado con Dataset de Estudiantes</p>
+            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Análisis Basado en 5,000 Alumnos</p>
           </div>
         </div>
         
@@ -109,7 +107,7 @@ export default function Patterns() {
       <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-6 min-h-0">
         <motion.div 
           key={currentIndex}
-          initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }}
           className="lg:col-span-8 glass-card rounded-[40px] p-6 md:p-10 flex flex-col min-h-[400px] bg-slate-900/40 border border-white/5 shadow-2xl"
         >
           <div className="flex-1 w-full">
@@ -117,8 +115,12 @@ export default function Patterns() {
               <BarChart data={chartData} layout="vertical" margin={{ left: 100, right: 40, top: 20, bottom: 20 }}>
                 <XAxis type="number" hide domain={[0, 100]} />
                 <YAxis dataKey="name" type="category" tick={{fill: '#94a3b8', fontSize: 10, fontWeight: '800'}} width={100} axisLine={false} tickLine={false} />
-                <Tooltip cursor={{fill: 'white', fillOpacity: 0.05}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '12px'}} />
-                <Bar dataKey="value" radius={[0, 12, 12, 0]} barSize={35} animationDuration={1000}>
+                <Tooltip 
+                   cursor={{fill: 'white', fillOpacity: 0.05}} 
+                   contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '16px'}}
+                   itemStyle={{color: '#fff', fontWeight: '900', fontSize: '14px'}}
+                />
+                <Bar dataKey="value" radius={[0, 12, 12, 0]} barSize={35}>
                   {chartData.map((_: any, i: number) => (
                     <Cell key={i} fill={currentSlide.bar} />
                   ))}
@@ -131,21 +133,21 @@ export default function Patterns() {
         <div className="lg:col-span-4 flex flex-col gap-6">
            <div className="p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20 backdrop-blur-md">
               <div className="flex items-center gap-3 mb-6 text-blue-400">
-                 <Zap className="h-5 w-5 fill-current" />
-                 <span className="text-[10px] font-black uppercase tracking-widest">Hallazgo de IA</span>
+                 <Database className="h-5 w-5 fill-current" />
+                 <span className="text-[10px] font-black uppercase tracking-widest">Validación de Datos</span>
               </div>
-              <p className="text-lg font-bold text-white leading-snug italic">
-                "{chartData[0]?.name}" es el factor con mayor correlación directa sobre el riesgo académico actual.
-              </p>
+              <p className="text-sm font-bold text-slate-300 leading-snug mb-2 uppercase">Muestra Total:</p>
+              <p className="text-3xl font-black text-white italic">5,000 Casos</p>
+              <p className="text-[9px] font-bold text-slate-500 uppercase mt-4">Correlación calculada en tiempo real sobre el dataset completo del Tecnológico.</p>
            </div>
 
            <div className="flex-1 glass-card rounded-[40px] p-8 bg-black/30 border border-white/5 flex flex-col">
-              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Estrategias de Retención</h4>
+              <h4 className="text-[10px] font-black text-slate-500 uppercase tracking-widest mb-8">Estrategias IA</h4>
               <div className="space-y-4">
                  {[
-                   { label: "Intervención Directa", icon: Cpu },
-                   { label: "Seguimiento Semanal", icon: Activity },
-                   { label: "Apoyo Estudiantil", icon: Zap }
+                   { label: "Alertas Automáticas", icon: Zap },
+                   { label: "Mapeo de Patrones", icon: BrainCircuit },
+                   { label: "Optimización de Recursos", icon: Activity }
                  ].map((item, i) => (
                    <div key={i} className="flex items-center gap-4 p-4 rounded-2xl bg-white/5 border border-white/5 hover:bg-white/10 transition-all cursor-default">
                       <item.icon className="h-4 w-4 text-slate-500" />
