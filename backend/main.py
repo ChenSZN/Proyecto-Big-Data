@@ -14,32 +14,36 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# RENDER-PROOF PATHING
-# We'll search everywhere for that CSV
 FILENAME = "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv"
 
 def find_csv():
-    # 1. Try local dir
     if os.path.exists(FILENAME): return FILENAME
-    # 2. Try backend/ subdir
     if os.path.exists(os.path.join("backend", FILENAME)): return os.path.join("backend", FILENAME)
-    # 3. Try parent dir
-    if os.path.exists(os.path.join("..", FILENAME)): return os.path.join("..", FILENAME)
-    # 4. Try absolute search from BASE_DIR
     base = os.path.dirname(os.path.abspath(__file__))
     if os.path.exists(os.path.join(base, FILENAME)): return os.path.join(base, FILENAME)
     return None
 
 def load_data():
     csv_file = find_csv()
-    if not csv_file: 
-        print(f"CRITICAL: {FILENAME} not found")
-        return pd.DataFrame()
+    if not csv_file: return pd.DataFrame()
+    
+    # Try different encodings for Spanish characters
+    encodings = ['utf-8-sig', 'latin-1', 'cp1252']
+    df = None
+    for enc in encodings:
+        try:
+            df = pd.read_csv(csv_file, encoding=enc)
+            # Check if careers look okay (no weird symbols)
+            if 'carrera' in df.columns or len(df.columns) > 1:
+                test_str = str(df.iloc[0, 1]) # Check second column (carrera)
+                if '' not in test_str and 'Ã' not in test_str:
+                    print(f"SUCCESSFULLY LOADED WITH {enc}")
+                    break
+        except: continue
+        
+    if df is None: return pd.DataFrame()
     
     try:
-        # Verified encoding and physical positions
-        df = pd.read_csv(csv_file, encoding='latin-1')
-        
         col_map = {
             0: 'id_estudiante', 1: 'carrera', 2: 'semestre', 6: 'promedio_anterior',
             7: 'porcentaje_asistencia', 8: 'materias_reprobadas_previas',
@@ -52,7 +56,6 @@ def load_data():
             if idx < len(new_cols): new_cols[idx] = name
         df.columns = new_cols
         
-        # Clean numeric
         numeric_cols = ['promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 'entregas_tareas_pct', 'deserto', 'reprobo', 'uso_plataforma_semana']
         for c in numeric_cols:
             if c in df.columns:
@@ -60,21 +63,9 @@ def load_data():
         
         df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
         return df
-    except Exception as e:
-        print(f"LOAD ERROR: {e}")
-        return pd.DataFrame()
+    except: return pd.DataFrame()
 
 df = load_data()
-
-@app.get("/api/debug")
-async def debug():
-    return {
-        "cwd": os.getcwd(),
-        "files_here": os.listdir("."),
-        "csv_found": find_csv(),
-        "df_rows": len(df),
-        "sys_path": sys.path
-    }
 
 @app.get("/api/stats")
 async def get_stats():
