@@ -145,6 +145,10 @@ function DrillDownContent() {
                <div className="flex-1 relative min-h-0 flex items-center justify-center">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
+                      <Tooltip 
+                        contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '10px', fontWeight: '900' }}
+                        itemStyle={{ color: '#fff' }}
+                      />
                       <Pie data={chartData} innerRadius={50} outerRadius={70} paddingAngle={10} dataKey="value" stroke="none">
                         {chartData.map((entry) => (
                           <Cell key={`cell-${entry.name}`} fill={entry.name === 'ALTO' ? '#ef4444' : entry.name === 'MEDIO' ? '#f59e0b' : '#10b981'} />
