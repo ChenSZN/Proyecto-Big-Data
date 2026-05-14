@@ -18,82 +18,105 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 CSV_PATH = os.path.join(BASE_DIR, "dataset_desercion_reprobacion_tecnologico_nuevo_laredo.csv")
 
 def load_data():
-    if not os.path.exists(CSV_PATH): return pd.DataFrame()
-    try:
-        df = pd.read_csv(CSV_PATH, encoding='utf-8-sig')
-    except:
-        try:
-            df = pd.read_csv(CSV_PATH, encoding='latin-1')
-        except:
-            return pd.DataFrame()
+    if not os.path.exists(CSV_PATH): 
+        print("CSV NOT FOUND at", CSV_PATH)
+        return pd.DataFrame()
     
-    df.columns = [c.lower().strip() for c in df.columns]
+    # Try multiple encodings
+    encodings = ['utf-8-sig', 'latin-1', 'cp1252']
+    df = pd.DataFrame()
+    for enc in encodings:
+        try:
+            df = pd.read_csv(CSV_PATH, encoding=enc)
+            print(f"Loaded CSV with {enc}")
+            break
+        except Exception as e:
+            continue
+            
+    if df.empty: return pd.DataFrame()
+    
+    # Normalize column names: remove BOM, hidden chars, spaces, and lowercase
+    df.columns = [re.sub(r'[^\w\s]', '', c).lower().strip().replace(' ', '_') for c in df.columns]
+    print("Columns loaded:", df.columns.tolist())
     
     if 'carrera' in df.columns:
         df['carrera'] = df['carrera'].astype(str).str.strip().replace(['nan', ''], 'CARRERA GENERAL')
 
-    numeric_cols = [
-        'promedio_anterior', 'porcentaje_asistencia', 'materias_reprobadas_previas', 
-        'uso_plataforma_semana', 'entregas_tareas_pct', 'deserto', 'reprobo', 
-        'edad', 'distancia_km', 'horas_trabajo_semana', 'indice_socioeconomico'
-    ]
-    for col in numeric_cols:
-        if col in df.columns:
-            df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
+    # Force conversion of critical columns
+    # We use a mapping to handle potential variations in names
+    col_mapping = {
+        'promedio_anterior': 'promedio_anterior',
+        'porcentaje_asistencia': 'porcentaje_asistencia',
+        'materias_reprobadas_previas': 'materias_reprobadas_previas',
+        'entregas_tareas_pct': 'entregas_tareas_pct',
+        'deserto': 'deserto',
+        'reprobo': 'reprobo'
+    }
 
-    df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
+    for target in col_mapping.keys():
+        if target in df.columns:
+            # Clean string numbers if they exist (replace comma with dot)
+            if df[target].dtype == object:
+                df[target] = df[target].astype(str).str.replace(',', '.')
+            df[target] = pd.to_numeric(df[target], errors='coerce').fillna(0)
+
+    # Academic Risk Mapping
+    if 'riesgo_academico' in df.columns:
+        df['prioridad'] = df['riesgo_academico'].astype(str).str.upper().str.strip().fillna('BAJO')
+    else:
+        df['prioridad'] = 'BAJO'
+        
     df['p_num'] = df['prioridad'].map({"ALTO": 3, "MEDIO": 2, "BAJO": 1}).fillna(1)
             
     return df
 
 try:
     df = load_data()
-except:
+except Exception as e:
+    print(f"Error loading data: {e}")
     df = pd.DataFrame()
 
 @app.get("/")
 async def root():
-    return {"status": "online", "rows": len(df)}
+    return {"status": "online", "rows": len(df), "columns": df.columns.tolist() if not df.empty else []}
 
 @app.get("/api/environment")
 async def get_environment_stats():
     if df.empty: return {}
     
-    gender = df['genero'].value_counts().to_dict()
-    work = df['trabaja'].value_counts().to_dict()
+    gender = df['genero'].value_counts().to_dict() if 'genero' in df.columns else {}
+    work = df['trabaja'].value_counts().to_dict() if 'trabaja' in df.columns else {}
     
-    distance = [
-        {"name": "0-5km", "value": int(((df['distancia_km'] >= 0) & (df['distancia_km'] <= 5)).sum())},
-        {"name": "6-15km", "value": int(((df['distancia_km'] > 5) & (df['distancia_km'] <= 15)).sum())},
-        {"name": "15km+", "value": int((df['distancia_km'] > 15).sum())}
-    ]
+    distance = []
+    if 'distancia_km' in df.columns:
+        df['distancia_km'] = pd.to_numeric(df['distancia_km'], errors='coerce').fillna(0)
+        distance = [
+            {"name": "0-5km", "value": int(((df['distancia_km'] >= 0) & (df['distancia_km'] <= 5)).sum())},
+            {"name": "6-15km", "value": int(((df['distancia_km'] > 5) & (df['distancia_km'] <= 15)).sum())},
+            {"name": "15km+", "value": int((df['distancia_km'] > 15).sum())}
+        ]
     
-    age = [
-        {"name": "18-20", "value": int(((df['edad'] >= 18) & (df['edad'] <= 20)).sum())},
-        {"name": "21-23", "value": int(((df['edad'] > 20) & (df['edad'] <= 23)).sum())},
-        {"name": "24+", "value": int((df['edad'] > 23).sum())}
-    ]
+    age = []
+    if 'edad' in df.columns:
+        df['edad'] = pd.to_numeric(df['edad'], errors='coerce').fillna(0)
+        age = [
+            {"name": "18-20", "value": int(((df['edad'] >= 18) & (df['edad'] <= 20)).sum())},
+            {"name": "21-23", "value": int(((df['edad'] > 20) & (df['edad'] <= 23)).sum())},
+            {"name": "24+", "value": int((df['edad'] > 23).sum())}
+        ]
 
-    # REAL Institutional Support Stats
-    beca_count = int((df['beca'] == 'Si').sum())
-    beca_pct = round(float(beca_count / len(df) * 100), 1)
-    
-    internet_count = int((df['acceso_internet'] == 'Si').sum())
-    internet_pct = round(float(internet_count / len(df) * 100), 1)
-    
-    tutorias_count = int((df['participa_tutorias'] == 'Si').sum())
-    tutorias_pct = round(float(tutorias_count / len(df) * 100), 1)
+    support = {
+        "beca_pct": round(float((df['beca'] == 'Si').mean() * 100), 1) if 'beca' in df.columns else 0,
+        "internet_pct": round(float((df['acceso_internet'] == 'Si').mean() * 100), 1) if 'acceso_internet' in df.columns else 0,
+        "tutorias_pct": round(float((df['participa_tutorias'] == 'Si').mean() * 100), 1) if 'participa_tutorias' in df.columns else 0
+    }
 
     return {
         "gender": gender,
         "work": work,
         "distance": distance,
         "age": age,
-        "support": {
-            "beca_pct": beca_pct,
-            "internet_pct": internet_pct,
-            "tutorias_pct": tutorias_pct
-        }
+        "support": support
     }
 
 @app.get("/api/drilldown/data")
@@ -129,8 +152,8 @@ async def get_stats():
     if df.empty: return {"total_estudiantes": 0, "tasa_desercion": 0, "tasa_reprobacion": 0, "prioridad_dist": {}}
     return {
         "total_estudiantes": len(df),
-        "tasa_desercion": round(float(df['deserto'].mean() * 100), 1),
-        "tasa_reprobacion": round(float(df['reprobo'].mean() * 100), 1),
+        "tasa_desercion": round(float(df['deserto'].mean() * 100), 1) if 'deserto' in df.columns else 0,
+        "tasa_reprobacion": round(float(df['reprobo'].mean() * 100), 1) if 'reprobo' in df.columns else 0,
         "prioridad_dist": df['prioridad'].value_counts().to_dict()
     }
 
