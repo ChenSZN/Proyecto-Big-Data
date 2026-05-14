@@ -82,22 +82,26 @@ export default function Sidebar() {
         <Menu className="h-6 w-6" />
       </button>
 
+      {/* Mobile Overlay - High performance (no blur) */}
       {isMobileOpen && (
         <div 
           onClick={() => setIsMobileOpen(false)}
-          className="md:hidden fixed inset-0 bg-black/60 backdrop-blur-[2px] z-[70] transition-opacity duration-300"
+          className="md:hidden fixed inset-0 bg-black/80 z-[70] transition-opacity duration-200"
         />
       )}
 
+      {/* Sidebar Container - Optimized for speed */}
       <aside className={`
         fixed md:relative top-0 left-0 h-full z-[80] 
-        ${isMobileOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0"}
+        ${isMobileOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full md:translate-x-0"}
         ${isCollapsed ? "w-20" : "w-72"}
         flex flex-col bg-[#020617] border-r border-white/5 overflow-hidden shrink-0
-        transition-all duration-300 ease-out will-change-transform
+        transition-transform duration-200 ease-out md:transition-all will-change-transform
       `}>
-        <div className="absolute -left-20 -top-20 w-64 h-64 bg-blue-600/5 blur-[80px] rounded-full pointer-events-none" />
+        {/* Glow ambiental superior - Desktop only for performance */}
+        <div className="hidden md:block absolute -left-20 -top-20 w-64 h-64 bg-blue-600/5 blur-[80px] rounded-full pointer-events-none" />
         
+        {/* Desktop Collapse Button */}
         <button 
           onClick={() => setIsCollapsed(!isCollapsed)}
           className="hidden md:block absolute top-8 right-4 z-50 p-2 rounded-xl bg-white/5 hover:bg-white/10 transition-all border border-white/10 text-slate-400"
