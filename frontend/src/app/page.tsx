@@ -95,7 +95,7 @@ function DashboardContent() {
 
   return (
     <div className="p-6 h-full flex flex-col gap-6 overflow-hidden">
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 shrink-0">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 shrink-0">
         <StatCard 
           title="Total Alumnos" 
           value={stats?.total_estudiantes || 0} 
@@ -129,80 +129,80 @@ function DashboardContent() {
         />
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 flex flex-col min-h-0 bg-slate-900/20">
-          <div className="flex items-center justify-between mb-6 shrink-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 flex-1 min-h-0 pb-4 md:pb-0">
+        <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[400px] md:min-h-0 bg-slate-900/20">
+          <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
             <div>
-              <h3 className="text-2xl font-black text-white uppercase tracking-tight">Análisis de Impacto</h3>
-              <p className="text-xs font-bold text-slate-500 uppercase italic">Volumetría y Tendencias Críticas</p>
+              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Análisis de Impacto</h3>
+              <p className="text-[10px] font-bold text-slate-500 uppercase italic">Volumetría y Tendencias Críticas</p>
             </div>
-            <BarChart3 className="h-6 w-6 text-blue-500" />
+            <BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
           </div>
           
           <div className="flex-1 min-h-0 w-full flex flex-col gap-6">
             <div className="flex-1 min-h-0">
-              <p className="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
+              <p className="text-[9px] md:text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <Target className="h-4 w-4" /> Mayores Índices de Reprobación por Carrera
               </p>
               <ResponsiveContainer width="100%" height="90%">
-                <BarChart layout="vertical" data={impactData}>
+                <BarChart layout="vertical" data={impactData} margin={{ left: -10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
                   <XAxis type="number" hide />
-                  <YAxis dataKey="carrera" type="category" width={140} tick={{fill: '#94a3b8', fontSize: 9, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} />
-                  <Bar dataKey="reprobation_rate" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={16} />
+                  <YAxis dataKey="carrera" type="category" width={110} tick={{fill: '#94a3b8', fontSize: 8, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
+                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} />
+                  <Bar dataKey="reprobation_rate" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={12} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
 
-            <div className="h-1/2 min-h-0">
-              <p className="text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
+            <div className="h-[140px] md:h-1/2 min-h-0">
+              <p className="text-[9px] md:text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <LineIcon className="h-4 w-4" /> Evolución de Riesgo por Semestre
               </p>
               <ResponsiveContainer width="100%" height="85%">
                 <LineChart data={trendData} onClick={(data: any) => data && data.activePayload && router.push(`/drilldown?semestre=${data.activePayload[0].payload.semestre_num}`)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                  <XAxis dataKey="semestre_num" stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
-                  <YAxis stroke="#94a3b8" fontSize={10} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px' }} />
-                  <Line name="REPROBACIÓN" type="monotone" dataKey="reprobo" stroke="#3b82f6" strokeWidth={4} dot={{ r: 4, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} />
-                  <Line name="DESERCIÓN" type="monotone" dataKey="deserto" stroke="#ef4444" strokeWidth={4} dot={{ r: 4, fill: '#ef4444', strokeWidth: 0 }} activeDot={{ r: 8, strokeWidth: 0 }} />
+                  <XAxis dataKey="semestre_num" stroke="#94a3b8" fontSize={9} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
+                  <YAxis stroke="#94a3b8" fontSize={9} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
+                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '10px' }} />
+                  <Line name="REPROBACIÓN" type="monotone" dataKey="reprobo" stroke="#3b82f6" strokeWidth={3} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
+                  <Line name="DESERCIÓN" type="monotone" dataKey="deserto" stroke="#ef4444" strokeWidth={3} dot={{ r: 3, fill: '#ef4444', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
                 </LineChart>
               </ResponsiveContainer>
             </div>
           </div>
         </div>
 
-        <div className="glass-card p-8 rounded-[40px] border border-white/5 flex flex-col min-h-0 bg-blue-600/5">
-          <div className="flex items-center justify-between mb-6 shrink-0">
+        <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[400px] md:min-h-0 bg-blue-600/5">
+          <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
             <div>
-              <h3 className="text-2xl font-black text-white uppercase tracking-tight">Perfiles de Riesgo</h3>
-              <p className="text-xs font-bold text-slate-500 uppercase italic">Comparativa de Métricas por Prioridad</p>
+              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Perfiles de Riesgo</h3>
+              <p className="text-[10px] font-bold text-slate-500 uppercase italic">Comparativa de Métricas por Prioridad</p>
             </div>
-            <Activity className="h-6 w-6 text-indigo-500" />
+            <Activity className="h-5 w-5 md:h-6 md:w-6 text-indigo-500" />
           </div>
 
           <div className="flex-1 min-h-0 w-full flex flex-col gap-4">
-             <div className="h-[45%] min-h-0 glass-card bg-black/20 rounded-[32px] p-4 border border-white/5 relative">
-                <p className="text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest flex items-center gap-2">
+             <div className="flex-1 min-h-[200px] glass-card bg-black/20 rounded-[32px] p-4 border border-white/5 relative">
+                <p className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest flex items-center gap-2">
                    <BarChart3 className="h-3 w-3" /> Comparativa de Rendimiento por Segmento
                 </p>
                 <div className="absolute inset-0 pt-10 px-4 pb-2">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={[
-                      { name: 'Asistencia', ALTO: profileData.find(d => d.subject === 'ALTO')?.Asistencia || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Asistencia || 0 },
-                      { name: 'Promedio', ALTO: profileData.find(d => d.subject === 'ALTO')?.Promedio || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Promedio || 0 },
-                      { name: 'Plataforma', ALTO: profileData.find(d => d.subject === 'ALTO')?.Plataforma || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Plataforma || 0 },
-                      { name: 'Tareas', ALTO: profileData.find(d => d.subject === 'ALTO')?.Entregas || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Entregas || 0 },
-                      { name: 'Participación', ALTO: profileData.find(d => d.subject === 'ALTO')?.Participacion || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Participacion || 0 },
-                    ]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                      { name: 'Asis', ALTO: profileData.find(d => d.subject === 'ALTO')?.Asistencia || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Asistencia || 0 },
+                      { name: 'Prom', ALTO: profileData.find(d => d.subject === 'ALTO')?.Promedio || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Promedio || 0 },
+                      { name: 'Plat', ALTO: profileData.find(d => d.subject === 'ALTO')?.Plataforma || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Plataforma || 0 },
+                      { name: 'Tar', ALTO: profileData.find(d => d.subject === 'ALTO')?.Entregas || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Entregas || 0 },
+                      { name: 'Part', ALTO: profileData.find(d => d.subject === 'ALTO')?.Participacion || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Participacion || 0 },
+                    ]} margin={{ top: 10, right: 5, left: -30, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 8, fontWeight: 900}} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 7, fontWeight: 900}} />
                       <YAxis hide domain={[0, 100]} />
                       <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} />
-                      <Legend iconType="circle" wrapperStyle={{ fontSize: '10px', fontWeight: 900, paddingTop: '10px' }} />
-                      <Bar name="ALTO RIESGO" dataKey="ALTO" fill="#ef4444" radius={[4, 4, 0, 0]} barSize={12} />
-                      <Bar name="BAJO RIESGO" dataKey="BAJO" fill="#10b981" radius={[4, 4, 0, 0]} barSize={12} />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: 900, paddingTop: '5px' }} />
+                      <Bar name="ALTO" dataKey="ALTO" fill="#ef4444" radius={[3, 3, 0, 0]} barSize={8} />
+                      <Bar name="BAJO" dataKey="BAJO" fill="#10b981" radius={[3, 3, 0, 0]} barSize={8} />
                     </BarChart>
                   </ResponsiveContainer>
                 </div>

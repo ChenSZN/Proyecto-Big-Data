@@ -82,8 +82,8 @@ function EnvironmentContent() {
         </div>
       </header>
 
-      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-0">
-         <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-0">
+      <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-0 pb-6 md:pb-0">
+         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
             <div className="flex items-center gap-2 mb-2 text-blue-400">
                <Users className="h-4 w-4" />
                <span className="text-[10px] font-black uppercase tracking-widest">Género</span>
@@ -94,13 +94,13 @@ function EnvironmentContent() {
                      <Pie data={genderData} innerRadius="55%" outerRadius="80%" dataKey="value" stroke="none">
                         {genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
                      </Pie>
-                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} itemStyle={{color: '#fff', fontSize: '12px'}} />
+                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
                   </PieChart>
                </ResponsiveContainer>
             </div>
          </div>
 
-         <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-0">
+         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
             <div className="flex items-center gap-2 mb-2 text-amber-500">
                <Briefcase className="h-4 w-4" />
                <span className="text-[10px] font-black uppercase tracking-widest">Situación Laboral</span>
@@ -108,9 +108,9 @@ function EnvironmentContent() {
             <div className="flex-1">
                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={workData}>
-                     <XAxis dataKey="name" tick={{fill: '#94a3b8', fontSize: 10}} axisLine={false} tickLine={false} />
-                     <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} itemStyle={{color: '#fff', fontSize: '12px'}} />
-                     <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={35}>
+                     <XAxis dataKey="name" tick={{fill: '#94a3b8', fontSize: 9}} axisLine={false} tickLine={false} />
+                     <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                     <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={30}>
                         {workData.map((entry, i) => <Cell key={i} fill={entry.name === 'No' ? '#10b981' : '#ef4444'} />)}
                      </Bar>
                   </BarChart>
@@ -118,7 +118,7 @@ function EnvironmentContent() {
             </div>
          </div>
 
-         <div className="glass-card p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-0">
+         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
             <div className="flex items-center gap-2 mb-2 text-indigo-400">
                <Users2 className="h-4 w-4" />
                <span className="text-[10px] font-black uppercase tracking-widest">Rango de Edad</span>
@@ -127,28 +127,28 @@ function EnvironmentContent() {
                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={ageData} layout="vertical">
                      <XAxis type="number" hide />
-                     <YAxis dataKey="name" type="category" tick={{fill: '#94a3b8', fontSize: 10}} axisLine={false} tickLine={false} width={50} />
-                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} itemStyle={{color: '#fff', fontSize: '12px'}} />
-                     <Bar dataKey="value" fill="#6366f1" radius={[0, 8, 8, 0]} barSize={20} />
+                     <YAxis dataKey="name" type="category" tick={{fill: '#94a3b8', fontSize: 9}} axisLine={false} tickLine={false} width={45} />
+                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                     <Bar dataKey="value" fill="#6366f1" radius={[0, 8, 8, 0]} barSize={18} />
                   </BarChart>
                </ResponsiveContainer>
             </div>
          </div>
 
-         <div className="lg:col-span-2 glass-card p-8 rounded-[40px] bg-slate-900/40 border border-white/5 flex flex-col min-h-0">
+         <div className="lg:col-span-2 glass-card p-6 md:p-8 rounded-[32px] md:rounded-[40px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[300px] md:min-h-0">
             <div className="flex items-center justify-between mb-4">
                <div className="flex items-center gap-3 text-emerald-400">
-                  <MapPin className="h-5 w-5" />
-                  <span className="text-xs font-black uppercase tracking-widest">Movilidad: Distancia al Campus</span>
+                  <MapPin className="h-4 w-4 md:h-5 md:w-5" />
+                  <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Movilidad: Distancia al Campus</span>
                </div>
             </div>
             <div className="flex-1">
                <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={distanceData}>
-                     <XAxis dataKey="name" tick={{fill: '#94a3b8', fontSize: 10, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
-                     <YAxis tick={{fill: '#475569', fontSize: 9}} axisLine={false} tickLine={false} />
-                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px'}} itemStyle={{color: '#fff', fontSize: '12px'}} />
-                     <Bar dataKey="value" fill="#10b981" radius={[12, 12, 0, 0]} barSize={50} />
+                     <XAxis dataKey="name" tick={{fill: '#94a3b8', fontSize: 9, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
+                     <YAxis tick={{fill: '#475569', fontSize: 8}} axisLine={false} tickLine={false} />
+                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                     <Bar dataKey="value" fill="#10b981" radius={[12, 12, 0, 0]} barSize={40} />
                   </BarChart>
                </ResponsiveContainer>
             </div>
