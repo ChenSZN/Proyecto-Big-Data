@@ -97,7 +97,7 @@ function EnvironmentContent() {
       </header>
 
       <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-0 pb-6 md:pb-0">
-         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
+         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[340px]">
             <div className="flex items-center justify-between mb-2">
                <div className="flex items-center gap-2 text-blue-400">
                   <Users className="h-4 w-4" />
@@ -105,7 +105,7 @@ function EnvironmentContent() {
                </div>
                <ExplainerTrigger id="distribucion_genero" />
             </div>
-            <div className="flex-1 relative">
+            <div className="h-[240px] relative">
                <ResponsiveContainer width="100%" height="100%">
                   <PieChart>
                      <Pie data={genderData} innerRadius="55%" outerRadius="80%" dataKey="value" stroke="none">
@@ -117,7 +117,7 @@ function EnvironmentContent() {
             </div>
          </div>
 
-         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
+         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[340px]">
             <div className="flex items-center justify-between mb-2">
                <div className="flex items-center gap-2 text-amber-500">
                   <Briefcase className="h-4 w-4" />
@@ -125,7 +125,7 @@ function EnvironmentContent() {
                </div>
                <ExplainerTrigger id="situacion_laboral" />
             </div>
-            <div className="flex-1">
+            <div className="h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={workData}>
                       <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 12}} axisLine={false} tickLine={false} />
@@ -138,7 +138,7 @@ function EnvironmentContent() {
             </div>
          </div>
 
-         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
+         <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[340px]">
             <div className="flex items-center justify-between mb-2">
                <div className="flex items-center gap-2 text-indigo-400">
                   <Users2 className="h-4 w-4" />
@@ -146,7 +146,7 @@ function EnvironmentContent() {
                </div>
                <ExplainerTrigger id="rango_edad" />
             </div>
-            <div className="flex-1">
+            <div className="h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={ageData} layout="vertical">
                       <XAxis type="number" hide />
@@ -158,7 +158,7 @@ function EnvironmentContent() {
             </div>
          </div>
 
-         <div className="lg:col-span-2 glass-card p-6 md:p-8 rounded-[32px] md:rounded-[40px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[300px] md:min-h-0">
+         <div className="lg:col-span-2 glass-card p-6 md:p-8 rounded-[32px] md:rounded-[40px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[340px]">
             <div className="flex items-center justify-between mb-4">
                <div className="flex items-center gap-3 text-emerald-400">
                   <MapPin className="h-4 w-4 md:h-5 md:w-5" />
@@ -166,7 +166,7 @@ function EnvironmentContent() {
                </div>
                <ExplainerTrigger id="distancia_campus" />
             </div>
-            <div className="flex-1">
+            <div className="h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={distanceData}>
                       <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 12, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
@@ -178,7 +178,7 @@ function EnvironmentContent() {
             </div>
          </div>
 
-         <div className="glass-card p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20 flex flex-col min-h-0">
+         <div className="glass-card p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20 flex flex-col min-h-[340px]">
             <div className="flex items-center justify-between mb-6">
                <div className="flex items-center gap-3 text-blue-400">
                   <Zap className="h-5 w-5" />

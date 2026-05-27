@@ -139,7 +139,7 @@ function DashboardContent() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 flex-1 min-h-0 pb-4 md:pb-0">
-        <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[400px] md:min-h-0 bg-slate-900/20">
+        <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[450px] md:min-h-[580px] bg-slate-900/20">
           <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
             <div>
               <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2">
@@ -151,12 +151,12 @@ function DashboardContent() {
             <BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
           </div>
           
-          <div className="flex-1 min-h-0 w-full flex flex-col gap-6">
-            <div className="flex-1 min-h-0">
+          <div className="flex-1 w-full flex flex-col gap-6">
+            <div className="h-[230px] w-full">
               <p className="text-xs md:text-sm font-black text-slate-200 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <Target className="h-4 w-4" /> Mayores Índices de Reprobación por Carrera
               </p>
-              <ResponsiveContainer width="100%" height="90%">
+              <ResponsiveContainer width="100%" height="80%">
                 <BarChart layout="vertical" data={impactData} margin={{ left: -10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
                   <XAxis type="number" hide />
@@ -167,12 +167,12 @@ function DashboardContent() {
               </ResponsiveContainer>
             </div>
 
-            <div className="h-[140px] md:h-1/2 min-h-0">
+            <div className="h-[230px] w-full">
               <p className="text-xs md:text-sm font-black text-slate-200 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <LineIcon className="h-4 w-4" /> Evolución de Riesgo por Semestre
                  <ExplainerTrigger id="evolucion_semestre" />
               </p>
-              <ResponsiveContainer width="100%" height="85%">
+              <ResponsiveContainer width="100%" height="80%">
                 <LineChart data={trendData} onClick={(data: any) => data && data.activePayload && router.push(`/drilldown?semestre=${data.activePayload[0].payload.semestre_num}`)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
                   <XAxis dataKey="semestre_num" stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 900}} />
@@ -186,7 +186,7 @@ function DashboardContent() {
           </div>
         </div>
 
-        <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[400px] md:min-h-0 bg-blue-600/5">
+        <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[450px] md:min-h-[580px] bg-blue-600/5">
           <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
             <div>
               <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2">
@@ -198,12 +198,12 @@ function DashboardContent() {
             <Activity className="h-5 w-5 md:h-6 md:w-6 text-indigo-500" />
           </div>
 
-          <div className="flex-1 min-h-0 w-full flex flex-col gap-4">
-             <div className="flex-1 min-h-[200px] glass-card bg-black/20 rounded-[32px] p-4 border border-white/5 relative">
+          <div className="flex-1 w-full flex flex-col gap-6">
+             <div className="h-[250px] glass-card bg-black/20 rounded-[32px] p-4 border border-white/5 relative">
                 <p className="text-xs font-black text-slate-300 uppercase mb-4 tracking-widest flex items-center gap-2">
                    <BarChart3 className="h-3 w-3" /> Comparativa de Rendimiento por Segmento
                 </p>
-                <div className="absolute inset-0 pt-10 px-4 pb-2">
+                <div className="absolute inset-0 pt-12 px-4 pb-2">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={[
                       { name: 'Asis', ALTO: profileData.find(d => d.subject === 'ALTO')?.Asistencia || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Asistencia || 0 },
@@ -224,7 +224,7 @@ function DashboardContent() {
                 </div>
              </div>
 
-             <div className="h-[55%] min-h-0 grid grid-cols-1 gap-3 overflow-hidden">
+             <div className="flex-1 grid grid-cols-1 gap-3">
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
                    <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center gap-2">

@@ -139,7 +139,7 @@ function PatternsContent() {
             </div>
           ) : (
             <>
-              <div className="flex-1 w-full min-h-0">
+              <div className="h-[350px] md:h-[400px] w-full">
                 <ResponsiveContainer width="100%" height="100%">
                   <BarChart data={chartData} layout="vertical" margin={{ left: 140, right: 20, top: 20, bottom: 20 }}>
                     <XAxis type="number" hide domain={[0, 100]} />
