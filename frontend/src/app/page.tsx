@@ -14,6 +14,7 @@ import {
 } from 'recharts';
 
 import { useRouter } from "next/navigation";
+import ExplainerTrigger from "@/components/ExplainerTrigger";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
@@ -27,17 +28,20 @@ const cleanText = (text: string) => {
   }
 };
 
-function StatCard({ title, value, icon: Icon, color, trend, onClick }: any) {
+function StatCard({ title, value, icon: Icon, color, trend, onClick, explainerId }: any) {
   return (
     <div 
       onClick={onClick}
-      className={`glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group ${onClick ? 'cursor-pointer hover:border-white/20 hover:scale-[1.02]' : ''}`}
+      className={`glass-card p-6 rounded-[32px] border border-white/5 bg-slate-900/40 hover:bg-slate-900/60 transition-all group relative ${onClick ? 'cursor-pointer hover:border-white/20 hover:scale-[1.02]' : ''}`}
     >
       <div className="flex items-center justify-between mb-4">
         <div className={`p-3 rounded-2xl bg-white/5 ${color} group-hover:scale-110 transition-transform`}>
           <Icon className="h-6 w-6" />
         </div>
-        <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{trend}</span>
+        <div className="flex items-center gap-2">
+          {explainerId && <ExplainerTrigger id={explainerId} />}
+          <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{trend}</span>
+        </div>
       </div>
       <h3 className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">{title}</h3>
       <p className="text-4xl font-black text-white tracking-tighter">{value}</p>
@@ -104,6 +108,7 @@ function DashboardContent() {
           color="text-blue-500" 
           trend="" 
           onClick={() => router.push("/drilldown")}
+          explainerId="total_estudiantes"
         />
         <StatCard 
           title="Tasa Deserción" 
@@ -112,6 +117,7 @@ function DashboardContent() {
           color="text-red-500" 
           trend="" 
           onClick={() => router.push("/drilldown?filter=ALTO")}
+          explainerId="tasa_desercion"
         />
         <StatCard 
           title="Reprobación" 
@@ -120,6 +126,7 @@ function DashboardContent() {
           color="text-amber-500" 
           trend="" 
           onClick={() => router.push("/drilldown?filter=ALTO")}
+          explainerId="tasa_reprobacion"
         />
         <StatCard 
           title="Retención" 
@@ -127,6 +134,7 @@ function DashboardContent() {
           icon={CheckCircle} 
           color="text-emerald-500" 
           trend="" 
+          explainerId="tasa_retencion"
         />
       </div>
 
@@ -134,7 +142,10 @@ function DashboardContent() {
         <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[400px] md:min-h-0 bg-slate-900/20">
           <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
             <div>
-              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Análisis de Impacto</h3>
+              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2">
+                Análisis de Impacto
+                <ExplainerTrigger id="impacto_carrera" />
+              </h3>
               <p className="text-[10px] font-bold text-slate-500 uppercase italic">Volumetría y Tendencias Críticas</p>
             </div>
             <BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
@@ -159,6 +170,7 @@ function DashboardContent() {
             <div className="h-[140px] md:h-1/2 min-h-0">
               <p className="text-[9px] md:text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <LineIcon className="h-4 w-4" /> Evolución de Riesgo por Semestre
+                 <ExplainerTrigger id="evolucion_semestre" />
               </p>
               <ResponsiveContainer width="100%" height="85%">
                 <LineChart data={trendData} onClick={(data: any) => data && data.activePayload && router.push(`/drilldown?semestre=${data.activePayload[0].payload.semestre_num}`)}>
@@ -177,7 +189,10 @@ function DashboardContent() {
         <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[400px] md:min-h-0 bg-blue-600/5">
           <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
             <div>
-              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight">Perfiles de Riesgo</h3>
+              <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2">
+                Perfiles de Riesgo
+                <ExplainerTrigger id="rendimiento_segmento" />
+              </h3>
               <p className="text-[10px] font-bold text-slate-500 uppercase italic">Comparativa de Métricas por Prioridad</p>
             </div>
             <Activity className="h-5 w-5 md:h-6 md:w-6 text-indigo-500" />
@@ -212,7 +227,10 @@ function DashboardContent() {
              <div className="h-[55%] min-h-0 grid grid-cols-1 gap-3 overflow-hidden">
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peso Asistencia</span>
+                      <div className="flex items-center gap-2">
+                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peso Asistencia</span>
+                         <ExplainerTrigger id="peso_asistencia" />
+                      </div>
                       <span className="text-xs font-black text-red-500">84.2%</span>
                    </div>
                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
@@ -221,7 +239,10 @@ function DashboardContent() {
                 </div>
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Impacto Plataforma</span>
+                      <div className="flex items-center gap-2">
+                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Impacto Plataforma</span>
+                         <ExplainerTrigger id="impacto_plataforma" />
+                      </div>
                       <span className="text-xs font-black text-amber-500">61.8%</span>
                    </div>
                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
@@ -230,7 +251,10 @@ function DashboardContent() {
                 </div>
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
                    <div className="flex justify-between items-center mb-2">
-                      <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entrega Tareas</span>
+                      <div className="flex items-center gap-2">
+                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entrega Tareas</span>
+                         <ExplainerTrigger id="entrega_tareas_prog" />
+                      </div>
                       <span className="text-xs font-black text-blue-500">45.5%</span>
                    </div>
                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">

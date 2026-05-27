@@ -7,6 +7,7 @@ import {
   ArrowLeft, Activity, User, Filter, GraduationCap, Calendar, Search
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ExplainerTrigger from "@/components/ExplainerTrigger";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
@@ -66,20 +67,25 @@ function DrillDownContent() {
     <div className="p-4 md:p-6 h-full flex flex-col gap-6 overflow-hidden bg-[#020617]">
       <header className="flex items-center justify-between shrink-0">
          <div className="flex items-center gap-6">
-            <div className="flex flex-col">
-               <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter">Explorador de Alumnos</h1>
-               <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Base de Datos ITNL</p>
-            </div>
-            <div className="h-10 w-[1px] bg-white/5 mx-2" />
-            <div className="flex gap-1 bg-white/5 p-1 rounded-xl">
-               {['T', 'A', 'M', 'B'].map(f => (
-                 <button key={f} onClick={() => setLocalFilter(f==='T'?'TODOS':f==='A'?'ALTO':f==='M'?'MEDIO':'BAJO')}
-                   className={`px-4 py-2 rounded-lg text-[9px] font-black transition-all ${localFilter.startsWith(f==='T'?'TOD':f) ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
-                 >
-                   {f==='T'?'TODOS':f==='A'?'ALTO':f==='M'?'MEDIO':'BAJO'}
-                 </button>
-               ))}
-            </div>
+             <div className="flex flex-col">
+                <h1 className="text-2xl font-black text-white uppercase italic tracking-tighter flex items-center gap-2">
+                   Explorador de Alumnos
+                   <ExplainerTrigger id="tabla_estudiantes" />
+                </h1>
+                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Base de Datos ITNL</p>
+             </div>
+             <div className="h-10 w-[1px] bg-white/5 mx-2" />
+             <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl">
+                {['T', 'A', 'M', 'B'].map(f => (
+                  <button key={f} onClick={() => setLocalFilter(f==='T'?'TODOS':f==='A'?'ALTO':f==='M'?'MEDIO':'BAJO')}
+                    className={`px-4 py-2 rounded-lg text-[9px] font-black transition-all ${localFilter.startsWith(f==='T'?'TOD':f) ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                  >
+                    {f==='T'?'TODOS':f==='A'?'ALTO':f==='M'?'MEDIO':'BAJO'}
+                  </button>
+                ))}
+                <div className="h-4 w-[1px] bg-white/10 mx-1" />
+                <ExplainerTrigger id="filtro_prioridad" className="!bg-transparent hover:!bg-white/10" />
+             </div>
          </div>
          <div className="bg-blue-600/10 border border-blue-500/20 px-4 py-2 rounded-xl">
             <span className="text-[10px] font-black text-white italic">{sortedAndFilteredData.length} ESTUDIANTES ENCONTRADOS</span>

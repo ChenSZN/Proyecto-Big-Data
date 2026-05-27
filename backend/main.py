@@ -240,7 +240,78 @@ async def get_environment_stats(carrera: str = None, semestre: str = None):
         }
     }
 
+from pydantic import BaseModel
+
+class PredictionInput(BaseModel):
+    v_p: float
+    v_a: float
+    v_u: float
+    v_t: float
+    v_r: int
+
+@app.post("/api/predict")
+async def predict_risk(data: PredictionInput):
+    # Lógica ponderada basada en el análisis exploratorio y de patrones
+    score = 0.0
+    
+    # Asistencia (Peso de hasta 40 puntos de riesgo)
+    if data.v_a < 70:
+        score += 40.0
+    elif data.v_a < 80:
+        score += 25.0
+    elif data.v_a < 90:
+        score += 10.0
+        
+    # Entrega de Tareas (Peso de hasta 25 puntos de riesgo)
+    if data.v_t < 60:
+        score += 25.0
+    elif data.v_t < 75:
+        score += 15.0
+    elif data.v_t < 85:
+        score += 5.0
+        
+    # Promedio Académico (Peso de hasta 15 puntos de riesgo)
+    if data.v_p < 70:
+        score += 15.0
+    elif data.v_p < 80:
+        score += 8.0
+        
+    # Materias Reprobadas (Peso de hasta 12 puntos de riesgo)
+    if data.v_r > 2:
+        score += 12.0
+    elif data.v_r > 0:
+        score += 6.0
+        
+    # Uso de plataforma virtual (Peso de hasta 8 puntos de riesgo)
+    if data.v_u < 3:
+        score += 8.0
+    elif data.v_u < 6:
+        score += 4.0
+
+    probabilidad = min(max(score, 5.0), 99.0)
+    
+    # Clasificación final del riesgo
+    if data.v_a < 70 and data.v_p < 70:
+        prioridad = "CRÍTICO"
+        recomendacion = "Estatus de emergencia académica. Se sugiere intervención psicopedagógica y plan de regularización inmediato por inasistencias y promedio reprobatorio."
+    elif probabilidad >= 50 or data.v_a < 75 or data.v_r > 2:
+        prioridad = "ALTO"
+        recomendacion = "Riesgo elevado de deserción o reprobación. Es fundamental citar al alumno a tutorías y revisar el cumplimiento de tareas pendientes."
+    elif probabilidad >= 20 or data.v_p < 80:
+        prioridad = "MEDIO"
+        recomendacion = "Monitoreo preventivo sugerido. El alumno muestra rezago en algunos indicadores (asistencia o tareas) que podrían comprometer su permanencia."
+    else:
+        prioridad = "BAJO"
+        recomendacion = "Desempeño óptimo. El estudiante mantiene un perfil de bajo riesgo. Continuar con el seguimiento académico habitual."
+
+    return {
+        "probabilidad": probabilidad,
+        "prioridad": prioridad,
+        "recomendacion": recomendacion
+    }
+
 if __name__ == "__main__":
     import uvicorn
     port = int(os.environ.get("PORT", 8001))
     uvicorn.run("main:app", host="0.0.0.0", port=port, reload=True)
+

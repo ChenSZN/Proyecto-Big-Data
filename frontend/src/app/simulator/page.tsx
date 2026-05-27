@@ -8,6 +8,7 @@ import {
   BarChart2
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import ExplainerTrigger from "@/components/ExplainerTrigger";
 import axios from "axios";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
@@ -44,9 +45,12 @@ export default function Simulator() {
              <Cpu className="h-24 w-24" />
           </div>
           
-          <h3 className="mb-8 flex items-center text-lg font-black text-white uppercase tracking-tight">
-            <Activity className="mr-3 h-5 w-5 text-blue-500" />
-            Parámetros
+          <h3 className="mb-8 flex items-center justify-between text-lg font-black text-white uppercase tracking-tight">
+            <div className="flex items-center">
+              <Activity className="mr-3 h-5 w-5 text-blue-500" />
+              Parámetros
+            </div>
+            <ExplainerTrigger id="predict_simulador" />
           </h3>
           
           <div className="space-y-8">
@@ -111,7 +115,10 @@ export default function Simulator() {
                   result.prioridad === 'ALTO' ? 'bg-amber-500' : 'bg-emerald-500'
                 }`} />
                 
-                <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500 mb-2">Fallo Probable</p>
+                <div className="flex items-center justify-center gap-2 mb-2">
+                   <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Fallo Probable</p>
+                   <ExplainerTrigger id="predict_simulador" />
+                </div>
                 
                 <div className="relative inline-block mb-6">
                    <svg className="h-40 w-40 -rotate-90">

@@ -11,6 +11,7 @@ import {
   Activity,
   Zap,
 } from "lucide-react";
+import ExplainerTrigger from "@/components/ExplainerTrigger";
 import { 
   BarChart, 
   Bar, 
@@ -97,7 +98,10 @@ function PatternsContent() {
             <currentSlide.icon className="h-8 w-8" />
           </div>
           <div>
-            <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter">{currentSlide.title}</h2>
+            <h2 className="text-2xl md:text-3xl font-black text-white uppercase italic tracking-tighter flex items-center gap-2">
+              {currentSlide.title}
+              <ExplainerTrigger id="patrones_ml" />
+            </h2>
             <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Análisis Basado en 5,000 Alumnos</p>
             {(carreraLabel || semestreLabel) && (
               <div className="flex gap-2 mt-2 flex-wrap">

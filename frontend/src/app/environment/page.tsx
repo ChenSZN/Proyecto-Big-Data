@@ -12,6 +12,7 @@ import {
   ResponsiveContainer, PieChart, Pie, Cell,
 } from "recharts";
 import { motion } from "framer-motion";
+import ExplainerTrigger from "@/components/ExplainerTrigger";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
@@ -97,9 +98,12 @@ function EnvironmentContent() {
 
       <div className="flex-1 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-0 pb-6 md:pb-0">
          <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
-            <div className="flex items-center gap-2 mb-2 text-blue-400">
-               <Users className="h-4 w-4" />
-               <span className="text-[10px] font-black uppercase tracking-widest">Género</span>
+            <div className="flex items-center justify-between mb-2">
+               <div className="flex items-center gap-2 text-blue-400">
+                  <Users className="h-4 w-4" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Género</span>
+               </div>
+               <ExplainerTrigger id="distribucion_genero" />
             </div>
             <div className="flex-1 relative">
                <ResponsiveContainer width="100%" height="100%">
@@ -114,9 +118,12 @@ function EnvironmentContent() {
          </div>
 
          <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
-            <div className="flex items-center gap-2 mb-2 text-amber-500">
-               <Briefcase className="h-4 w-4" />
-               <span className="text-[10px] font-black uppercase tracking-widest">Situación Laboral</span>
+            <div className="flex items-center justify-between mb-2">
+               <div className="flex items-center gap-2 text-amber-500">
+                  <Briefcase className="h-4 w-4" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Situación Laboral</span>
+               </div>
+               <ExplainerTrigger id="situacion_laboral" />
             </div>
             <div className="flex-1">
                <ResponsiveContainer width="100%" height="100%">
@@ -132,9 +139,12 @@ function EnvironmentContent() {
          </div>
 
          <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[280px] md:min-h-0">
-            <div className="flex items-center gap-2 mb-2 text-indigo-400">
-               <Users2 className="h-4 w-4" />
-               <span className="text-[10px] font-black uppercase tracking-widest">Rango de Edad</span>
+            <div className="flex items-center justify-between mb-2">
+               <div className="flex items-center gap-2 text-indigo-400">
+                  <Users2 className="h-4 w-4" />
+                  <span className="text-[10px] font-black uppercase tracking-widest">Rango de Edad</span>
+               </div>
+               <ExplainerTrigger id="rango_edad" />
             </div>
             <div className="flex-1">
                <ResponsiveContainer width="100%" height="100%">
@@ -154,6 +164,7 @@ function EnvironmentContent() {
                   <MapPin className="h-4 w-4 md:h-5 md:w-5" />
                   <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Movilidad: Distancia al Campus</span>
                </div>
+               <ExplainerTrigger id="distancia_campus" />
             </div>
             <div className="flex-1">
                <ResponsiveContainer width="100%" height="100%">
@@ -168,9 +179,12 @@ function EnvironmentContent() {
          </div>
 
          <div className="glass-card p-8 rounded-[40px] bg-blue-600/10 border border-blue-500/20 flex flex-col min-h-0">
-            <div className="flex items-center gap-3 mb-6 text-blue-400">
-               <Zap className="h-5 w-5" />
-               <span className="text-xs font-black uppercase tracking-widest">Factores de Permanencia</span>
+            <div className="flex items-center justify-between mb-6">
+               <div className="flex items-center gap-3 text-blue-400">
+                  <Zap className="h-5 w-5" />
+                  <span className="text-xs font-black uppercase tracking-widest">Factores de Permanencia</span>
+               </div>
+               <ExplainerTrigger id="factores_permanencia" />
             </div>
             <div className="flex-1 flex flex-col justify-between gap-4 overflow-hidden">
                {[
