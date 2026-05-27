@@ -91,7 +91,7 @@ function PatternsContent() {
   const chartData = importanceData[currentSlide.id] || FALLBACK_DATA[currentSlide.id as keyof typeof FALLBACK_DATA];
 
   return (
-    <div className="p-4 md:p-8 h-full flex flex-col gap-6 overflow-y-auto lg:overflow-hidden bg-[#020617]">
+    <div className="p-4 md:p-8 flex flex-col gap-6 bg-[#020617]">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 shrink-0 mt-12 md:mt-0">
         <div className="flex items-center gap-4">
           <div className={`p-4 rounded-[24px] bg-white/5 ${currentSlide.color}`}>

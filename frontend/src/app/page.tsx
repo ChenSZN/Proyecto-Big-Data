@@ -99,7 +99,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="p-6 h-full flex flex-col gap-6 overflow-hidden">
+    <div className="p-6 flex flex-col gap-6">
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4 shrink-0">
         <StatCard 
           title="Total Alumnos" 
@@ -157,10 +157,10 @@ function DashboardContent() {
                  <Target className="h-4 w-4" /> Mayores Índices de Reprobación por Carrera
               </p>
               <ResponsiveContainer width="100%" height="80%">
-                <BarChart layout="vertical" data={impactData} margin={{ left: -10, right: 10 }}>
+                <BarChart layout="vertical" data={impactData} margin={{ left: 20, right: 20, top: 10, bottom: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
                   <XAxis type="number" hide />
-                  <YAxis dataKey="carrera" type="category" width={110} tick={{fill: '#cbd5e1', fontSize: 11, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="carrera" type="category" width={150} tick={{fill: '#cbd5e1', fontSize: 11, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
                   <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} />
                   <Bar dataKey="reprobation_rate" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={12} />
                 </BarChart>

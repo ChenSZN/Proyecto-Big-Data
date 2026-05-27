@@ -30,11 +30,11 @@ export default function Simulator() {
   };
 
   return (
-    <div className="p-8 h-full flex flex-col gap-6 overflow-hidden">
+    <div className="p-8 flex flex-col gap-6">
       <header className="shrink-0 mb-4">
       </header>
 
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12 flex-1 min-h-0 overflow-y-auto pr-2 custom-scrollbar">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* Diagnostic Controls */}
         <motion.div 
           initial={{ opacity: 0, x: -30 }}

@@ -74,7 +74,7 @@ function EnvironmentContent() {
   const support = data?.support || FALLBACK_ENV.support;
 
   return (
-    <div className="p-4 md:p-6 h-full flex flex-col gap-4 bg-[#020617] overflow-y-auto lg:overflow-hidden">
+    <div className="p-4 md:p-6 flex flex-col gap-4 bg-[#020617]">
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 mt-12 md:mt-0">
         <div>
           <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter">Entorno Estudiantil</h1>
@@ -127,7 +127,7 @@ function EnvironmentContent() {
             </div>
             <div className="h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={workData}>
+                   <BarChart data={workData} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
                       <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 12}} axisLine={false} tickLine={false} />
                       <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
                       <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={30}>
@@ -148,7 +148,7 @@ function EnvironmentContent() {
             </div>
             <div className="h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={ageData} layout="vertical">
+                   <BarChart data={ageData} layout="vertical" margin={{ left: 10, right: 20, top: 10, bottom: 10 }}>
                       <XAxis type="number" hide />
                       <YAxis dataKey="name" type="category" tick={{fill: '#cbd5e1', fontSize: 12}} axisLine={false} tickLine={false} width={45} />
                       <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
@@ -168,9 +168,9 @@ function EnvironmentContent() {
             </div>
             <div className="h-[240px]">
                 <ResponsiveContainer width="100%" height="100%">
-                   <BarChart data={distanceData}>
+                   <BarChart data={distanceData} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
                       <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 12, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
-                      <YAxis tick={{fill: '#94a3b8', fontSize: 11}} axisLine={false} tickLine={false} />
+                      <YAxis tick={{fill: '#94a3b8', fontSize: 11}} width={40} axisLine={false} tickLine={false} />
                       <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
                       <Bar dataKey="value" fill="#10b981" radius={[12, 12, 0, 0]} barSize={40} />
                    </BarChart>
