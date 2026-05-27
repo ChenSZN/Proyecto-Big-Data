@@ -157,36 +157,6 @@ function PatternsContent() {
                   </BarChart>
                 </ResponsiveContainer>
               </div>
-              
-              <div className="mt-8 pt-8 border-t border-white/5 grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="flex items-center gap-4">
-                    <div className={`p-3 rounded-2xl bg-white/5 ${currentSlide.color}`}>
-                      <BrainCircuit className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-slate-300 uppercase">Precisión IA</p>
-                      <p className="text-base font-black text-white italic">94.8% Correlación</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-white/5 text-emerald-500">
-                      <Activity className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-slate-300 uppercase">Estado Datos</p>
-                      <p className="text-base font-black text-white italic">Dataset Completo</p>
-                    </div>
-                </div>
-                <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-2xl bg-white/5 text-amber-500">
-                      <Zap className="h-5 w-5" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-black text-slate-300 uppercase">Recomendación</p>
-                      <p className="text-base font-black text-white italic">Intervención Directa</p>
-                    </div>
-                </div>
-              </div>
             </>
           )}
         </motion.div>
