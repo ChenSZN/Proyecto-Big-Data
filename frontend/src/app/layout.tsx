@@ -11,7 +11,7 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "SAT ITNL | Intelligent Analytics",
+  title: "ITNLD DASHBOARD",
   description: "Plataforma de Inteligencia Predictiva - Tecnológico de Nuevo Laredo",
 };
 
