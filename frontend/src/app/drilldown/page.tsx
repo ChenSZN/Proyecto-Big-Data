@@ -72,13 +72,13 @@ function DrillDownContent() {
                    Explorador de Alumnos
                    <ExplainerTrigger id="tabla_estudiantes" />
                 </h1>
-                <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest italic">Base de Datos ITNL</p>
+                <p className="text-xs font-black text-slate-300 uppercase tracking-widest italic">Base de Datos ITNL</p>
              </div>
              <div className="h-10 w-[1px] bg-white/5 mx-2" />
              <div className="flex items-center gap-2 bg-white/5 p-1 rounded-xl">
                 {['T', 'A', 'M', 'B'].map(f => (
                   <button key={f} onClick={() => setLocalFilter(f==='T'?'TODOS':f==='A'?'ALTO':f==='M'?'MEDIO':'BAJO')}
-                    className={`px-4 py-2 rounded-lg text-[9px] font-black transition-all ${localFilter.startsWith(f==='T'?'TOD':f) ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-500 hover:text-slate-300'}`}
+                    className={`px-4 py-2 rounded-lg text-xs font-black transition-all ${localFilter.startsWith(f==='T'?'TOD':f) ? 'bg-blue-600 text-white shadow-lg shadow-blue-500/20' : 'text-slate-400 hover:text-slate-200'}`}
                   >
                     {f==='T'?'TODOS':f==='A'?'ALTO':f==='M'?'MEDIO':'BAJO'}
                   </button>
@@ -88,7 +88,7 @@ function DrillDownContent() {
              </div>
          </div>
          <div className="bg-blue-600/10 border border-blue-500/20 px-4 py-2 rounded-xl">
-            <span className="text-[10px] font-black text-white italic">{sortedAndFilteredData.length} ESTUDIANTES ENCONTRADOS</span>
+            <span className="text-xs font-black text-white italic">{sortedAndFilteredData.length} ESTUDIANTES ENCONTRADOS</span>
          </div>
       </header>
 
@@ -96,7 +96,7 @@ function DrillDownContent() {
          <div className="flex-1 min-h-0 overflow-hidden glass-card rounded-[40px] bg-black/20 border border-white/5 flex flex-col shadow-2xl">
             <div className="flex-1 overflow-auto custom-scrollbar">
                <table className="w-full text-left border-collapse">
-                 <thead className="sticky top-0 bg-[#0f172a] text-[10px] font-black uppercase text-slate-500 border-b border-white/5 z-10 shadow-lg">
+                 <thead className="sticky top-0 bg-[#0f172a] text-xs font-black uppercase text-slate-300 border-b border-white/5 z-10 shadow-lg">
                    <tr>
                      <th onClick={() => handleSort('id_estudiante')} className="px-8 py-6 cursor-pointer hover:text-white transition-colors">
                         Identificador
@@ -133,28 +133,28 @@ function DrillDownContent() {
                           </div>
                        </td>
                        <td className="px-6 py-5">
-                          <span className="text-[11px] font-black text-slate-400 uppercase tracking-tight line-clamp-1">
+                          <span className="text-xs font-black text-slate-300 uppercase tracking-tight line-clamp-1">
                              {st.carrera?.replace(/Ã¡/g, 'á').replace(/Ã©/g, 'é').replace(/Ã\xad/g, 'í').replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ')}
                           </span>
                        </td>
-                       <td className="px-6 py-5 font-black text-slate-300 text-center text-sm">{(st.promedio_anterior || 0).toFixed(1)}</td>
+                       <td className="px-6 py-5 font-black text-white text-center text-base">{(st.promedio_anterior || 0).toFixed(1)}</td>
                        <td className="px-6 py-5 text-center">
-                          <span className={`text-[12px] font-black ${(st.porcentaje_asistencia || 0) < 70 ? 'text-red-400' : 'text-emerald-400'}`}>
+                          <span className={`text-sm font-black ${(st.porcentaje_asistencia || 0) < 70 ? 'text-red-400' : 'text-emerald-400'}`}>
                              {(st.porcentaje_asistencia || 0).toFixed(0)}%
                           </span>
                        </td>
                        <td className="px-6 py-5 text-center">
-                          <span className="text-[12px] font-black text-slate-400">
+                          <span className="text-sm font-black text-slate-200">
                              {(st.entregas_tareas_pct || 0).toFixed(0)}%
                            </span>
                        </td>
                        <td className="px-6 py-5 text-center">
-                          <span className={`text-[12px] font-black ${(st.materias_reprobadas_previas || 0) > 0 ? 'text-amber-500' : 'text-slate-700'}`}>
+                          <span className={`text-sm font-black ${(st.materias_reprobadas_previas || 0) > 0 ? 'text-amber-500' : 'text-slate-500'}`}>
                              {st.materias_reprobadas_previas ?? 0}
                           </span>
                        </td>
                        <td className="px-8 py-5 text-right">
-                         <span className={`px-6 py-2.5 rounded-full text-[10px] font-black uppercase tracking-widest ${st.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : st.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+                         <span className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest ${st.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : st.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
                             {st.prioridad}
                           </span>
                        </td>

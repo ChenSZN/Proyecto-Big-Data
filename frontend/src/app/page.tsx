@@ -40,10 +40,10 @@ function StatCard({ title, value, icon: Icon, color, trend, onClick, explainerId
         </div>
         <div className="flex items-center gap-2">
           {explainerId && <ExplainerTrigger id={explainerId} />}
-          <span className="text-xs font-black text-slate-500 uppercase tracking-widest">{trend}</span>
+          <span className="text-sm font-black text-slate-300 uppercase tracking-widest">{trend}</span>
         </div>
       </div>
-      <h3 className="text-slate-400 text-xs font-black uppercase tracking-widest mb-1">{title}</h3>
+      <h3 className="text-slate-200 text-sm font-black uppercase tracking-widest mb-1">{title}</h3>
       <p className="text-4xl font-black text-white tracking-tighter">{value}</p>
     </div>
   );
@@ -146,21 +146,21 @@ function DashboardContent() {
                 Análisis de Impacto
                 <ExplainerTrigger id="impacto_carrera" />
               </h3>
-              <p className="text-[10px] font-bold text-slate-500 uppercase italic">Volumetría y Tendencias Críticas</p>
+              <p className="text-xs font-bold text-slate-300 uppercase italic">Volumetría y Tendencias Críticas</p>
             </div>
             <BarChart3 className="h-5 w-5 md:h-6 md:w-6 text-blue-500" />
           </div>
           
           <div className="flex-1 min-h-0 w-full flex flex-col gap-6">
             <div className="flex-1 min-h-0">
-              <p className="text-[9px] md:text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
+              <p className="text-xs md:text-sm font-black text-slate-200 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <Target className="h-4 w-4" /> Mayores Índices de Reprobación por Carrera
               </p>
               <ResponsiveContainer width="100%" height="90%">
                 <BarChart layout="vertical" data={impactData} margin={{ left: -10, right: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
                   <XAxis type="number" hide />
-                  <YAxis dataKey="carrera" type="category" width={110} tick={{fill: '#94a3b8', fontSize: 8, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="carrera" type="category" width={110} tick={{fill: '#cbd5e1', fontSize: 11, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
                   <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} />
                   <Bar dataKey="reprobation_rate" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={12} />
                 </BarChart>
@@ -168,15 +168,15 @@ function DashboardContent() {
             </div>
 
             <div className="h-[140px] md:h-1/2 min-h-0">
-              <p className="text-[9px] md:text-xs font-black text-slate-400 uppercase mb-4 tracking-widest flex items-center gap-2">
+              <p className="text-xs md:text-sm font-black text-slate-200 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <LineIcon className="h-4 w-4" /> Evolución de Riesgo por Semestre
                  <ExplainerTrigger id="evolucion_semestre" />
               </p>
               <ResponsiveContainer width="100%" height="85%">
                 <LineChart data={trendData} onClick={(data: any) => data && data.activePayload && router.push(`/drilldown?semestre=${data.activePayload[0].payload.semestre_num}`)}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                  <XAxis dataKey="semestre_num" stroke="#94a3b8" fontSize={9} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
-                  <YAxis stroke="#94a3b8" fontSize={9} axisLine={false} tickLine={false} tick={{fill: '#475569', fontWeight: 900}} />
+                  <XAxis dataKey="semestre_num" stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 900}} />
+                  <YAxis stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 900}} />
                   <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '10px' }} />
                   <Line name="REPROBACIÓN" type="monotone" dataKey="reprobo" stroke="#3b82f6" strokeWidth={3} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
                   <Line name="DESERCIÓN" type="monotone" dataKey="deserto" stroke="#ef4444" strokeWidth={3} dot={{ r: 3, fill: '#ef4444', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
@@ -193,14 +193,14 @@ function DashboardContent() {
                 Perfiles de Riesgo
                 <ExplainerTrigger id="rendimiento_segmento" />
               </h3>
-              <p className="text-[10px] font-bold text-slate-500 uppercase italic">Comparativa de Métricas por Prioridad</p>
+              <p className="text-xs font-bold text-slate-300 uppercase italic">Comparativa de Métricas por Prioridad</p>
             </div>
             <Activity className="h-5 w-5 md:h-6 md:w-6 text-indigo-500" />
           </div>
 
           <div className="flex-1 min-h-0 w-full flex flex-col gap-4">
              <div className="flex-1 min-h-[200px] glass-card bg-black/20 rounded-[32px] p-4 border border-white/5 relative">
-                <p className="text-[9px] md:text-[10px] font-black text-slate-500 uppercase mb-4 tracking-widest flex items-center gap-2">
+                <p className="text-xs font-black text-slate-300 uppercase mb-4 tracking-widest flex items-center gap-2">
                    <BarChart3 className="h-3 w-3" /> Comparativa de Rendimiento por Segmento
                 </p>
                 <div className="absolute inset-0 pt-10 px-4 pb-2">
@@ -213,10 +213,10 @@ function DashboardContent() {
                       { name: 'Part', ALTO: profileData.find(d => d.subject === 'ALTO')?.Participacion || 0, BAJO: profileData.find(d => d.subject === 'BAJO')?.Participacion || 0 },
                     ]} margin={{ top: 10, right: 5, left: -30, bottom: 0 }}>
                       <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
-                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 7, fontWeight: 900}} />
+                      <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#cbd5e1', fontSize: 11, fontWeight: 900}} />
                       <YAxis hide domain={[0, 100]} />
                       <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} />
-                      <Legend iconType="circle" wrapperStyle={{ fontSize: '8px', fontWeight: 900, paddingTop: '5px' }} />
+                      <Legend iconType="circle" wrapperStyle={{ fontSize: '12px', fontWeight: 900, paddingTop: '5px' }} />
                       <Bar name="ALTO" dataKey="ALTO" fill="#ef4444" radius={[3, 3, 0, 0]} barSize={8} />
                       <Bar name="BAJO" dataKey="BAJO" fill="#10b981" radius={[3, 3, 0, 0]} barSize={8} />
                     </BarChart>
@@ -228,10 +228,10 @@ function DashboardContent() {
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
                    <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center gap-2">
-                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Peso Asistencia</span>
+                         <span className="text-xs font-black text-slate-200 uppercase tracking-widest">Peso Asistencia</span>
                          <ExplainerTrigger id="peso_asistencia" />
                       </div>
-                      <span className="text-xs font-black text-red-500">84.2%</span>
+                      <span className="text-sm font-black text-red-500">84.2%</span>
                    </div>
                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                       <div className="bg-red-500 h-full" style={{ width: '84.2%' }} />
@@ -240,10 +240,10 @@ function DashboardContent() {
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
                    <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center gap-2">
-                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Impacto Plataforma</span>
+                         <span className="text-xs font-black text-slate-200 uppercase tracking-widest">Impacto Plataforma</span>
                          <ExplainerTrigger id="impacto_plataforma" />
                       </div>
-                      <span className="text-xs font-black text-amber-500">61.8%</span>
+                      <span className="text-sm font-black text-amber-500">61.8%</span>
                    </div>
                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                       <div className="bg-amber-500 h-full" style={{ width: '61.8%' }} />
@@ -252,10 +252,10 @@ function DashboardContent() {
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center">
                    <div className="flex justify-between items-center mb-2">
                       <div className="flex items-center gap-2">
-                         <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Entrega Tareas</span>
+                         <span className="text-xs font-black text-slate-200 uppercase tracking-widest">Entrega Tareas</span>
                          <ExplainerTrigger id="entrega_tareas_prog" />
                       </div>
-                      <span className="text-xs font-black text-blue-500">45.5%</span>
+                      <span className="text-sm font-black text-blue-500">45.5%</span>
                    </div>
                    <div className="w-full bg-white/10 h-2 rounded-full overflow-hidden">
                       <div className="bg-blue-500 h-full" style={{ width: '45.5%' }} />

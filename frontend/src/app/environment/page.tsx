@@ -78,21 +78,21 @@ function EnvironmentContent() {
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 shrink-0 mt-12 md:mt-0">
         <div>
           <h1 className="text-3xl font-black text-white uppercase italic tracking-tighter">Entorno Estudiantil</h1>
-          <p className="text-[9px] font-black text-slate-500 uppercase tracking-[0.3em] italic">Análisis Socio-Demográfico y Apoyos</p>
+          <p className="text-xs font-black text-slate-300 uppercase tracking-[0.3em] italic">Análisis Socio-Demográfico y Apoyos</p>
           {/* Active filter badge */}
           {(carrera || semestre) && (
             <div className="flex gap-2 mt-2 flex-wrap">
-              {carrera && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 uppercase">{carreraLabel}</span>}
-              {semestre && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-amber-600/20 border border-amber-500/30 text-amber-400 uppercase">{semestreLabel}</span>}
+              {carrera && <span className="text-xs font-black px-2 py-1 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 uppercase">{carreraLabel}</span>}
+              {semestre && <span className="text-xs font-black px-2 py-1 rounded-lg bg-amber-600/20 border border-amber-500/30 text-amber-400 uppercase">{semestreLabel}</span>}
             </div>
           )}
         </div>
         <div className="bg-blue-600/10 border border-blue-500/20 px-5 py-2 rounded-[20px] flex items-center gap-3 shadow-lg shadow-blue-500/5">
            <Database className="h-5 w-5 text-blue-500" />
-           <div>
-              <p className="text-[9px] font-black text-slate-500 uppercase leading-none">Población del Segmento</p>
-              <p className="text-xl font-black text-white italic">{totalStudents.toLocaleString()} Alumnos</p>
-           </div>
+            <div>
+               <p className="text-xs font-black text-slate-300 uppercase leading-none">Población del Segmento</p>
+               <p className="text-2xl font-black text-white italic">{totalStudents.toLocaleString()} Alumnos</p>
+            </div>
         </div>
       </header>
 
@@ -101,7 +101,7 @@ function EnvironmentContent() {
             <div className="flex items-center justify-between mb-2">
                <div className="flex items-center gap-2 text-blue-400">
                   <Users className="h-4 w-4" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Género</span>
+                  <span className="text-xs font-black uppercase tracking-widest">Género</span>
                </div>
                <ExplainerTrigger id="distribucion_genero" />
             </div>
@@ -121,20 +121,20 @@ function EnvironmentContent() {
             <div className="flex items-center justify-between mb-2">
                <div className="flex items-center gap-2 text-amber-500">
                   <Briefcase className="h-4 w-4" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Situación Laboral</span>
+                  <span className="text-xs font-black uppercase tracking-widest">Situación Laboral</span>
                </div>
                <ExplainerTrigger id="situacion_laboral" />
             </div>
             <div className="flex-1">
-               <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={workData}>
-                     <XAxis dataKey="name" tick={{fill: '#94a3b8', fontSize: 9}} axisLine={false} tickLine={false} />
-                     <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
-                     <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={30}>
-                        {workData.map((entry, i) => <Cell key={i} fill={entry.name === 'No' ? '#10b981' : '#ef4444'} />)}
-                     </Bar>
-                  </BarChart>
-               </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={workData}>
+                      <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 12}} axisLine={false} tickLine={false} />
+                      <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                      <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={30}>
+                         {workData.map((entry, i) => <Cell key={i} fill={entry.name === 'No' ? '#10b981' : '#ef4444'} />)}
+                      </Bar>
+                   </BarChart>
+                </ResponsiveContainer>
             </div>
          </div>
 
@@ -142,19 +142,19 @@ function EnvironmentContent() {
             <div className="flex items-center justify-between mb-2">
                <div className="flex items-center gap-2 text-indigo-400">
                   <Users2 className="h-4 w-4" />
-                  <span className="text-[10px] font-black uppercase tracking-widest">Rango de Edad</span>
+                  <span className="text-xs font-black uppercase tracking-widest">Rango de Edad</span>
                </div>
                <ExplainerTrigger id="rango_edad" />
             </div>
             <div className="flex-1">
-               <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={ageData} layout="vertical">
-                     <XAxis type="number" hide />
-                     <YAxis dataKey="name" type="category" tick={{fill: '#94a3b8', fontSize: 9}} axisLine={false} tickLine={false} width={45} />
-                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
-                     <Bar dataKey="value" fill="#6366f1" radius={[0, 8, 8, 0]} barSize={18} />
-                  </BarChart>
-               </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={ageData} layout="vertical">
+                      <XAxis type="number" hide />
+                      <YAxis dataKey="name" type="category" tick={{fill: '#cbd5e1', fontSize: 12}} axisLine={false} tickLine={false} width={45} />
+                      <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                      <Bar dataKey="value" fill="#6366f1" radius={[0, 8, 8, 0]} barSize={18} />
+                   </BarChart>
+                </ResponsiveContainer>
             </div>
          </div>
 
@@ -162,19 +162,19 @@ function EnvironmentContent() {
             <div className="flex items-center justify-between mb-4">
                <div className="flex items-center gap-3 text-emerald-400">
                   <MapPin className="h-4 w-4 md:h-5 md:w-5" />
-                  <span className="text-[10px] md:text-xs font-black uppercase tracking-widest">Movilidad: Distancia al Campus</span>
+                  <span className="text-xs md:text-sm font-black uppercase tracking-widest">Movilidad: Distancia al Campus</span>
                </div>
                <ExplainerTrigger id="distancia_campus" />
             </div>
             <div className="flex-1">
-               <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={distanceData}>
-                     <XAxis dataKey="name" tick={{fill: '#94a3b8', fontSize: 9, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
-                     <YAxis tick={{fill: '#475569', fontSize: 8}} axisLine={false} tickLine={false} />
-                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
-                     <Bar dataKey="value" fill="#10b981" radius={[12, 12, 0, 0]} barSize={40} />
-                  </BarChart>
-               </ResponsiveContainer>
+                <ResponsiveContainer width="100%" height="100%">
+                   <BarChart data={distanceData}>
+                      <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 12, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
+                      <YAxis tick={{fill: '#94a3b8', fontSize: 11}} axisLine={false} tickLine={false} />
+                      <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                      <Bar dataKey="value" fill="#10b981" radius={[12, 12, 0, 0]} barSize={40} />
+                   </BarChart>
+                </ResponsiveContainer>
             </div>
          </div>
 
@@ -182,7 +182,7 @@ function EnvironmentContent() {
             <div className="flex items-center justify-between mb-6">
                <div className="flex items-center gap-3 text-blue-400">
                   <Zap className="h-5 w-5" />
-                  <span className="text-xs font-black uppercase tracking-widest">Factores de Permanencia</span>
+                  <span className="text-sm font-black uppercase tracking-widest">Factores de Permanencia</span>
                </div>
                <ExplainerTrigger id="factores_permanencia" />
             </div>
@@ -194,15 +194,15 @@ function EnvironmentContent() {
                ].map((item, i) => (
                  <div key={i} className="p-4 rounded-2xl bg-black/20 border border-white/5">
                     <div className="flex justify-between items-center mb-2">
-                       <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">{item.label}</p>
-                       <p className="text-sm font-black text-white">{item.val}%</p>
+                       <p className="text-xs font-black text-slate-300 uppercase tracking-widest">{item.label}</p>
+                       <p className="text-base font-black text-white">{item.val}%</p>
                     </div>
                     <div className="w-full bg-white/5 h-1.5 rounded-full overflow-hidden">
                        <div className={`${item.color} h-full transition-all duration-1000`} style={{ width: `${item.val}%` }} />
                     </div>
                  </div>
                ))}
-               <p className="text-[9px] font-bold text-slate-500 uppercase mt-2 text-center italic">
+               <p className="text-xs font-bold text-slate-300 uppercase mt-2 text-center italic">
                  Factores externos que impactan directamente en la retención estudiantil.
                </p>
             </div>

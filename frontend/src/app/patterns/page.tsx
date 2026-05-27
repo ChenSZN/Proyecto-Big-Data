@@ -102,11 +102,11 @@ function PatternsContent() {
               {currentSlide.title}
               <ExplainerTrigger id="patrones_ml" />
             </h2>
-            <p className="text-[10px] font-black text-slate-500 uppercase tracking-widest italic">Análisis Basado en 5,000 Alumnos</p>
+            <p className="text-xs font-black text-slate-300 uppercase tracking-widest italic">Análisis Basado en 5,000 Alumnos</p>
             {(carreraLabel || semestreLabel) && (
               <div className="flex gap-2 mt-2 flex-wrap">
-                {carreraLabel && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 uppercase">{carreraLabel}</span>}
-                {semestreLabel && <span className="text-[9px] font-black px-2 py-1 rounded-lg bg-amber-600/20 border border-amber-500/30 text-amber-400 uppercase">{semestreLabel}</span>}
+                {carreraLabel && <span className="text-xs font-black px-2 py-1 rounded-lg bg-blue-600/20 border border-blue-500/30 text-blue-400 uppercase">{carreraLabel}</span>}
+                {semestreLabel && <span className="text-xs font-black px-2 py-1 rounded-lg bg-amber-600/20 border border-amber-500/30 text-amber-400 uppercase">{semestreLabel}</span>}
               </div>
             )}
           </div>
@@ -141,9 +141,9 @@ function PatternsContent() {
             <>
               <div className="flex-1 w-full min-h-0">
                 <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={chartData} layout="vertical" margin={{ left: 120, right: 20, top: 20, bottom: 20 }}>
+                  <BarChart data={chartData} layout="vertical" margin={{ left: 140, right: 20, top: 20, bottom: 20 }}>
                     <XAxis type="number" hide domain={[0, 100]} />
-                    <YAxis dataKey="name" type="category" tick={{fill: '#94a3b8', fontSize: 11, fontWeight: '900'}} width={120} axisLine={false} tickLine={false} />
+                    <YAxis dataKey="name" type="category" tick={{fill: '#cbd5e1', fontSize: 13, fontWeight: '900'}} width={140} axisLine={false} tickLine={false} />
                     <Tooltip 
                        cursor={{fill: 'white', fillOpacity: 0.05}} 
                        contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '12px'}}
@@ -164,8 +164,8 @@ function PatternsContent() {
                       <BrainCircuit className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-slate-500 uppercase">Precisión IA</p>
-                      <p className="text-sm font-black text-white italic">94.8% Correlación</p>
+                      <p className="text-xs font-black text-slate-300 uppercase">Precisión IA</p>
+                      <p className="text-base font-black text-white italic">94.8% Correlación</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -173,8 +173,8 @@ function PatternsContent() {
                       <Activity className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-slate-500 uppercase">Estado Datos</p>
-                      <p className="text-sm font-black text-white italic">Dataset Completo</p>
+                      <p className="text-xs font-black text-slate-300 uppercase">Estado Datos</p>
+                      <p className="text-base font-black text-white italic">Dataset Completo</p>
                     </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -182,8 +182,8 @@ function PatternsContent() {
                       <Zap className="h-5 w-5" />
                     </div>
                     <div>
-                      <p className="text-[10px] font-black text-slate-500 uppercase">Recomendación</p>
-                      <p className="text-sm font-black text-white italic">Intervención Directa</p>
+                      <p className="text-xs font-black text-slate-300 uppercase">Recomendación</p>
+                      <p className="text-base font-black text-white italic">Intervención Directa</p>
                     </div>
                 </div>
               </div>

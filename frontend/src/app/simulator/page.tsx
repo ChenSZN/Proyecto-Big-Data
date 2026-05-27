@@ -77,15 +77,15 @@ export default function Simulator() {
                />
             </div>
             
-            <div className="flex items-center justify-between">
-              <div>
-                <label className="mb-2 block text-[9px] font-black uppercase tracking-[0.2em] text-slate-500">Materias Reprobadas</label>
-                <input 
-                  type="number" value={form.v_r}
-                  onChange={(e) => setForm({...form, v_r: parseInt(e.target.value) || 0})}
-                  className="w-20 rounded-xl border border-white/5 bg-white/5 p-3 text-center text-lg font-black text-white outline-none focus:border-blue-500 focus:bg-blue-500/10 transition-all"
-                />
-              </div>
+             <div className="flex items-center justify-between">
+               <div>
+                 <label className="mb-2 block text-xs font-black uppercase tracking-[0.2em] text-slate-300">Materias Reprobadas</label>
+                 <input 
+                   type="number" value={form.v_r}
+                   onChange={(e) => setForm({...form, v_r: parseInt(e.target.value) || 0})}
+                   className="w-20 rounded-xl border border-white/5 bg-white/5 p-3 text-center text-lg font-black text-white outline-none focus:border-blue-500 focus:bg-blue-500/10 transition-all"
+                 />
+               </div>
               <button 
                 onClick={handlePredict} disabled={loading}
                 className="btn-primary flex-1 ml-6 text-sm uppercase tracking-widest py-4 group"
@@ -116,7 +116,7 @@ export default function Simulator() {
                 }`} />
                 
                 <div className="flex items-center justify-center gap-2 mb-2">
-                   <p className="text-[9px] font-black uppercase tracking-[0.4em] text-slate-500">Fallo Probable</p>
+                   <p className="text-xs font-black uppercase tracking-[0.4em] text-slate-300">Fallo Probable</p>
                    <ExplainerTrigger id="predict_simulador" />
                 </div>
                 
@@ -141,9 +141,9 @@ export default function Simulator() {
                   {result.prioridad}
                 </h2>
                 
-                <p className="text-xs font-medium text-slate-400 leading-relaxed italic line-clamp-3">
+                 <p className="text-sm font-medium text-slate-300 leading-relaxed italic line-clamp-3">
                   "{result.recomendacion}"
-                </p>
+                 </p>
               </motion.div>
             ) : (
               <div className="glass-card flex min-h-[300px] items-center justify-center rounded-[40px] p-8 text-center border-dashed">
@@ -155,8 +155,8 @@ export default function Simulator() {
             )}
           </AnimatePresence>
 
-          <div className="glass-card rounded-[32px] p-6 text-white h-fit">
-            <h4 className="mb-4 text-[9px] font-black uppercase tracking-[0.3em] text-slate-600">Checkpoint</h4>
+           <div className="glass-card rounded-[32px] p-6 text-white h-fit">
+            <h4 className="mb-4 text-xs font-black uppercase tracking-[0.3em] text-slate-300">Checkpoint</h4>
             <div className="space-y-3">
               <RiskFactor label="Baja Asistencia" active={form.v_a < 75} />
               <RiskFactor label="Inactividad" active={form.v_u < 3} />
@@ -173,8 +173,8 @@ function Slider({ label, value, min, max, onChange, unit, color }: any) {
   return (
     <div className="group">
       <div className="mb-4 flex justify-between items-end">
-        <span className="text-[10px] font-black uppercase tracking-widest text-slate-500 group-hover:text-white transition-colors">{label}</span>
-        <span className={`text-xl font-black tracking-tighter ${color.replace('bg-', 'text-')}`}>{value} <span className="text-xs text-slate-500 font-bold ml-1">{unit}</span></span>
+        <span className="text-xs font-black uppercase tracking-widest text-slate-300 group-hover:text-white transition-colors">{label}</span>
+        <span className={`text-xl font-black tracking-tighter ${color.replace('bg-', 'text-')}`}>{value} <span className="text-xs text-slate-400 font-bold ml-1">{unit}</span></span>
       </div>
       <input 
         type="range" min={min} max={max} value={value} 
@@ -187,9 +187,9 @@ function Slider({ label, value, min, max, onChange, unit, color }: any) {
 
 function RiskFactor({ label, active }: { label: string, active: boolean }) {
   return (
-    <div className={`flex items-center gap-4 rounded-2xl p-3 transition-all ${active ? 'bg-red-500/5 border border-red-500/20 text-red-400' : 'opacity-30 grayscale text-slate-500'}`}>
-      <div className={`h-2 w-2 rounded-full ${active ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-slate-500'}`} />
-      <span className="text-[10px] font-black uppercase tracking-widest">{label}</span>
+    <div className={`flex items-center gap-4 rounded-2xl p-3 transition-all ${active ? 'bg-red-500/5 border border-red-500/20 text-red-400' : 'opacity-30 grayscale text-slate-400'}`}>
+      <div className={`h-2 w-2 rounded-full ${active ? 'bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]' : 'bg-slate-400'}`} />
+      <span className="text-xs font-black uppercase tracking-widest">{label}</span>
       {active && <AlertCircle className="ml-auto h-4 w-4" />}
     </div>
   );

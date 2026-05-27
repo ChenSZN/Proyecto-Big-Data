@@ -125,7 +125,7 @@ export default function Sidebar() {
 
         <nav className={`flex-1 ${isCollapsed ? "px-2" : "px-4"} space-y-1 relative z-10 overflow-y-auto custom-scrollbar mt-16`}>
           {showText && (
-            <p className="px-4 text-[9px] font-black text-slate-600 uppercase tracking-[0.2em] mb-4">Navegación</p>
+            <p className="px-4 text-[11px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">Navegación</p>
           )}
 
           {menuItems.map((item) => {
@@ -140,7 +140,7 @@ export default function Sidebar() {
                   }
                 `}>
                   <item.icon className={`h-5 w-5 ${isActive ? "text-white" : "group-hover:text-blue-400"}`} />
-                  {showText && <span className="text-xs font-black tracking-tight uppercase">{item.name}</span>}
+                  {showText && <span className="text-sm font-black tracking-tight uppercase">{item.name}</span>}
                 </div>
               </Link>
             );
@@ -152,19 +152,19 @@ export default function Sidebar() {
               <div className="pt-6 border-t border-white/5">
                 <div className="flex items-center gap-2 mb-4 text-slate-400">
                   <Filter className="h-3 w-3" />
-                  <span className="text-[9px] font-black uppercase tracking-widest text-slate-600">Filtro Global</span>
+                  <span className="text-[11px] font-black uppercase tracking-widest text-slate-400">Filtro Global</span>
                 </div>
 
                 <div className="space-y-4">
 
                   {/* ── Carrera custom dropdown ── */}
                   <div ref={carreraRef} className="relative">
-                    <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Carrera</label>
-
+                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2 px-1">Carrera</label>
+ 
                     {/* Trigger button */}
                     <button
                       onClick={() => setCarreraOpen(o => !o)}
-                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-[10px] font-black text-left transition-all border ${
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-xs font-black text-left transition-all border ${
                         carreraOpen
                           ? 'bg-blue-600/15 border-blue-500/40 text-blue-300'
                           : currentCarrera !== 'TODAS'
@@ -183,7 +183,7 @@ export default function Sidebar() {
                           {/* All Carreras option */}
                           <button
                             onClick={() => { updateGlobalFilter('carrera', 'TODAS'); setCarreraOpen(false); }}
-                            className={`w-full text-left px-4 py-2.5 text-[9px] font-black uppercase tracking-widest transition-colors ${
+                            className={`w-full text-left px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
                               currentCarrera === 'TODAS'
                                 ? 'bg-blue-600 text-white'
                                 : 'text-slate-500 hover:bg-white/5 hover:text-white'
@@ -199,7 +199,7 @@ export default function Sidebar() {
                             <button
                               key={c.value}
                               onClick={() => { updateGlobalFilter('carrera', c.value); setCarreraOpen(false); }}
-                              className={`w-full text-left px-4 py-2.5 text-[9px] font-black uppercase tracking-widest transition-colors ${
+                              className={`w-full text-left px-4 py-2.5 text-xs font-black uppercase tracking-widest transition-colors ${
                                 currentCarrera === c.value
                                   ? 'bg-blue-600 text-white'
                                   : 'text-slate-500 hover:bg-white/5 hover:text-slate-200'
@@ -215,11 +215,11 @@ export default function Sidebar() {
 
                   {/* ── Semestre grid buttons ── */}
                   <div>
-                    <label className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-2 px-1">Semestre</label>
+                    <label className="text-[10px] font-black text-slate-300 uppercase tracking-widest block mb-2 px-1">Semestre</label>
                     <div className="grid grid-cols-4 gap-1">
                       <button
                         onClick={() => updateGlobalFilter("semestre", "ALL")}
-                        className={`p-2 rounded-lg text-[9px] font-black transition-all ${currentSemestre === "ALL" ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500 hover:bg-white/10 hover:text-slate-300"}`}
+                        className={`p-2 rounded-lg text-xs font-black transition-all ${currentSemestre === "ALL" ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500 hover:bg-white/10 hover:text-slate-300"}`}
                       >
                         ALL
                       </button>
@@ -227,7 +227,7 @@ export default function Sidebar() {
                         <button
                           key={s}
                           onClick={() => updateGlobalFilter("semestre", s.toString())}
-                          className={`p-2 rounded-lg text-[9px] font-black transition-all ${currentSemestre === s.toString() ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500 hover:bg-white/10 hover:text-slate-300"}`}
+                          className={`p-2 rounded-lg text-xs font-black transition-all ${currentSemestre === s.toString() ? "bg-blue-600 text-white" : "bg-white/5 text-slate-500 hover:bg-white/10 hover:text-slate-300"}`}
                         >
                           {s}
                         </button>
@@ -246,7 +246,7 @@ export default function Sidebar() {
           <div className="p-6 border-t border-white/5">
             <div className="flex items-center gap-3 p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
               <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest italic">Live en Render</span>
+              <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest italic">Live en Render</span>
             </div>
           </div>
         )}
