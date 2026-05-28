@@ -10,6 +10,14 @@ import {
   ChevronRight,
   Activity,
   Zap,
+  Calendar,
+  GraduationCap,
+  CheckSquare,
+  Monitor,
+  HeartHandshake,
+  MapPin,
+  Clock,
+  ShieldAlert,
 } from "lucide-react";
 import ExplainerTrigger from "@/components/ExplainerTrigger";
 import { 
@@ -35,11 +43,11 @@ const FALLBACK_DATA = {
     { name: "Nivel Socioeconómico", value: 35.4 }
   ],
   reprobacion: [
-    { name: "Materias Reprobadas Previas", value: 91.2 },
-    { name: "Promedio Anterior", value: 85.5 },
-    { name: "Inasistencias Clave", value: 72.4 },
-    { name: "Baja Actividad Digital", value: 48.9 },
-    { name: "Tareas Incompletas", value: 41.2 }
+    { name: "Asistencia Promedio", value: 84.5 },
+    { name: "Promedio Académico", value: 78.2 },
+    { name: "Entrega de Tareas", value: 62.8 },
+    { name: "Arrastre de Materias (%)", value: 15.4 },
+    { name: "Uso de Plataforma (Hrs)", value: 4.5 }
   ],
   desercion: [
     { name: "Inasistencia Crítica", value: 94.1 },
@@ -90,6 +98,39 @@ function PatternsContent() {
   const currentSlide = slides[currentIndex];
   const chartData = importanceData[currentSlide.id] || FALLBACK_DATA[currentSlide.id as keyof typeof FALLBACK_DATA];
 
+  const formatValue = (name: string, value: number, slideId: string) => {
+    if (slideId === 'global') {
+      return `${value}%`;
+    }
+    if (name.includes("Asistencia") || name.includes("Tareas") || name.includes("%") || name.includes("Tasa")) {
+      return `${value}%`;
+    }
+    if (name.includes("Distancia")) {
+      return `${value} km`;
+    }
+    if (name.includes("Trabajo") || name.includes("Plataforma")) {
+      return `${value} hrs`;
+    }
+    if (name.includes("Promedio")) {
+      return `${value}`;
+    }
+    return `${value}`;
+  };
+
+  const getMetricIcon = (name: string) => {
+    const n = name.toLowerCase();
+    if (n.includes("asistencia")) return Calendar;
+    if (n.includes("promedio")) return GraduationCap;
+    if (n.includes("tarea") || n.includes("entrega")) return CheckSquare;
+    if (n.includes("plataforma") || n.includes("digital")) return Monitor;
+    if (n.includes("socioeconomico") || n.includes("económico")) return HeartHandshake;
+    if (n.includes("distancia") || n.includes("traslado")) return MapPin;
+    if (n.includes("trabajo") || n.includes("laboral")) return Clock;
+    if (n.includes("deserción") || n.includes("deserto")) return TrendingDown;
+    if (n.includes("reprobación") || n.includes("reprobo") || n.includes("arrastre")) return ShieldAlert;
+    return Activity;
+  };
+
   return (
     <div className="p-4 md:p-8 flex flex-col gap-6 bg-[#020617]">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 shrink-0 mt-12 md:mt-0">
@@ -127,7 +168,7 @@ function PatternsContent() {
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col min-h-0">
+      <div className="flex-1 flex flex-col min-h-0 gap-6">
         <motion.div 
           key={`${currentIndex}-${carrera}-${semestre}`}
           initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
@@ -160,6 +201,57 @@ function PatternsContent() {
             </>
           )}
         </motion.div>
+
+        {!loading && chartData && chartData.length > 0 && (
+          <motion.div
+            key={`summary-${currentIndex}-${carrera}-${semestre}`}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            className="glass-card rounded-[32px] p-6 md:p-8 bg-slate-900/30 border border-white/5 shadow-2xl flex flex-col gap-4"
+          >
+            <div className="flex items-center gap-2">
+              <Zap className="h-5 w-5 text-amber-400" />
+              <h3 className="text-sm font-black text-white uppercase tracking-wider italic">
+                Resumen de Valores - {currentSlide.title}
+              </h3>
+            </div>
+            
+            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+              {chartData.map((item: any, i: number) => {
+                const IconComponent = getMetricIcon(item.name);
+                return (
+                  <div 
+                    key={i} 
+                    className="flex flex-col gap-1 p-4 rounded-2xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.08] hover:border-white/10 hover:scale-[1.02] transition-all duration-300"
+                  >
+                    <div className="flex items-center gap-2 text-slate-400">
+                      <IconComponent className="h-4 w-4 shrink-0" style={{ color: currentSlide.bar }} />
+                      <span className="text-[11px] font-black uppercase tracking-wider line-clamp-1">{item.name}</span>
+                    </div>
+                    <div className="flex items-baseline justify-between mt-2">
+                      <span className="text-xl font-black text-white tracking-tight">
+                        {formatValue(item.name, item.value, currentSlide.id)}
+                      </span>
+                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
+                        {currentSlide.id === 'global' ? 'Prioridad' : 'Cohorte'}
+                      </span>
+                    </div>
+                    <div className="w-full bg-slate-800/60 h-1.5 rounded-full overflow-hidden mt-3">
+                      <div 
+                        className="h-full rounded-full transition-all duration-1000" 
+                        style={{ 
+                          width: `${Math.min(item.value, 100)}%`,
+                          backgroundColor: currentSlide.bar
+                        }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
       </div>
     </div>
   );

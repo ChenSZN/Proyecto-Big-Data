@@ -237,11 +237,11 @@ async def get_patterns(carrera: str = None, semestre: str = None):
     global_data.sort(key=lambda x: x['value'], reverse=True)
 
     reprobacion_data = [
-        {"name": "Asistencia (Alto Riesgo)",  "value": mean_pct(alto, 'porcentaje_asistencia')},
-        {"name": "Promedio (Alto Riesgo)",    "value": mean_pct(alto, 'promedio_anterior')},
-        {"name": "Tareas (Alto Riesgo)",      "value": mean_pct(alto, 'entregas_tareas_pct')},
-        {"name": "Asistencia (Bajo Riesgo)",  "value": mean_pct(bajo, 'porcentaje_asistencia')},
-        {"name": "Promedio (Bajo Riesgo)",    "value": mean_pct(bajo, 'promedio_anterior')},
+        {"name": "Asistencia Promedio",       "value": mean_pct(d, 'porcentaje_asistencia')},
+        {"name": "Promedio Académico",        "value": mean_pct(d, 'promedio_anterior')},
+        {"name": "Entrega de Tareas",         "value": mean_pct(d, 'entregas_tareas_pct')},
+        {"name": "Arrastre de Materias (%)",  "value": round(float((d['materias_reprobadas_previas'] > 0).mean() * 100), 1) if 'materias_reprobadas_previas' in d.columns else 0},
+        {"name": "Uso de Plataforma (Hrs)",   "value": round(float(pd.to_numeric(d['uso_plataforma_semana'], errors='coerce').mean()), 1) if 'uso_plataforma_semana' in d.columns else 0},
     ]
 
     desercion_data = [
