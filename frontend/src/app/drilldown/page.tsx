@@ -117,12 +117,6 @@ function DrillDownContent() {
                      <th onClick={() => handleSort('materias_reprobadas_previas')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
                         Reprobadas
                      </th>
-                     <th onClick={() => handleSort('reprobo')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
-                        Reprobó
-                     </th>
-                     <th onClick={() => handleSort('deserto')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
-                        Desertó
-                     </th>
                      <th onClick={() => handleSort('prioridad')} className="px-8 py-6 text-right cursor-pointer hover:text-white transition-colors">
                         Nivel de Riesgo
                      </th>
@@ -158,16 +152,6 @@ function DrillDownContent() {
                        <td className="px-6 py-5 text-center">
                           <span className={`text-sm font-black ${(st.materias_reprobadas_previas || 0) > 0 ? 'text-amber-500' : 'text-slate-500'}`}>
                              {st.materias_reprobadas_previas ?? 0}
-                          </span>
-                       </td>
-                       <td className="px-6 py-5 text-center">
-                          <span className={`px-3 py-1 rounded-lg text-xs font-black ${st.reprobo === 1 ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
-                             {st.reprobo === 1 ? 'Sí' : 'No'}
-                          </span>
-                       </td>
-                       <td className="px-6 py-5 text-center">
-                          <span className={`px-3 py-1 rounded-lg text-xs font-black ${st.deserto === 1 ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
-                             {st.deserto === 1 ? 'Sí' : 'No'}
                           </span>
                        </td>
                        <td className="px-8 py-5 text-right">
@@ -216,23 +200,17 @@ function DrillDownContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid grid-cols-2 gap-4">
                 <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo Escolar</span>
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Estatus del Alumno</span>
+                  <span className="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                    Activo / Cursando
+                  </span>
+                </div>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo Predicho (IA)</span>
                   <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest ${selectedStudent.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : selectedStudent.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
                     {selectedStudent.prioridad}
-                  </span>
-                </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Reprobó Periodo</span>
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black ${selectedStudent.reprobo === 1 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
-                    {selectedStudent.reprobo === 1 ? 'Sí' : 'No'}
-                  </span>
-                </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Desertó del ITNL</span>
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black ${selectedStudent.deserto === 1 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
-                    {selectedStudent.deserto === 1 ? 'Sí' : 'No'}
                   </span>
                 </div>
               </div>
