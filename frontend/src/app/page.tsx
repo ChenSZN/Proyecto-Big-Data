@@ -139,7 +139,7 @@ function DashboardContent() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 flex-1 min-h-0 pb-4 md:pb-0">
-        <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[450px] md:min-h-[580px] bg-slate-900/20">
+        <div className="glass-card p-5 md:p-8 rounded-[32px] md:rounded-[40px] border border-white/5 flex flex-col min-h-[450px] md:min-h-[650px] bg-slate-900/20">
           <div className="flex items-center justify-between mb-4 md:mb-6 shrink-0">
             <div>
               <h3 className="text-xl md:text-2xl font-black text-white uppercase tracking-tight flex items-center gap-2">
@@ -152,7 +152,7 @@ function DashboardContent() {
           </div>
           
           <div className="flex-1 w-full flex flex-col gap-6">
-            <div className="h-[230px] w-full">
+            <div className="h-[290px] w-full">
               <p className="text-xs md:text-sm font-black text-slate-200 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <Target className="h-4 w-4" /> Mayores Índices de Reprobación por Carrera
               </p>
@@ -167,7 +167,7 @@ function DashboardContent() {
               </ResponsiveContainer>
             </div>
 
-            <div className="h-[230px] w-full">
+            <div className="h-[210px] w-full">
               <p className="text-xs md:text-sm font-black text-slate-200 uppercase mb-4 tracking-widest flex items-center gap-2">
                  <LineIcon className="h-4 w-4" /> Evolución de Riesgo por Semestre
                  <ExplainerTrigger id="evolucion_semestre" />

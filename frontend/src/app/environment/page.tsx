@@ -122,8 +122,8 @@ function EnvironmentContent() {
                    <PieChart margin={{ top: 20, bottom: 20, left: 30, right: 30 }}>
                       <Pie 
                         data={genderData} 
-                        innerRadius="50%" 
-                        outerRadius="75%" 
+                        innerRadius="40%" 
+                        outerRadius="65%" 
                         dataKey="value" 
                         stroke="none"
                         label={renderGenderLabel}
