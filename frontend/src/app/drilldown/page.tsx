@@ -20,6 +20,7 @@ function DrillDownContent() {
   const [loading, setLoading] = useState(true);
   
   const [sortConfig, setSortConfig] = useState<{ key: string, direction: 'asc' | 'desc' | null }>({ key: '', direction: null });
+  const [selectedStudent, setSelectedStudent] = useState<any | null>(null);
 
   const carrera = searchParams.get("carrera") || "";
   const semestre = searchParams.get("semestre") || "";
@@ -116,6 +117,12 @@ function DrillDownContent() {
                      <th onClick={() => handleSort('materias_reprobadas_previas')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
                         Reprobadas
                      </th>
+                     <th onClick={() => handleSort('reprobo')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
+                        Reprobó
+                     </th>
+                     <th onClick={() => handleSort('deserto')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
+                        Desertó
+                     </th>
                      <th onClick={() => handleSort('prioridad')} className="px-8 py-6 text-right cursor-pointer hover:text-white transition-colors">
                         Nivel de Riesgo
                      </th>
@@ -123,7 +130,7 @@ function DrillDownContent() {
                  </thead>
                  <tbody className="divide-y divide-white/5">
                    {sortedAndFilteredData.map((st, idx) => (
-                     <tr key={idx} className="hover:bg-white/5 transition-colors group">
+                     <tr key={idx} onClick={() => setSelectedStudent(st)} className="hover:bg-white/5 transition-colors group cursor-pointer">
                        <td className="px-8 py-5">
                           <div className="flex items-center gap-4">
                              <div className="p-2.5 rounded-xl bg-white/5 text-slate-500 group-hover:text-blue-400 transition-all">
@@ -153,6 +160,16 @@ function DrillDownContent() {
                              {st.materias_reprobadas_previas ?? 0}
                           </span>
                        </td>
+                       <td className="px-6 py-5 text-center">
+                          <span className={`px-3 py-1 rounded-lg text-xs font-black ${st.reprobo === 1 ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                             {st.reprobo === 1 ? 'Sí' : 'No'}
+                          </span>
+                       </td>
+                       <td className="px-6 py-5 text-center">
+                          <span className={`px-3 py-1 rounded-lg text-xs font-black ${st.deserto === 1 ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
+                             {st.deserto === 1 ? 'Sí' : 'No'}
+                          </span>
+                       </td>
                        <td className="px-8 py-5 text-right">
                          <span className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest ${st.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : st.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
                             {st.prioridad}
@@ -165,6 +182,109 @@ function DrillDownContent() {
             </div>
          </div>
       </div>
+
+      <AnimatePresence>
+        {selectedStudent && (
+          <div className="fixed inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-50 p-4" onClick={() => setSelectedStudent(null)}>
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: "spring", duration: 0.4 }}
+              onClick={(e) => e.stopPropagation()}
+              className="glass-card max-w-2xl w-full bg-slate-950/95 border border-white/10 rounded-[32px] p-6 md:p-8 flex flex-col gap-6 relative shadow-2xl overflow-y-auto max-h-[90vh] custom-scrollbar"
+            >
+              <button 
+                onClick={(e) => { e.stopPropagation(); setSelectedStudent(null); }}
+                className="absolute top-6 right-6 p-2 rounded-full bg-white/5 hover:bg-white/10 text-slate-400 hover:text-white transition-colors"
+              >
+                <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+
+              <div className="flex items-start gap-4">
+                <div className="p-4 rounded-2xl bg-blue-600/10 border border-blue-500/20 text-blue-400">
+                  <User className="h-8 w-8" />
+                </div>
+                <div>
+                  <p className="text-xs font-black text-slate-400 uppercase tracking-widest leading-none mb-2">Perfil Detallado de Alumno</p>
+                  <h2 className="text-2xl font-black text-white uppercase tracking-tight">{selectedStudent.id_estudiante}</h2>
+                  <p className="text-xs font-bold text-slate-300 uppercase mt-1 italic">
+                    {selectedStudent.carrera?.replace(/Ã¡/g, 'á').replace(/Ã©/g, 'é').replace(/Ã\xad/g, 'í').replace(/Ã³/g, 'ó').replace(/Ãº/g, 'ú').replace(/Ã±/g, 'ñ')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-3">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo Escolar</span>
+                  <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest ${selectedStudent.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : selectedStudent.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+                    {selectedStudent.prioridad}
+                  </span>
+                </div>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Reprobó Periodo</span>
+                  <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black ${selectedStudent.reprobo === 1 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+                    {selectedStudent.reprobo === 1 ? 'Sí' : 'No'}
+                  </span>
+                </div>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Desertó del ITNL</span>
+                  <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black ${selectedStudent.deserto === 1 ? 'bg-red-500/20 text-red-400 border border-red-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+                    {selectedStudent.deserto === 1 ? 'Sí' : 'No'}
+                  </span>
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Métricas Académicas</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                  {[
+                    { label: "Promedio", val: `${(selectedStudent.promedio_anterior || 0).toFixed(1)}`, color: "text-white" },
+                    { label: "Asistencia", val: `${(selectedStudent.porcentaje_asistencia || 0).toFixed(0)}%`, color: (selectedStudent.porcentaje_asistencia || 0) < 70 ? "text-red-400" : "text-emerald-400" },
+                    { label: "Entregas Tareas", val: `${(selectedStudent.entregas_tareas_pct || 0).toFixed(0)}%`, color: "text-slate-200" },
+                    { label: "Reprobadas Previas", val: `${selectedStudent.materias_reprobadas_previas ?? 0}`, color: (selectedStudent.materias_reprobadas_previas || 0) > 0 ? "text-amber-500" : "text-slate-400" }
+                  ].map((item, i) => (
+                    <div key={i} className="bg-slate-900/50 p-4 rounded-2xl border border-white/5 flex flex-col">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">{item.label}</span>
+                      <span className={`text-xl font-black ${item.color}`}>{item.val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Entorno Estudiantil</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                  {[
+                    { label: "Edad", val: `${selectedStudent.edad || "N/A"} años` },
+                    { label: "Género", val: selectedStudent.genero === "F" || selectedStudent.genero === "Femenino" ? "Femenino" : "Masculino" },
+                    { label: "Situación Laboral", val: selectedStudent.trabaja === "Si" ? "Trabaja" : "No Trabaja" },
+                    { label: "Distancia Campus", val: `${(selectedStudent.distancia_km || 0).toFixed(1)} km` },
+                    { label: "Apoyo de Beca", val: selectedStudent.beca === "Si" ? "Sí tiene" : "No tiene" },
+                    { label: "Acceso Internet", val: selectedStudent.acceso_internet === "Si" ? "Sí tiene" : "No tiene" },
+                    { label: "Horas Trabajo", val: `${selectedStudent.horas_trabajo_semana || 0} hrs/sem` },
+                    { label: "Uso Plataforma", val: `${(selectedStudent.uso_plataforma_semana || 0).toFixed(1)} hrs/sem` },
+                    { label: "Participa Tutoría", val: selectedStudent.participa_tutorias === "Si" ? "Sí" : "No" }
+                  ].map((item, i) => (
+                    <div key={i} className="bg-slate-900/50 p-4 rounded-2xl border border-white/5 flex flex-col">
+                      <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">{item.label}</span>
+                      <span className="text-sm font-black text-slate-200">{item.val}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-blue-600/10 border border-blue-500/20 p-4 rounded-2xl text-center">
+                <p className="text-xs font-bold text-slate-300 uppercase italic">
+                  Visualización individualizada para intervención psicopedagógica y canalización de tutorías.
+                </p>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
