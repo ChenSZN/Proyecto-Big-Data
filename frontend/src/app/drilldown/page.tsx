@@ -142,11 +142,11 @@ function DrillDownContent() {
                           </span>
                        </td>
                        <td className="px-6 py-5 font-black text-white text-center text-base">{(st.promedio_anterior || 0).toFixed(1)}</td>
-                       <td className="px-6 py-5 text-center">
-                          <span className={`text-sm font-black ${(st.porcentaje_asistencia || 0) < 70 ? 'text-red-400' : 'text-emerald-400'}`}>
-                             {(st.porcentaje_asistencia || 0).toFixed(0)}%
-                          </span>
-                       </td>
+                        <td className="px-6 py-5 text-center">
+                           <span className={`text-sm font-black ${(st.porcentaje_asistencia || 0) < 70 ? 'text-red-400' : (st.porcentaje_asistencia || 0) < 80 ? 'text-orange-400' : 'text-emerald-400'}`}>
+                              {(st.porcentaje_asistencia || 0).toFixed(0)}%
+                           </span>
+                        </td>
                         <td className="px-6 py-5 text-center">
                            <span className={`text-sm font-black ${(st.prob_reprobacion || 0) > 50 ? 'text-red-400' : (st.prob_reprobacion || 0) > 20 ? 'text-orange-400' : 'text-emerald-400'}`}>
                               {(st.prob_reprobacion || 0).toFixed(0)}%
@@ -252,7 +252,7 @@ function DrillDownContent() {
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
                     { label: "Promedio", val: `${(selectedStudent.promedio_anterior || 0).toFixed(1)}`, color: "text-white" },
-                    { label: "Asistencia", val: `${(selectedStudent.porcentaje_asistencia || 0).toFixed(0)}%`, color: (selectedStudent.porcentaje_asistencia || 0) < 70 ? "text-red-400" : "text-emerald-400" },
+                    { label: "Asistencia", val: `${(selectedStudent.porcentaje_asistencia || 0).toFixed(0)}%`, color: (selectedStudent.porcentaje_asistencia || 0) < 70 ? "text-red-400" : (selectedStudent.porcentaje_asistencia || 0) < 80 ? "text-orange-400" : "text-emerald-400" },
                     { label: "Entregas Tareas", val: `${(selectedStudent.entregas_tareas_pct || 0).toFixed(0)}%`, color: "text-slate-200" },
                     { label: "Reprobadas Previas", val: `${selectedStudent.materias_reprobadas_previas ?? 0}`, color: (selectedStudent.materias_reprobadas_previas || 0) > 0 ? "text-amber-500" : "text-slate-400" }
                   ].map((item, i) => (

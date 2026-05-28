@@ -180,7 +180,7 @@ async def get_drilldown_data(carrera: str = None, semestre: str = None, search: 
         # Determinar Motivo Principal
         if r['prioridad'] == 'BAJO':
             r['motivo_principal'] = "Estable"
-        elif asis < 75:
+        elif asis < 80:
             r['motivo_principal'] = "Inasistencias Críticas"
         elif prom < 70:
             r['motivo_principal'] = "Bajo Promedio"
