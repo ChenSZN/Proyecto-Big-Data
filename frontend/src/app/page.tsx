@@ -160,7 +160,7 @@ function DashboardContent() {
                 <BarChart layout="vertical" data={impactData} margin={{ left: 20, right: 20, top: 10, bottom: 10 }}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
                   <XAxis type="number" hide />
-                  <YAxis dataKey="carrera" type="category" width={150} tick={{fill: '#cbd5e1', fontSize: 11, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
+                  <YAxis dataKey="carrera" type="category" width={180} interval={0} tick={{fill: '#cbd5e1', fontSize: 11, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
                   <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} />
                   <Bar dataKey="reprobation_rate" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={12} />
                 </BarChart>

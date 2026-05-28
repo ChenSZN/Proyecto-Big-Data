@@ -241,15 +241,6 @@ export default function Sidebar() {
           )}
         </nav>
 
-        {/* Footer: Live status */}
-        {showText && (
-          <div className="p-6 border-t border-white/5">
-            <div className="flex items-center gap-3 p-3 rounded-2xl bg-emerald-500/5 border border-emerald-500/10">
-              <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[10px] font-black text-slate-200 uppercase tracking-widest italic">Live en Render</span>
-            </div>
-          </div>
-        )}
       </aside>
     </>
   );

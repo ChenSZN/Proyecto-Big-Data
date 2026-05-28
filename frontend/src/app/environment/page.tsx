@@ -18,6 +18,18 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
 const COLORS = ['#3b82f6', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6'];
 
+const renderGenderLabel = ({ cx, cy, midAngle, outerRadius, percent, name }: any) => {
+  const RADIAN = Math.PI / 180;
+  const radius = outerRadius + 15;
+  const x = cx + radius * Math.cos(-midAngle * RADIAN);
+  const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  return (
+    <text x={x} y={y} fill="#cbd5e1" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-[11px] font-black uppercase tracking-wider">
+      {`${name}: ${(percent * 100).toFixed(0)}%`}
+    </text>
+  );
+};
+
 const FALLBACK_ENV = {
   gender: { "Masculino": 3250, "Femenino": 1750 },
   work: { "No": 3800, "Si": 1200 },
@@ -105,16 +117,25 @@ function EnvironmentContent() {
                </div>
                <ExplainerTrigger id="distribucion_genero" />
             </div>
-            <div className="h-[240px] relative">
-               <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                     <Pie data={genderData} innerRadius="55%" outerRadius="80%" dataKey="value" stroke="none">
-                        {genderData.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                     </Pie>
-                     <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
-                  </PieChart>
-               </ResponsiveContainer>
-            </div>
+             <div className="h-[240px] relative">
+                <ResponsiveContainer width="100%" height="100%">
+                   <PieChart margin={{ top: 20, bottom: 20, left: 30, right: 30 }}>
+                      <Pie 
+                        data={genderData} 
+                        innerRadius="50%" 
+                        outerRadius="75%" 
+                        dataKey="value" 
+                        stroke="none"
+                        label={renderGenderLabel}
+                      >
+                         {genderData.map((entry, i) => (
+                           <Cell key={i} fill={entry.name.includes("Fem") || entry.name.toLowerCase() === "femenino" ? "#ec4899" : "#3b82f6"} />
+                         ))}
+                      </Pie>
+                      <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                   </PieChart>
+                </ResponsiveContainer>
+             </div>
          </div>
 
          <div className="glass-card p-5 md:p-6 rounded-[32px] bg-slate-900/40 border border-white/5 flex flex-col min-h-[340px]">
