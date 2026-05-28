@@ -171,7 +171,7 @@ function EnvironmentContent() {
                          }}
                       />
                       <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={30}>
-                         {workData.map((entry, i) => <Cell key={i} fill={entry.name === 'No' ? '#10b981' : '#ef4444'} />)}
+                          {workData.map((entry, i) => <Cell key={i} fill={entry.name === 'No' || entry.name.toLowerCase().includes('no') ? '#10b981' : '#ef4444'} />)}
                       </Bar>
                    </BarChart>
                 </ResponsiveContainer>

@@ -11,6 +11,12 @@ import ExplainerTrigger from "@/components/ExplainerTrigger";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
+const isYes = (val: any) => {
+  if (!val) return false;
+  const n = String(val).trim().toUpperCase();
+  return n === 'SI' || n === 'SÍ' || n.startsWith('S') || n.includes('S');
+};
+
 function DrillDownContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -262,7 +268,7 @@ function DrillDownContent() {
                   {[
                     { label: "Promedio", val: `${(selectedStudent.promedio_anterior || 0).toFixed(1)}`, color: "text-white" },
                     { label: "Asistencia", val: `${(selectedStudent.porcentaje_asistencia || 0).toFixed(0)}%`, color: (selectedStudent.porcentaje_asistencia || 0) < 70 ? "text-red-400" : (selectedStudent.porcentaje_asistencia || 0) < 80 ? "text-orange-400" : "text-emerald-400" },
-                    { label: "Entregas Tareas", val: `${(selectedStudent.entregas_tareas_pct || 0).toFixed(0)}%`, color: "text-slate-200" },
+                    { label: "Entregas Tareas", val: `${(selectedStudent.entregas_tareas_pct || 0).toFixed(0)}%`, color: (selectedStudent.entregas_tareas_pct || 0) < 70 ? "text-red-400" : (selectedStudent.entregas_tareas_pct || 0) < 80 ? "text-orange-400" : "text-emerald-400" },
                     { label: "Reprobadas Previas", val: `${selectedStudent.materias_reprobadas_previas ?? 0}`, color: (selectedStudent.materias_reprobadas_previas || 0) > 0 ? "text-amber-500" : "text-slate-400" }
                   ].map((item, i) => (
                     <div key={i} className="bg-slate-900/50 p-4 rounded-2xl border border-white/5 flex flex-col">
@@ -279,13 +285,13 @@ function DrillDownContent() {
                   {[
                     { label: "Edad", val: `${selectedStudent.edad || "N/A"} años` },
                     { label: "Género", val: selectedStudent.genero === "F" || selectedStudent.genero === "Femenino" ? "Femenino" : "Masculino" },
-                    { label: "Situación Laboral", val: selectedStudent.trabaja === "Si" ? "Trabaja" : "No Trabaja" },
+                    { label: "Situación Laboral", val: selectedStudent.trabaja || "No trabaja" },
                     { label: "Distancia Campus", val: `${(selectedStudent.distancia_km || 0).toFixed(1)} km` },
-                    { label: "Apoyo de Beca", val: selectedStudent.beca === "Si" ? "Sí tiene" : "No tiene" },
-                    { label: "Acceso Internet", val: selectedStudent.acceso_internet === "Si" ? "Sí tiene" : "No tiene" },
+                    { label: "Apoyo de Beca", val: isYes(selectedStudent.beca) ? "Sí tiene" : "No tiene" },
+                    { label: "Acceso Internet", val: isYes(selectedStudent.acceso_internet) ? "Sí tiene" : "No tiene" },
                     { label: "Horas Trabajo", val: `${selectedStudent.horas_trabajo_semana || 0} hrs/sem` },
                     { label: "Uso Plataforma", val: `${(selectedStudent.uso_plataforma_semana || 0).toFixed(1)} hrs/sem` },
-                    { label: "Participa Tutoría", val: selectedStudent.participa_tutorias === "Si" ? "Sí" : "No" }
+                    { label: "Participa Tutoría", val: isYes(selectedStudent.participa_tutorias) ? "Sí" : "No" }
                   ].map((item, i) => (
                     <div key={i} className="bg-slate-900/50 p-4 rounded-2xl border border-white/5 flex flex-col">
                       <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1">{item.label}</span>
