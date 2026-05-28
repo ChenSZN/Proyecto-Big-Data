@@ -229,12 +229,9 @@ function PatternsContent() {
                       <IconComponent className="h-4 w-4 shrink-0" style={{ color: currentSlide.bar }} />
                       <span className="text-[11px] font-black uppercase tracking-wider line-clamp-1">{item.name}</span>
                     </div>
-                    <div className="flex items-baseline justify-between mt-2">
+                    <div className="mt-2">
                       <span className="text-xl font-black text-white tracking-tight">
                         {formatValue(item.name, item.value, currentSlide.id)}
-                      </span>
-                      <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest">
-                        {currentSlide.id === 'global' ? 'Prioridad' : 'Cohorte'}
                       </span>
                     </div>
                     <div className="w-full bg-slate-800/60 h-1.5 rounded-full overflow-hidden mt-3">
