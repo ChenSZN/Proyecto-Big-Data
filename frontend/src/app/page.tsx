@@ -161,7 +161,21 @@ function DashboardContent() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" horizontal={false} />
                   <XAxis type="number" hide />
                   <YAxis dataKey="carrera" type="category" width={180} interval={0} tick={{fill: '#cbd5e1', fontSize: 11, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
-                  <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} />
+                  <Tooltip 
+                    cursor={{fill: 'transparent'}} 
+                    contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}}
+                    itemStyle={{color: '#fff'}}
+                    formatter={(value: any, name: any, props: any) => {
+                      const payload = props.payload;
+                      if (payload) {
+                        return [
+                          `${value}% (${payload.total_reprobados} de ${payload.total_students} alumnos)`,
+                          "Tasa de Reprobación"
+                        ];
+                      }
+                      return [`${value}%`, "Tasa de Reprobación"];
+                    }}
+                  />
                   <Bar dataKey="reprobation_rate" fill="#3b82f6" radius={[0, 4, 4, 0]} barSize={12} />
                 </BarChart>
               </ResponsiveContainer>
@@ -177,7 +191,18 @@ function DashboardContent() {
                   <CartesianGrid strokeDasharray="3 3" stroke="#ffffff05" vertical={false} />
                   <XAxis dataKey="semestre_num" stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 900}} />
                   <YAxis stroke="#94a3b8" fontSize={12} axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontWeight: 900}} />
-                  <Tooltip contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '10px' }} />
+                  <Tooltip 
+                    contentStyle={{ backgroundColor: '#0f172a', border: 'none', borderRadius: '16px', fontSize: '10px' }}
+                    itemStyle={{color: '#fff'}}
+                    formatter={(value: any, name: any, props: any) => {
+                      const payload = props.payload;
+                      if (payload) {
+                        const count = name === "REPROBACIÓN" ? payload.total_reprobo : payload.total_deserto;
+                        return [`${value}% (${count} de ${payload.total_students} alumnos)`, name];
+                      }
+                      return [`${value}%`, name];
+                    }}
+                  />
                   <Line name="REPROBACIÓN" type="monotone" dataKey="reprobo" stroke="#3b82f6" strokeWidth={3} dot={{ r: 3, fill: '#3b82f6', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
                   <Line name="DESERCIÓN" type="monotone" dataKey="deserto" stroke="#ef4444" strokeWidth={3} dot={{ r: 3, fill: '#ef4444', strokeWidth: 0 }} activeDot={{ r: 6, strokeWidth: 0 }} />
                 </LineChart>

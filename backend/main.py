@@ -88,18 +88,25 @@ async def get_stats(carrera: str = None, semestre: str = None):
 async def get_impact_data(carrera: str = None, semestre: str = None):
     d = get_filtered_df(carrera, semestre)
     if d.empty: return []
-    impact = d.groupby('carrera').agg({'reprobo': 'mean'}).reset_index()
-    impact['reprobation_rate'] = (impact['reprobo'] * 100).round(1)
+    impact = d.groupby('carrera').agg(
+        reprobation_rate=('reprobo', lambda x: round(float(x.mean() * 100), 1)),
+        total_students=('reprobo', 'count'),
+        total_reprobados=('reprobo', lambda x: int(x.sum()))
+    ).reset_index()
     return impact.sort_values('reprobation_rate', ascending=False).to_dict(orient="records")
 
 @app.get("/api/dashboard/trends")
 async def get_trends(carrera: str = None, semestre: str = None):
     d = get_filtered_df(carrera, semestre)
     if d.empty: return []
-    trends = d.groupby('semestre').agg({'deserto': 'mean', 'reprobo': 'mean'}).reset_index()
-    trends['deserto'] = (trends['deserto'] * 100).round(1)
-    trends['reprobo'] = (trends['reprobo'] * 100).round(1)
-    trends.rename(columns={'semestre': 'semestre_num'}, inplace=True)
+    trends = d.groupby('semestre').agg(
+        deserto_rate=('deserto', lambda x: round(float(x.mean() * 100), 1)),
+        reprobation_rate=('reprobo', lambda x: round(float(x.mean() * 100), 1)),
+        total_students=('reprobo', 'count'),
+        total_deserto=('deserto', lambda x: int(x.sum())),
+        total_reprobo=('reprobo', lambda x: int(x.sum()))
+    ).reset_index()
+    trends.rename(columns={'semestre': 'semestre_num', 'deserto_rate': 'deserto', 'reprobation_rate': 'reprobo'}, inplace=True)
     return trends.sort_values('semestre_num').to_dict(orient="records")
 
 @app.get("/api/dashboard/profiles")

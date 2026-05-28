@@ -18,14 +18,15 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8001/api";
 
 const COLORS = ['#3b82f6', '#f59e0b', '#ef4444', '#10b981', '#8b5cf6'];
 
-const renderGenderLabel = ({ cx, cy, midAngle, outerRadius, percent, name }: any) => {
+const renderGenderLabel = ({ cx, cy, midAngle, outerRadius, percent, name, value }: any) => {
   const RADIAN = Math.PI / 180;
   const radius = outerRadius + 15;
   const x = cx + radius * Math.cos(-midAngle * RADIAN);
   const y = cy + radius * Math.sin(-midAngle * RADIAN);
+  const labelName = name === 'F' || name === 'Femenino' || name.toLowerCase().includes('fem') ? 'Femenino' : 'Masculino';
   return (
     <text x={x} y={y} fill="#cbd5e1" textAnchor={x > cx ? 'start' : 'end'} dominantBaseline="central" className="text-[11px] font-black uppercase tracking-wider">
-      {`${name}: ${(percent * 100).toFixed(0)}%`}
+      {`${labelName}: ${(percent * 100).toFixed(1)}% (${value})`}
     </text>
   );
 };
@@ -129,10 +130,19 @@ function EnvironmentContent() {
                         label={renderGenderLabel}
                       >
                          {genderData.map((entry, i) => (
-                           <Cell key={i} fill={entry.name.includes("Fem") || entry.name.toLowerCase() === "femenino" ? "#ec4899" : "#3b82f6"} />
+                           <Cell key={i} fill={entry.name === 'F' || entry.name === 'Femenino' || entry.name.toLowerCase().includes('fem') ? "#ec4899" : "#3b82f6"} />
                          ))}
                       </Pie>
-                      <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                      <Tooltip 
+                        contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} 
+                        itemStyle={{color: '#fff'}}
+                        formatter={(value: any, name: any) => {
+                          const total = totalStudents;
+                          const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                          const labelName = name === 'F' || name === 'Femenino' || name.toLowerCase().includes('fem') ? 'Femenino' : 'Masculino';
+                          return [`${value} alumnos (${pct}%)`, labelName];
+                        }}
+                      />
                    </PieChart>
                 </ResponsiveContainer>
              </div>
@@ -150,7 +160,16 @@ function EnvironmentContent() {
                 <ResponsiveContainer width="100%" height="100%">
                    <BarChart data={workData} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
                       <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 12}} axisLine={false} tickLine={false} />
-                      <Tooltip cursor={{fill: 'transparent'}} contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                      <Tooltip 
+                         cursor={{fill: 'transparent'}} 
+                         contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} 
+                         itemStyle={{color: '#fff'}}
+                         formatter={(value: any) => {
+                           const total = totalStudents;
+                           const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                           return [`${value} alumnos (${pct}%)`, "Trabaja"];
+                         }}
+                      />
                       <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={30}>
                          {workData.map((entry, i) => <Cell key={i} fill={entry.name === 'No' ? '#10b981' : '#ef4444'} />)}
                       </Bar>
@@ -172,7 +191,15 @@ function EnvironmentContent() {
                    <BarChart data={ageData} layout="vertical" margin={{ left: 10, right: 20, top: 10, bottom: 10 }}>
                       <XAxis type="number" hide />
                       <YAxis dataKey="name" type="category" tick={{fill: '#cbd5e1', fontSize: 12}} axisLine={false} tickLine={false} width={45} />
-                      <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                      <Tooltip 
+                         contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} 
+                         itemStyle={{color: '#fff'}}
+                         formatter={(value: any) => {
+                           const total = totalStudents;
+                           const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                           return [`${value} alumnos (${pct}%)`, "Estudiantes"];
+                         }}
+                      />
                       <Bar dataKey="value" fill="#6366f1" radius={[0, 8, 8, 0]} barSize={18} />
                    </BarChart>
                 </ResponsiveContainer>
@@ -192,7 +219,15 @@ function EnvironmentContent() {
                    <BarChart data={distanceData} margin={{ left: 10, right: 10, top: 20, bottom: 10 }}>
                       <XAxis dataKey="name" tick={{fill: '#cbd5e1', fontSize: 12, fontWeight: 'bold'}} axisLine={false} tickLine={false} />
                       <YAxis tick={{fill: '#94a3b8', fontSize: 11}} width={40} axisLine={false} tickLine={false} />
-                      <Tooltip contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} itemStyle={{color: '#fff'}} />
+                      <Tooltip 
+                         contentStyle={{backgroundColor: '#0f172a', border: 'none', borderRadius: '12px', fontSize: '10px'}} 
+                         itemStyle={{color: '#fff'}}
+                         formatter={(value: any) => {
+                           const total = totalStudents;
+                           const pct = total > 0 ? ((value / total) * 100).toFixed(1) : 0;
+                           return [`${value} alumnos (${pct}%)`, "Estudiantes"];
+                         }}
+                      />
                       <Bar dataKey="value" fill="#10b981" radius={[12, 12, 0, 0]} barSize={40} />
                    </BarChart>
                 </ResponsiveContainer>
