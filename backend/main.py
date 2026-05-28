@@ -133,7 +133,69 @@ async def get_drilldown_data(carrera: str = None, semestre: str = None, search: 
     d = get_filtered_df(carrera, semestre)
     if search:
         d = d[d['id_estudiante'].astype(str).str.contains(search.upper(), na=False)]
-    return d.to_dict(orient="records")
+    
+    if d.empty:
+        return []
+        
+    records = d.to_dict(orient="records")
+    for r in records:
+        # Calcular Probabilidad de Reprobación
+        p_rep = 5.0
+        prom = float(r.get('promedio_anterior', 0))
+        tareas = float(r.get('entregas_tareas_pct', 0))
+        previas = int(r.get('materias_reprobadas_previas', 0))
+        asis = float(r.get('porcentaje_asistencia', 0))
+        
+        if prom < 70: p_rep += 40
+        elif prom < 80: p_rep += 20
+        
+        if tareas < 60: p_rep += 30
+        elif tareas < 80: p_rep += 15
+        
+        if previas > 2: p_rep += 20
+        elif previas > 0: p_rep += 10
+        
+        if asis < 75: p_rep += 10
+        
+        r['prob_reprobacion'] = min(max(p_rep, 5.0), 98.0)
+        
+        # Calcular Probabilidad de Deserción
+        p_des = 5.0
+        plataforma = float(r.get('uso_plataforma_semana', 0))
+        horas_trabajo = float(r.get('horas_trabajo_semana', 0))
+        distancia = float(r.get('distancia_km', 0))
+        
+        if asis < 70: p_des += 50
+        elif asis < 80: p_des += 30
+        elif asis < 90: p_des += 10
+        
+        if plataforma < 3: p_des += 20
+        elif plataforma < 6: p_des += 10
+        
+        if horas_trabajo > 20: p_des += 15
+        if distancia > 15: p_des += 15
+        
+        r['prob_desercion'] = min(max(p_des, 5.0), 98.0)
+        
+        # Determinar Motivo Principal
+        if r['prioridad'] == 'BAJO':
+            r['motivo_principal'] = "Estable"
+        elif asis < 75:
+            r['motivo_principal'] = "Inasistencias Críticas"
+        elif prom < 70:
+            r['motivo_principal'] = "Bajo Promedio"
+        elif tareas < 70:
+            r['motivo_principal'] = "Falta de Tareas"
+        elif previas > 1:
+            r['motivo_principal'] = "Arrastre de Materias"
+        elif horas_trabajo > 25:
+            r['motivo_principal'] = "Trabajo Excesivo"
+        elif distancia > 20:
+            r['motivo_principal'] = "Largo Traslado"
+        else:
+            r['motivo_principal'] = "Monitoreo Preventivo"
+            
+    return records
 
 @app.get("/api/drilldown/filters")
 async def get_filters():

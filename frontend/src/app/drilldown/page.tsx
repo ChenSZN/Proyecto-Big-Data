@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import axios from "axios";
 import { 
-  ArrowLeft, Activity, User, Filter, GraduationCap, Calendar, Search
+  ArrowLeft, Activity, User, Filter, GraduationCap, Calendar, Search, AlertTriangle
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import ExplainerTrigger from "@/components/ExplainerTrigger";
@@ -111,15 +111,18 @@ function DrillDownContent() {
                      <th onClick={() => handleSort('porcentaje_asistencia')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
                         Asistencia
                      </th>
-                     <th onClick={() => handleSort('entregas_tareas_pct')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
-                        Tareas %
-                     </th>
-                     <th onClick={() => handleSort('materias_reprobadas_previas')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
-                        Reprobadas
-                     </th>
-                     <th onClick={() => handleSort('prioridad')} className="px-8 py-6 text-right cursor-pointer hover:text-white transition-colors">
-                        Nivel de Riesgo
-                     </th>
+                      <th onClick={() => handleSort('prob_reprobacion')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
+                         Riesgo Reprob.
+                      </th>
+                      <th onClick={() => handleSort('prob_desercion')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
+                         Riesgo Deserc.
+                      </th>
+                      <th onClick={() => handleSort('motivo_principal')} className="px-6 py-6 text-center cursor-pointer hover:text-white transition-colors">
+                         Motivo Alerta
+                      </th>
+                      <th onClick={() => handleSort('prioridad')} className="px-8 py-6 text-right cursor-pointer hover:text-white transition-colors">
+                         Nivel de Riesgo
+                      </th>
                    </tr>
                  </thead>
                  <tbody className="divide-y divide-white/5">
@@ -144,21 +147,26 @@ function DrillDownContent() {
                              {(st.porcentaje_asistencia || 0).toFixed(0)}%
                           </span>
                        </td>
-                       <td className="px-6 py-5 text-center">
-                          <span className="text-sm font-black text-slate-200">
-                             {(st.entregas_tareas_pct || 0).toFixed(0)}%
+                        <td className="px-6 py-5 text-center">
+                           <span className={`text-sm font-black ${(st.prob_reprobacion || 0) > 50 ? 'text-red-400' : (st.prob_reprobacion || 0) > 20 ? 'text-orange-400' : 'text-emerald-400'}`}>
+                              {(st.prob_reprobacion || 0).toFixed(0)}%
                            </span>
-                       </td>
-                       <td className="px-6 py-5 text-center">
-                          <span className={`text-sm font-black ${(st.materias_reprobadas_previas || 0) > 0 ? 'text-amber-500' : 'text-slate-500'}`}>
-                             {st.materias_reprobadas_previas ?? 0}
-                          </span>
-                       </td>
-                       <td className="px-8 py-5 text-right">
-                         <span className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest ${st.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : st.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
-                            {st.prioridad}
-                          </span>
-                       </td>
+                        </td>
+                        <td className="px-6 py-5 text-center">
+                           <span className={`text-sm font-black ${(st.prob_desercion || 0) > 50 ? 'text-red-400' : (st.prob_desercion || 0) > 20 ? 'text-orange-400' : 'text-emerald-400'}`}>
+                              {(st.prob_desercion || 0).toFixed(0)}%
+                           </span>
+                        </td>
+                        <td className="px-6 py-5 text-center">
+                           <span className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider ${st.motivo_principal === 'Estable' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'}`}>
+                              {st.motivo_principal}
+                           </span>
+                        </td>
+                        <td className="px-8 py-5 text-right">
+                          <span className={`px-6 py-2.5 rounded-full text-xs font-black uppercase tracking-widest ${st.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : st.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+                             {st.prioridad}
+                           </span>
+                        </td>
                      </tr>
                    ))}
                  </tbody>
@@ -200,20 +208,44 @@ function DrillDownContent() {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Estatus del Alumno</span>
-                  <span className="px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest bg-blue-500/20 text-blue-400 border border-blue-500/30">
-                    Activo / Cursando
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Estatus</span>
+                  <span className="px-3 py-1 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest bg-blue-500/20 text-blue-400 border border-blue-500/30">
+                    Activo
                   </span>
                 </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center">
-                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo Predicho (IA)</span>
-                  <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest ${selectedStudent.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : selectedStudent.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo IA</span>
+                  <span className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest ${selectedStudent.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : selectedStudent.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
                     {selectedStudent.prioridad}
                   </span>
                 </div>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo Reprob.</span>
+                  <span className={`text-base font-black ${(selectedStudent.prob_reprobacion || 0) > 50 ? 'text-red-400' : (selectedStudent.prob_reprobacion || 0) > 20 ? 'text-orange-400' : 'text-emerald-400'}`}>
+                    {(selectedStudent.prob_reprobacion || 0).toFixed(0)}%
+                  </span>
+                </div>
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
+                  <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo Deserc.</span>
+                  <span className={`text-base font-black ${(selectedStudent.prob_desercion || 0) > 50 ? 'text-red-400' : (selectedStudent.prob_desercion || 0) > 20 ? 'text-orange-400' : 'text-emerald-400'}`}>
+                    {(selectedStudent.prob_desercion || 0).toFixed(0)}%
+                  </span>
+                </div>
               </div>
+
+              {selectedStudent.motivo_principal !== "Estable" && (
+                <div className="bg-amber-500/10 border border-amber-500/20 p-4 rounded-2xl flex items-center gap-3">
+                  <div className="p-2 rounded-xl bg-amber-500/20 text-amber-400">
+                    <AlertTriangle className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-black text-amber-400 uppercase tracking-wider leading-none mb-1">Motivo Principal de Riesgo</p>
+                    <p className="text-sm font-black text-slate-200 uppercase">{selectedStudent.motivo_principal}</p>
+                  </div>
+                </div>
+              )}
 
               <div>
                 <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 border-b border-white/5 pb-2">Métricas Académicas</h3>
