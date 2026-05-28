@@ -215,19 +215,28 @@ function DrillDownContent() {
                     Activo
                   </span>
                 </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center relative group">
+                  <div className="absolute top-2 right-2 opacity-60 hover:opacity-100 transition-opacity">
+                    <ExplainerTrigger id="predict_simulador" className="!p-1 hover:bg-white/10 rounded-lg" />
+                  </div>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo IA</span>
                   <span className={`px-3 py-1 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest ${selectedStudent.prioridad === 'ALTO' ? 'bg-red-500/20 text-red-400 border border-red-500/30' : selectedStudent.prioridad === 'MEDIO' ? 'bg-orange-500/20 text-orange-400 border border-orange-500/30' : 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'}`}>
                     {selectedStudent.prioridad}
                   </span>
                 </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center relative group">
+                  <div className="absolute top-2 right-2 opacity-60 hover:opacity-100 transition-opacity">
+                    <ExplainerTrigger id="predict_simulador" className="!p-1 hover:bg-white/10 rounded-lg" />
+                  </div>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo Reprob.</span>
                   <span className={`text-base font-black ${(selectedStudent.prob_reprobacion || 0) > 50 ? 'text-red-400' : (selectedStudent.prob_reprobacion || 0) > 20 ? 'text-orange-400' : 'text-emerald-400'}`}>
                     {(selectedStudent.prob_reprobacion || 0).toFixed(0)}%
                   </span>
                 </div>
-                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center">
+                <div className="bg-white/5 p-4 rounded-2xl border border-white/5 flex flex-col justify-center items-center text-center relative group">
+                  <div className="absolute top-2 right-2 opacity-60 hover:opacity-100 transition-opacity">
+                    <ExplainerTrigger id="predict_simulador" className="!p-1 hover:bg-white/10 rounded-lg" />
+                  </div>
                   <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-1">Riesgo Deserc.</span>
                   <span className={`text-base font-black ${(selectedStudent.prob_desercion || 0) > 50 ? 'text-red-400' : (selectedStudent.prob_desercion || 0) > 20 ? 'text-orange-400' : 'text-emerald-400'}`}>
                     {(selectedStudent.prob_desercion || 0).toFixed(0)}%
